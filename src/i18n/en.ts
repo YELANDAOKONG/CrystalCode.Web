@@ -77,6 +77,7 @@ export const en = {
   'session.role.user': 'You',
   'session.role.assistant': 'Crystal Code',
   'session.role.system': 'System',
+  'session.summary': 'Earlier context',
   'session.reasoning': 'Thinking',
   'session.tool.input': 'Input',
   'session.tool.output': 'Output',

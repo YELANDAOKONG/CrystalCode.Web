@@ -4,6 +4,17 @@ import type { Notice } from './state'
 // Turns the flat conversation list into what the transcript draws: a tool call
 // and its result become one block, matched by call id.
 
+// The engine opens every compaction summary with this heading. Same rule as the
+// terminal: a summary is whatever starts with it, and an empty one is not shown.
+const SUMMARY_MARKER = '## Earlier context'
+
+/** The summary text without its heading, or null when `text` is not a compaction summary. */
+export function compactionSummary(text: string): string | null {
+  if (!text.startsWith(SUMMARY_MARKER)) return null
+  const body = text.slice(SUMMARY_MARKER.length).trim()
+  return body === '' ? null : body
+}
+
 export interface ToolResult {
   status: string
   text: string
@@ -12,6 +23,7 @@ export interface ToolResult {
 
 export type Block =
   | { kind: 'message'; key: string; role: string; text: string; images: number[] }
+  | { kind: 'summary'; key: string; text: string }
   | { kind: 'reasoning'; key: string; text: string }
   | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null }
   | { kind: 'notice'; key: string; notice: Notice }
@@ -42,9 +54,12 @@ export function toBlocks(items: ConversationItem[], notices: Notice[] = []): Blo
   items.forEach((item, index) => {
     flush(index)
     switch (item.kind) {
-      case 'message':
-        blocks.push({ kind: 'message', key: `m${index}`, role: item.role, text: item.text, images: item.images })
+      case 'message': {
+        const summary = item.role === 'system' ? compactionSummary(item.text) : null
+        if (summary !== null) blocks.push({ kind: 'summary', key: `s${index}`, text: summary })
+        else blocks.push({ kind: 'message', key: `m${index}`, role: item.role, text: item.text, images: item.images })
         break
+      }
       case 'reasoning': {
         const text = item.segments.map((segment) => segment.text).join('\n\n').trim()
         if (text !== '') blocks.push({ kind: 'reasoning', key: `r${index}`, text })

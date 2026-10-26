@@ -78,6 +78,7 @@ export const zhCn: Record<MessageKey, string> = {
   'session.role.user': '你',
   'session.role.assistant': 'Crystal Code',
   'session.role.system': '系统',
+  'session.summary': '早前上下文',
   'session.reasoning': '思考',
   'session.tool.input': '输入',
   'session.tool.output': '输出',
