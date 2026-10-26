@@ -64,7 +64,8 @@ binding.
    The page's `Origin` header applies to this request too.
 3. `GET /info` (needs a token unless `--auth none`) returns the scope, build
    identity, and capability lists. The client enables features from these
-   lists, not from a build assumption.
+   lists, not from a build assumption. Steps 2 and 3 are sent together; the
+   health result is judged first, so a failure is still reported from it.
 4. `GET /snapshot` returns the session state and `lastSeq`. `session` draws
    from it.
 5. The event stream starts with `after=lastSeq`. Each event updates view

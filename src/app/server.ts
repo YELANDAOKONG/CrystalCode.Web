@@ -123,8 +123,12 @@ function createServer() {
     const current = client
 
     try {
+      // Health and info do not depend on each other, so ask together and save a
+      // round trip. Health is read first so its failure is the one reported.
+      const infoRequest = current.info(signal)
+      infoRequest.catch(() => {})
       await current.health(signal)
-      info.value = await current.info(signal)
+      info.value = await infoRequest
     } catch (error) {
       if (signal.aborted) return
       fail(error, address)
