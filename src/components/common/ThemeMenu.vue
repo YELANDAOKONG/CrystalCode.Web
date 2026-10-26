@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { Languages, Moon, Sun, SunMoon } from '@lucide/vue'
+import { computed } from 'vue'
+import { Moon, Sun, SunMoon } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { t, useLocale, type Locale } from '@/i18n'
+import { t } from '@/i18n'
 import { useTheme, type ThemeSetting } from '@/theme/theme'
 
-const { locale, setLocale, locales } = useLocale()
 const { theme, setTheme } = useTheme()
+
+// The trigger shows the setting in force, so the icon is a status as well as a button.
+const icon = computed(() => (theme.value === 'light' ? Sun : theme.value === 'dark' ? Moon : SunMoon))
+const label = computed(() => t(`common.theme.${theme.value}`))
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="`${t('common.language')} / ${t('common.theme')}`">
-        <Languages class="size-4" />
+      <Button
+        variant="ghost"
+        size="icon"
+        class="size-10 md:size-9"
+        :aria-label="`${t('common.theme')}: ${label}`"
+        :title="`${t('common.theme')}: ${label}`"
+      >
+        <component :is="icon" class="size-4" />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" class="w-48">
-      <DropdownMenuLabel>{{ t('common.language') }}</DropdownMenuLabel>
-      <DropdownMenuRadioGroup :model-value="locale" @update:model-value="setLocale($event as Locale)">
-        <DropdownMenuRadioItem v-for="item in locales" :key="item.id" :value="item.id">
-          {{ item.label }}
-        </DropdownMenuRadioItem>
-      </DropdownMenuRadioGroup>
-      <DropdownMenuSeparator />
-      <DropdownMenuLabel>{{ t('common.theme') }}</DropdownMenuLabel>
+    <DropdownMenuContent align="end" class="min-w-40">
       <DropdownMenuRadioGroup :model-value="theme" @update:model-value="setTheme($event as ThemeSetting)">
         <DropdownMenuRadioItem value="auto"><SunMoon class="size-4" />{{ t('common.theme.auto') }}</DropdownMenuRadioItem>
         <DropdownMenuRadioItem value="light"><Sun class="size-4" />{{ t('common.theme.light') }}</DropdownMenuRadioItem>

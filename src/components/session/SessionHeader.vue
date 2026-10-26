@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Download, PanelRight, Settings } from '@lucide/vue'
 import { server } from '@/app/server'
+import LanguageMenu from '@/components/common/LanguageMenu.vue'
 import LogoMark from '@/components/common/LogoMark.vue'
+import ThemeMenu from '@/components/common/ThemeMenu.vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -37,6 +39,9 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
         {{ model.chrome.model }} · {{ model.chrome.thinking }}
       </div>
     </div>
+
+    <LanguageMenu />
+    <ThemeMenu />
 
     <DropdownMenu v-if="server.can('GET /export')">
       <DropdownMenuTrigger as-child>

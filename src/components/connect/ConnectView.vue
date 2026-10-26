@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import { Eye, EyeOff, X } from '@lucide/vue'
 import LogoMark from '@/components/common/LogoMark.vue'
-import PreferenceMenu from '@/components/common/PreferenceMenu.vue'
+import LanguageMenu from '@/components/common/LanguageMenu.vue'
+import ThemeMenu from '@/components/common/ThemeMenu.vue'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -55,7 +56,10 @@ function pick(url: string): void {
         <LogoMark />
         <span class="text-sm font-medium tracking-wide">{{ t('app.name') }}</span>
       </div>
-      <PreferenceMenu />
+      <div class="flex items-center">
+        <LanguageMenu />
+        <ThemeMenu />
+      </div>
     </header>
 
     <main class="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6 px-6 pb-16">
