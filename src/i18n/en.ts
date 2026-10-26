@@ -84,6 +84,7 @@ export const en = {
   'session.tool.orphan': 'Tool result',
   'session.retrying': 'Retrying ({count})',
   'session.empty': 'No messages yet. Type below to start.',
+  'session.loading': 'Loading the conversation',
   'session.image.alt': 'Image {number}',
   'session.image.failed': 'Image {number} could not be loaded.',
   'session.image.remote': 'Open remote image',

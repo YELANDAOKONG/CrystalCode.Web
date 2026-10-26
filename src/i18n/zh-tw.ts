@@ -85,6 +85,7 @@ export const zhTw: Record<MessageKey, string> = {
   'session.tool.orphan': '工具結果',
   'session.retrying': '正在重試（{count}）',
   'session.empty': '尚無訊息。在下方輸入開始。',
+  'session.loading': '正在載入對話',
   'session.image.alt': '圖片 {number}',
   'session.image.failed': '無法載入圖片 {number}。',
   'session.image.remote': '開啟遠端圖片',

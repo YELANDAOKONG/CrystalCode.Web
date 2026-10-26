@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { ArrowDown, Brain, ChevronRight, CircleAlert } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { t } from '@/i18n'
 import { toBlocks } from '@/session/blocks'
@@ -48,7 +49,7 @@ onMounted(toBottom)
 const roleLabel = (role: string) =>
   role === 'user' ? t('session.role.user') : role === 'assistant' ? t('session.role.assistant') : t('session.role.system')
 
-const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model.notices.length === 0)
+const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !live.value && model.notices.length === 0)
 
 </script>
 
@@ -56,7 +57,11 @@ const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model
   <div class="relative min-h-0 flex-1">
     <div ref="scroller" class="h-full overflow-y-auto" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
       <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
-        <p v-if="isEmpty" class="text-muted-foreground py-12 text-center text-sm">{{ t('session.empty') }}</p>
+        <p v-if="!model.loaded" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
+          <Spinner />
+          {{ t('session.loading') }}
+        </p>
+        <p v-else-if="isEmpty" class="text-muted-foreground py-12 text-center text-sm">{{ t('session.empty') }}</p>
 
         <template v-for="block in blocks" :key="block.key">
           <section

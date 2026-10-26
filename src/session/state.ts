@@ -68,6 +68,8 @@ interface RoundCall {
  */
 export class SessionModel {
   sessionId: string | null = null
+  /** False until the first snapshot has been applied. */
+  loaded = false
   lastSeq = 0
   server: ServerStatus = { state: 'starting', error: null, closing: null }
   chrome: Chrome | null = null
@@ -104,6 +106,7 @@ export class SessionModel {
   /** Replaces everything with a snapshot. Notices are kept: they are not in a snapshot. */
   loadSnapshot(snapshot: Snapshot): void {
     this.sessionId = snapshot.sessionId
+    this.loaded = true
     this.lastSeq = snapshot.lastSeq
     this.server = { state: snapshot.state, error: this.server.error, closing: this.server.closing }
     this.chrome = snapshot.chrome

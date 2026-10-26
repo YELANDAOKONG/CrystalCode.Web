@@ -85,6 +85,7 @@ export const zhCn: Record<MessageKey, string> = {
   'session.tool.orphan': '工具结果',
   'session.retrying': '正在重试（{count}）',
   'session.empty': '还没有消息。在下方输入开始。',
+  'session.loading': '正在加载对话',
   'session.image.alt': '图片 {number}',
   'session.image.failed': '无法加载图片 {number}。',
   'session.image.remote': '打开远程图片',
