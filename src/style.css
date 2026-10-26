@@ -102,6 +102,9 @@
   --site-faint: light-dark(#66717d, #8b929d);
   --site-line: light-dark(rgb(16 21 28 / 12%), rgb(235 232 227 / 14%));
   --site-line-strong: light-dark(rgb(16 21 28 / 22%), rgb(235 232 227 / 24%));
+  /* Edge of an input or checkbox. WCAG 1.4.11 wants 3:1 against the page; the
+     decorative lines above are deliberately fainter. */
+  --site-control-line: light-dark(rgb(16 21 28 / 50%), rgb(235 232 227 / 42%));
   --site-accent: light-dark(#2f628d, #a9c9e8);
   --site-button-bg: light-dark(#10151c, #ebe8e3);
   --site-button-ink: light-dark(#eef1f4, #0c0d10);
@@ -136,12 +139,13 @@
   --secondary: var(--site-raised);
   --secondary-foreground: var(--site-ink);
   --muted: var(--site-surface);
-  --muted-foreground: var(--site-faint);
+  /* Light faint text is 4.4:1 on the page, under the 4.5:1 that small hints need. */
+  --muted-foreground: light-dark(var(--site-muted), var(--site-faint));
   --accent: var(--site-hover);
   --accent-foreground: var(--site-ink);
   --destructive: light-dark(#b3321a, #f0907a);
   --border: var(--site-line);
-  --input: var(--site-line-strong);
+  --input: var(--site-control-line);
   --ring: var(--site-accent);
   --chart-1: var(--site-accent);
   --chart-2: var(--site-ok);

@@ -85,7 +85,7 @@ const chars = computed(() => new Intl.NumberFormat().format([...text.value].leng
       <footer class="flex flex-wrap items-center gap-x-4 gap-y-2 border-t px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <p class="text-muted-foreground text-xs tabular-nums">{{ t('full.count', { chars, size: formatBytes(bytes) }) }}</p>
         <p v-if="state === 'over'" role="alert" class="text-destructive min-w-0 flex-1 text-xs">{{ t('full.tooLarge', { limit }) }}</p>
-        <p v-else-if="state === 'near'" role="status" class="min-w-0 flex-1 text-xs text-amber-600 dark:text-amber-400">
+        <p v-else-if="state === 'near'" role="status" class="min-w-0 flex-1 text-xs text-warn">
           {{ t('full.nearLimit', { limit }) }}
         </p>
         <span v-else class="flex-1" />

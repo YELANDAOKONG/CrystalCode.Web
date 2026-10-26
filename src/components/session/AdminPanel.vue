@@ -142,7 +142,7 @@ async function copy(): Promise<void> {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{{ t('common.cancel') }}</AlertDialogCancel>
-          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90" @click="server.shutdown()">
+          <AlertDialogAction class="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60" @click="server.shutdown()">
             {{ t('admin.shutdown.do') }}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -21,7 +21,7 @@ const contextClass = computed(() => {
   if (used === null) return ''
   const percent = contextTenths(used, model.contextWindow) / 10
   if (percent >= 80) return 'text-destructive'
-  return percent >= 60 ? 'text-amber-600 dark:text-amber-400' : ''
+  return percent >= 60 ? 'text-warn' : ''
 })
 
 // The terminal capitalises the stop reason like any other token.
