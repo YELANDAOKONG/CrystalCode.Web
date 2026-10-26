@@ -205,7 +205,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 </script>
 
 <template>
-  <div class="bg-background border-t px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" @dragover.prevent @drop="onDrop">
+  <div class="bg-background px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" @dragover.prevent @drop="onDrop">
     <div class="relative mx-auto max-w-3xl">
       <ul
         v-if="suggestions.length"
