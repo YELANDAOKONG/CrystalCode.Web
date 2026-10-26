@@ -267,3 +267,74 @@ export interface ProblemDetails {
   status: number
   detail: string
 }
+
+export interface StatusReport {
+  full: boolean
+  sessionId: string
+  startedUtc: string
+  workspace: string
+  mode: string
+  approval: string
+  thinking: string
+  promptSet: string
+  provider: string
+  model: string
+  contextWindow: number
+  serviceTier: string
+  speed: string
+  usage: Usage | null
+  cumulativeUsage: Usage | null
+  counts: Record<string, number>
+  flags: Record<string, boolean>
+  slots: Record<string, string>
+}
+
+export interface StatsReport {
+  allWorkspaces: boolean
+  sessions: number
+  userTurns: number
+  modelCalls: number
+  toolCalls: number
+  inputTokens: number
+  outputTokens: number
+  reasoningTokens: number
+  totalTokens: number
+  averageTokensPerSession: number
+  medianTokensPerSession: number
+  windowDays: number
+  earliest: string | null
+  latest: string | null
+  topTools: { name: string; count: number }[]
+}
+
+export interface ToolDefinitionInfo {
+  name: string
+  description: string | null
+  inputKind: string
+  schema: unknown
+}
+
+export interface ExternalToolInfo {
+  name: string
+  set: string
+  source: string
+  plan: boolean
+  work: boolean
+  declaredApproval: string
+  effectiveApproval: string
+  hasApprovalClassifier: boolean
+}
+
+export interface ToolsReport {
+  plan: ToolDefinitionInfo[]
+  work: ToolDefinitionInfo[]
+  external: ExternalToolInfo[]
+  externalNotes: string[]
+  externalToolsEnabled: boolean
+  externalApproval: { home: string; project: string }
+}
+
+export interface HelpReport {
+  builtIn: SlashCommand[]
+  plugins: SlashCommand[]
+}

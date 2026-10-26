@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { t } from '@/i18n'
 import { toBlocks } from '@/session/blocks'
+import ReportBlock from '@/components/report/ReportBlock.vue'
 import ServerImage from './ServerImage.vue'
 import ToolBlock from './ToolBlock.vue'
 
@@ -48,9 +49,6 @@ const roleLabel = (role: string) =>
 
 const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model.notices.length === 0)
 
-function reportText(data: Record<string, unknown>): string {
-  return JSON.stringify(data, null, 2)
-}
 </script>
 
 <template>
@@ -112,10 +110,7 @@ function reportText(data: Record<string, unknown>): string {
             <span class="whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ notice.text }}</span>
           </div>
           <p v-else-if="notice.kind === 'note'" class="text-muted-foreground text-sm whitespace-pre-wrap">{{ notice.text }}</p>
-          <details v-else class="bg-card rounded-lg border text-sm" open>
-            <summary class="cursor-pointer px-3 py-2 font-medium">{{ t('session.report', { name: notice.type.replace('report.', '') }) }}</summary>
-            <pre class="max-h-96 overflow-auto border-t px-3 py-2 font-mono text-xs whitespace-pre-wrap">{{ reportText(notice.data) }}</pre>
-          </details>
+          <ReportBlock v-else :notice="notice" />
         </template>
       </div>
     </div>

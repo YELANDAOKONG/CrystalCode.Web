@@ -3,17 +3,10 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { ArrowUp, ImagePlus, Square, Undo2, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Textarea } from '@/components/ui/textarea'
 import { t } from '@/i18n'
 import { modeLabel } from '@/session/mode'
-import type { QuickPromptCatalog } from '@/protocol/types'
+import QuickPromptPicker from './QuickPromptPicker.vue'
 
 const model = server.model
 const { canOperate } = server
@@ -172,14 +165,19 @@ function onPick(event: Event): void {
 
 // --- quick prompts and mode ------------------------------------------------
 
-const quick = ref<QuickPromptCatalog | null>(null)
-const quickLoading = ref(false)
+const quickOpen = ref(false)
 
-async function loadQuick(open: boolean): Promise<void> {
-  if (!open) return
-  quickLoading.value = true
-  quick.value = (await server.loadQuickPrompts()) ?? null
-  quickLoading.value = false
+// Fill puts the template at the cursor and keeps the draft, as the terminal does.
+function fillQuick(template: string): void {
+  const area = element()
+  const at = area?.selectionStart ?? text.value.length
+  text.value = `${text.value.slice(0, at)}${template}${text.value.slice(area?.selectionEnd ?? at)}`
+  void nextTick(() => {
+    const target = element()
+    target?.focus()
+    const end = at + template.length
+    target?.setSelectionRange(end, end)
+  })
 }
 
 const canQuick = computed(() => canOperate.value && server.can('GET /quick-prompts'))
@@ -208,6 +206,8 @@ const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
           <span class="text-muted-foreground truncate text-xs">{{ command.help }}</span>
         </li>
       </ul>
+
+      <QuickPromptPicker v-model:open="quickOpen" @fill="fillQuick" />
 
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
@@ -252,31 +252,17 @@ const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
             <ImagePlus class="size-4" />
           </Button>
 
-          <DropdownMenu v-if="canQuick" @update:open="loadQuick">
-            <DropdownMenuTrigger as-child>
-              <Button variant="ghost" size="icon" class="size-10 md:size-8" :title="t('composer.quick')" :aria-label="t('composer.quick')">
-                <Zap class="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" class="w-64">
-              <DropdownMenuLabel>{{ t('composer.quick') }}</DropdownMenuLabel>
-              <DropdownMenuItem v-if="quickLoading" disabled>{{ t('composer.quick.loading') }}</DropdownMenuItem>
-              <template v-else-if="quick">
-                <DropdownMenuItem v-if="quick.error" disabled class="text-destructive">{{ quick.error }}</DropdownMenuItem>
-                <DropdownMenuItem v-else-if="quick.prompts.length === 0" disabled>
-                  {{ t('composer.quick.empty', { directory: quick.directory }) }}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  v-for="prompt in quick.prompts"
-                  :key="prompt.name"
-                  :disabled="prompt.error !== null"
-                  @select="server.sendQuickPrompt(prompt.name)"
-                >
-                  <span class="truncate">{{ prompt.name }}</span>
-                </DropdownMenuItem>
-              </template>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            v-if="canQuick"
+            variant="ghost"
+            size="icon"
+            class="size-10 md:size-8"
+            :title="t('quick.title')"
+            :aria-label="t('quick.title')"
+            @click="quickOpen = true"
+          >
+            <Zap class="size-4" />
+          </Button>
 
           <span class="flex-1" />
 

@@ -1,30 +1,44 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { server } from '@/app/server'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t } from '@/i18n'
+import AdminPanel from './AdminPanel.vue'
+import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
+import VerbosePanel from './VerbosePanel.vue'
 
 const model = server.model
+const openChild = ref<string | null>(null)
 </script>
 
 <template>
   <div class="space-y-6 text-sm">
     <TodoList />
 
+    <VerbosePanel />
+
     <section v-if="model.chrome?.agentsEnabled">
       <h2 class="mb-2 text-sm font-medium">{{ t('panel.children') }}</h2>
       <p v-if="model.children.length === 0" class="text-muted-foreground">{{ t('panel.children.empty') }}</p>
       <ul v-else class="space-y-2">
-        <li v-for="child in model.children" :key="child.id" class="rounded-md border p-2">
-          <div class="flex items-center gap-2">
-            <span class="min-w-0 flex-1 truncate font-medium">{{ child.label || child.agent }}</span>
-            <Badge variant="secondary">{{ child.status }}</Badge>
-          </div>
-          <div class="text-muted-foreground mt-1 text-xs">
-            {{ t('panel.children.calls', { model: child.modelCalls, tool: child.toolCalls }) }}
-          </div>
+        <li v-for="child in model.children" :key="child.id">
+          <button
+            type="button"
+            class="hover:bg-accent focus-visible:ring-ring w-full rounded-md border p-2 text-left outline-none focus-visible:ring-2"
+            :aria-label="t('child.open', { name: child.label || child.agent })"
+            @click="openChild = child.id"
+          >
+            <span class="flex items-center gap-2">
+              <span class="min-w-0 flex-1 truncate font-medium">{{ child.label || child.agent }}</span>
+              <Badge variant="secondary">{{ child.status }}</Badge>
+            </span>
+            <span class="text-muted-foreground mt-1 block text-xs">
+              {{ t('panel.children.calls', { model: child.modelCalls, tool: child.toolCalls }) }}
+            </span>
+          </button>
         </li>
       </ul>
     </section>
@@ -46,5 +60,8 @@ const model = server.model
       </div>
       <p v-if="model.side.failure" role="alert" class="text-destructive">{{ model.side.failure }}</p>
     </section>
+    <AdminPanel />
+
+    <ChildSessionSheet v-model:child-id="openChild" />
   </div>
 </template>

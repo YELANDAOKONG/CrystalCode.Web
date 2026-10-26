@@ -12,18 +12,24 @@ const count = (value: number) => compact.format(value)
 // only when the user turned it on. The built-in items below always show.
 const tokens = computed(() => model.cumulativeUsage ?? model.usage)
 
-// The last call's input size is what the next call starts from, which is the
-// context in use. An estimate covers the time before the first call returns.
-const contextUsed = computed(() => model.estimatedContextTokens ?? model.usage?.inputTokens ?? null)
+// Mirrors the CLI's built-in status line: CTX is the last call's total over
+// the window, shown as "--" until the first call returns.
+const contextTokens = computed(() => model.usage?.totalTokens ?? model.estimatedContextTokens ?? null)
 
-const context = computed(() => {
+const contextPercent = computed(() => {
   const window = model.contextWindow
-  if (!window) return null
-  const used = contextUsed.value
-  if (used === null) return t('status.context.window', { window: count(window) })
-  const percent = Math.min(100, Math.round((used / window) * 100))
-  return t('status.context', { used: count(used), window: count(window), percent })
+  const used = contextTokens.value
+  if (!window || used === null) return null
+  return Math.min(100, Math.round((used / window) * 100))
 })
+
+const contextClass = computed(() => {
+  const percent = contextPercent.value ?? 0
+  if (percent >= 80) return 'text-destructive'
+  return percent >= 60 ? 'text-amber-600 dark:text-amber-400' : ''
+})
+
+const contextLabel = computed(() => (contextPercent.value === null ? 'CTX --' : `CTX ${contextPercent.value}%`))
 </script>
 
 <template>
@@ -32,9 +38,15 @@ const context = computed(() => {
       <span v-for="field in model.statusFields" :key="field.name">{{ field.text }}</span>
     </template>
     <template v-else>
-      <span v-if="model.chrome">{{ t('status.approval', { approval: model.chrome.approval }) }}</span>
-      <span v-if="context">{{ context }}</span>
-      <span v-if="tokens">{{ t('status.tokens', { input: count(tokens.inputTokens), output: count(tokens.outputTokens) }) }}</span>
+      <template v-if="model.chrome">
+        <span v-if="model.chrome.approval">{{ model.chrome.approval }}</span>
+        <span v-if="model.chrome.serviceTier">{{ model.chrome.serviceTier }}</span>
+        <span v-if="model.chrome.speed">{{ model.chrome.speed }}</span>
+      </template>
+      <span v-if="model.contextWindow">{{ t('status.context.window', { window: count(model.contextWindow) }) }}</span>
+      <span :class="contextClass">{{ contextLabel }}</span>
+      <span v-if="tokens">{{ count(tokens.inputTokens) }} IN / {{ count(tokens.outputTokens) }} OUT</span>
+      <span v-if="model.queue.length">{{ t('status.queued', { count: model.queue.length }) }}</span>
     </template>
     <span v-if="model.lastTurn">{{ t('status.turn', { reason: model.lastTurn.reason }) }}</span>
   </footer>

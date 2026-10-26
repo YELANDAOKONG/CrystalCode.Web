@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { server } from '@/app/server'
+import ProblemToaster from '@/components/common/ProblemToaster.vue'
 import ConnectView from '@/components/connect/ConnectView.vue'
 import SessionView from '@/components/session/SessionView.vue'
 
@@ -10,4 +11,5 @@ const showSession = computed(() => ['live', 'reconnecting', 'closed'].includes(s
 <template>
   <SessionView v-if="showSession" />
   <ConnectView v-else />
+  <ProblemToaster />
 </template>

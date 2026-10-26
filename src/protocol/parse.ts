@@ -22,6 +22,11 @@ import type {
   ToolCall,
   Usage,
   Verdict,
+  StatusReport,
+  StatsReport,
+  ToolDefinitionInfo,
+  ToolsReport,
+  HelpReport,
 } from './types'
 
 export function parseScope(value: unknown): Scope {
@@ -380,4 +385,116 @@ export function parseQuickPrompts(value: unknown): QuickPromptCatalog {
       return { name: str(p.name), text: str(p.text), error: optStr(p.error) }
     }),
   }
+}
+
+const STATUS_COUNTS = [
+  'userTurns', 'modelCalls', 'toolCalls', 'queuedMessages', 'todos', 'planTools', 'workTools',
+  'externalTools', 'plugins', 'mcpServers', 'mcpTools',
+] as const
+
+const STATUS_FLAGS = [
+  'skillsEnabled', 'externalToolsEnabled', 'pluginsEnabled', 'mcpEnabled', 'globalRulesEnabled',
+  'projectRulesEnabled', 'estimatedTokensEnabled', 'customStatusLineEnabled',
+] as const
+
+const STATUS_SLOTS = [
+  'approvalModel', 'approvalThinking', 'extendedApprovalModel', 'extendedApprovalThinking',
+  'extendedApprovalTrigger', 'compactionModel', 'microCompaction', 'retry', 'approvalRetry',
+] as const
+
+export function parseStatusReport(data: unknown): StatusReport {
+  const root = asObject(data)
+  const o = asObject(root.status)
+  const counts: Record<string, number> = {}
+  for (const key of STATUS_COUNTS) counts[key] = num(o[key])
+  const flags: Record<string, boolean> = {}
+  for (const key of STATUS_FLAGS) flags[key] = bool(o[key])
+  const slots: Record<string, string> = {}
+  for (const key of STATUS_SLOTS) {
+    const value = optStr(o[key])
+    if (value !== null && value !== '') slots[key] = value
+  }
+
+  return {
+    full: bool(root.full),
+    sessionId: str(o.sessionId),
+    startedUtc: str(o.startedUtc),
+    workspace: str(o.workspace),
+    mode: str(o.mode),
+    approval: str(o.approval),
+    thinking: str(o.thinking),
+    promptSet: str(o.promptSet),
+    provider: str(o.provider),
+    model: str(o.model),
+    contextWindow: num(o.contextWindow),
+    serviceTier: str(o.serviceTier),
+    speed: str(o.speed),
+    usage: parseUsage(o.usage),
+    cumulativeUsage: parseUsage(o.cumulativeUsage),
+    counts,
+    flags,
+    slots,
+  }
+}
+
+export function parseStatsReport(data: unknown): StatsReport {
+  const root = asObject(data)
+  const o = asObject(root.report)
+  return {
+    allWorkspaces: bool(root.allWorkspaces),
+    sessions: num(o.sessions),
+    userTurns: num(o.userTurns),
+    modelCalls: num(o.modelCalls),
+    toolCalls: num(o.toolCalls),
+    inputTokens: num(o.inputTokens),
+    outputTokens: num(o.outputTokens),
+    reasoningTokens: num(o.reasoningTokens),
+    totalTokens: num(o.totalTokens),
+    averageTokensPerSession: num(o.averageTokensPerSession),
+    medianTokensPerSession: num(o.medianTokensPerSession),
+    windowDays: num(o.windowDays),
+    earliest: optStr(o.earliest),
+    latest: optStr(o.latest),
+    topTools: arr(o.topTools).map((item) => {
+      const t = asObject(item)
+      return { name: str(t.name), count: num(t.count) }
+    }),
+  }
+}
+
+function parseToolDefinitions(value: unknown): ToolDefinitionInfo[] {
+  return arr(value).map((item) => {
+    const o = asObject(item)
+    return { name: str(o.name), description: optStr(o.description), inputKind: str(o.inputKind), schema: o.schema ?? null }
+  })
+}
+
+export function parseToolsReport(data: unknown): ToolsReport {
+  const o = asObject(asObject(data).report)
+  const approval = asObject(o.externalApproval)
+  return {
+    plan: parseToolDefinitions(o.plan),
+    work: parseToolDefinitions(o.work),
+    external: arr(o.external).map((item) => {
+      const e = asObject(item)
+      return {
+        name: str(e.name),
+        set: str(e.set),
+        source: str(e.source),
+        plan: bool(e.plan),
+        work: bool(e.work),
+        declaredApproval: str(e.declaredApproval),
+        effectiveApproval: str(e.effectiveApproval),
+        hasApprovalClassifier: bool(e.hasApprovalClassifier),
+      }
+    }),
+    externalNotes: strings(o.externalNotes),
+    externalToolsEnabled: bool(o.externalToolsEnabled),
+    externalApproval: { home: str(approval.home), project: str(approval.project) },
+  }
+}
+
+export function parseHelpReport(data: unknown): HelpReport {
+  const o = asObject(data)
+  return { builtIn: parseCommands(o.builtIn), plugins: parseCommands(o.plugins) }
 }
