@@ -75,7 +75,7 @@ const chars = computed(() => new Intl.NumberFormat().format([...text.value].leng
           :disabled="blocked"
           :placeholder="t('full.placeholder')"
           :aria-label="t('full.title')"
-          class="mx-auto block h-full w-full max-w-3xl resize-none border-0 bg-transparent px-0 text-base leading-relaxed shadow-none focus-visible:ring-0 md:text-base"
+          class="mx-auto block h-full w-full max-w-3xl resize-none border-0 bg-transparent px-0 dark:bg-transparent text-base leading-relaxed shadow-none focus-visible:ring-0 md:text-base"
           @keydown="onKeydown"
           @compositionstart="composing = true"
           @compositionend="composing = false"

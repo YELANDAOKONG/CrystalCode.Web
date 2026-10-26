@@ -245,7 +245,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           :disabled="blocked"
           :placeholder="busy ? t('composer.placeholder.busy') : t('composer.placeholder')"
           :aria-label="t('composer.placeholder')"
-          class="max-h-60 min-h-[3.5rem] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
+          class="max-h-60 min-h-[3.5rem] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
           @keydown="onKeydown"
           @paste="onPaste"
           @compositionstart="composing = true"
