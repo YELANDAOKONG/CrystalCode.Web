@@ -5,12 +5,27 @@ import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t } from '@/i18n'
+import { childActivity, isChildActive } from '@/session/child-trace'
 import { displayToken } from '@/session/display-case'
 import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
 
 const model = server.model
 const openChild = ref<string | null>(null)
+
+function activityText(id: string): string {
+  const now = childActivity(model.childTraces.get(id) ?? null)
+  switch (now.kind) {
+    case 'tool':
+      return t('child.activity.tool', { name: now.name })
+    case 'writing':
+      return t('child.activity.writing')
+    case 'thinking':
+      return t('child.activity.thinking')
+    default:
+      return t('child.activity.waiting')
+  }
+}
 </script>
 
 <template>
@@ -32,6 +47,9 @@ const openChild = ref<string | null>(null)
             <span class="flex items-center gap-2">
               <span class="min-w-0 flex-1 truncate font-medium">{{ child.label || child.agent }}</span>
               <Badge variant="secondary">{{ displayToken(child.status) }}</Badge>
+            </span>
+            <span v-if="isChildActive(child.status)" class="mt-1 block truncate font-mono text-xs">
+              {{ activityText(child.id) }}
             </span>
             <span class="text-muted-foreground mt-1 block text-xs">
               {{ t('panel.children.calls', { model: child.modelCalls, tool: child.toolCalls }) }}

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { ArrowDown, Brain, ChevronRight, CircleAlert } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import MarkdownView from '@/components/render/MarkdownView.vue'
+import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { t } from '@/i18n'
 import { toBlocks } from '@/session/blocks'
 import ReportBlock from '@/components/report/ReportBlock.vue'
@@ -17,34 +18,15 @@ const live = computed(() => model.live)
 const pending = computed(() => model.notices.filter((notice) => notice.at === null))
 const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
 
-const scroller = ref<HTMLElement | null>(null)
-const pinned = ref(true)
-
-function onScroll(): void {
-  const element = scroller.value
-  if (!element) return
-  pinned.value = element.scrollHeight - element.scrollTop - element.clientHeight < 96
-}
-
-function toBottom(): void {
-  const element = scroller.value
-  if (!element) return
-  element.scrollTop = element.scrollHeight
-  pinned.value = true
-}
-
 // Stick to the bottom only while the reader is already there. Once they scroll
 // up, streaming text must not pull them back down.
-watch(
-  () => [blocks.value.length, live.value?.text.length, live.value?.reasoning.length, live.value?.toolCalls.length, model.notices.length],
-  async () => {
-    if (!pinned.value) return
-    await nextTick()
-    toBottom()
-  },
-)
-
-onMounted(toBottom)
+const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
+  blocks.value.length,
+  live.value?.text.length,
+  live.value?.reasoning.length,
+  live.value?.toolCalls.length,
+  model.notices.length,
+])
 
 const roleLabel = (role: string) =>
   role === 'user' ? t('session.role.user') : role === 'assistant' ? t('session.role.assistant') : t('session.role.system')
@@ -55,7 +37,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
 
 <template>
   <div class="relative min-h-0 flex-1">
-    <div ref="scroller" class="h-full overflow-y-auto" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
+    <div :ref="bind" class="h-full overflow-y-auto" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
       <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
         <p v-if="!model.loaded" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
           <Spinner />

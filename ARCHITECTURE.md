@@ -79,6 +79,13 @@ binding.
 8. On `conversation.cleared`, `conversation.replayed`, or a changed
    `sessionId`, `session` redraws from the snapshot.
 
+A child's events arrive with `source` and are never applied to the parent
+conversation. `session` folds them into a per-child trace with the same round
+assembler the parent uses. A snapshot discards traces, because events may have
+been missed, and the next event of a running child starts an incomplete one.
+The sheet shows `GET /children/{id}` first, then the trace, and drops the trace
+once the child stops and the saved archive has been read again.
+
 While the server state is not `ready`, requests that need the session return
 503. The client shows the state and an `awaiting_operator` interaction if one
 is pending, and waits.

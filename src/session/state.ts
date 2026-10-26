@@ -1,4 +1,4 @@
-import { arr, asObject, bool, num, optNum, optStr, str } from '@/protocol/json'
+import { arr, bool, num, optNum, optStr, str } from '@/protocol/json'
 import {
   parseChild,
   parseChrome,
@@ -29,6 +29,8 @@ import type {
   ToolCall,
   Usage,
 } from '@/protocol/types'
+import { isChildActive, type ChildTrace } from './child-trace'
+import { RoundAssembler, toolResultItems, withIssuedCalls } from './round'
 
 /** A note, error, or report that answers one request. Reports are not session state. */
 export interface Notice {
@@ -51,13 +53,6 @@ export interface ServerStatus {
   state: string
   error: string | null
   closing: { reason: string | null; saved: boolean | null; sessionId: string | null } | null
-}
-
-interface RoundCall {
-  id: string
-  name: string
-  arguments: string
-  kind: string
 }
 
 /**
@@ -97,11 +92,11 @@ export class SessionModel {
   /** Set by `message.recalled`: the text the composer should take back. */
   recalledDraft: { seq: number; text: string } | null = null
 
-  private roundText = ''
-  private roundReasoning = ''
-  private roundCalls = new Map<number, RoundCall>()
-  private roundRetries = 0
-  private hasRound = false
+  /** What each running child has done since this page started watching, by child id. */
+  childTraces = new Map<string, ChildTrace>()
+
+  private round = new RoundAssembler()
+  private childRounds = new Map<string, RoundAssembler>()
 
   /** Replaces everything with a snapshot. Notices are kept: they are not in a snapshot. */
   loadSnapshot(snapshot: Snapshot): void {
@@ -125,6 +120,10 @@ export class SessionModel {
     this.estimatedContextTokens = snapshot.estimatedContextTokens
     this.side = snapshot.side
     this.children = snapshot.children
+    // Events may have been missed, so a trace built before the snapshot cannot
+    // be trusted. Running children start a new, incomplete trace on their next event.
+    this.childTraces = new Map()
+    this.childRounds = new Map()
     this.lastTurn = snapshot.lastTurn
     this.interactions = snapshot.interactions
     this.loadLive(snapshot.live)
@@ -150,7 +149,7 @@ export class SessionModel {
         if (chrome) {
           this.chrome = chrome
           this.contextWindow = chrome.contextWindow
-          if (event.type === 'chrome.changed' && !chrome.agentsEnabled) this.children = []
+          if (event.type === 'chrome.changed' && !chrome.agentsEnabled) this.clearChildren()
         }
 
         break
@@ -205,7 +204,7 @@ export class SessionModel {
       case 'turn.finished': {
         this.turnActive = false
         this.commitRound()
-        this.hasRound = false
+        this.round.reset(false)
         this.live = null
         this.lastTurn = { reason: str(d.reason), modelCalls: num(d.modelCalls), toolCalls: num(d.toolCalls) }
         this.usage = parseUsage(d.usage)
@@ -218,48 +217,33 @@ export class SessionModel {
         this.resetRound(this.turnActive)
         break
       case 'retry.scheduled':
-        this.roundText = ''
-        this.roundReasoning = ''
-        this.roundCalls = new Map()
-        this.roundRetries += 1
-        this.hasRound = true
+        this.round.retry()
         this.refreshLive()
         break
       case 'tools.called':
         this.addCalls(arr(d.calls).map(parseToolCall))
         break
-      case 'tools.results': {
-        const results = arr(d.results).map((r) => {
-          const o = asObject(r)
-          return {
-            kind: 'tool_result' as const,
-            callId: str(o.callId),
-            status: str(o.status),
-            text: str(o.text),
-            images: numbers(o.images),
-          }
-        })
-        this.conversation = [...this.conversation, ...results]
+      case 'tools.results':
+        this.conversation = [...this.conversation, ...toolResultItems(d)]
         break
-      }
       case 'conversation.cleared':
         this.conversation = []
         this.notices = []
         this.statsPage = null
-        this.children = []
-        this.hasRound = false
+        this.clearChildren()
+        this.round.reset(false)
         this.live = null
         this.lastTurn = null
         break
       case 'conversation.replayed':
         this.conversation = parseItems(d.items)
         this.notices = []
-        this.children = []
-        this.hasRound = false
+        this.clearChildren()
+        this.round.reset(false)
         this.live = null
         break
       case 'child.changed':
-        this.upsertChild(parseChild(d.child))
+        this.upsertChild(parseChild(d.child), str(d.invocationId))
         break
       case 'stream.text':
       case 'stream.reasoning':
@@ -314,7 +298,7 @@ export class SessionModel {
   // --- internals -----------------------------------------------------------
 
   private pushNotice(event: ServerEvent, kind: Notice['kind'], text: string): void {
-    const streaming = this.roundText.length > 0 || this.roundReasoning.length > 0 || this.roundCalls.size > 0
+    const streaming = this.round.streaming
     this.notices = [
       ...this.notices.slice(-199),
       {
@@ -330,8 +314,11 @@ export class SessionModel {
   }
 
   private applyChild(event: ServerEvent): void {
-    const index = this.children.findIndex((c) => c.id === event.source?.childSessionId)
-    if (index < 0) return
+    const source = event.source
+    if (!source) return
+    this.foldChildTrace(source.childSessionId, source.invocationId, event)
+
+    const index = this.children.findIndex((c) => c.id === source.childSessionId)
     const child = this.children[index]
     if (!child) return
     const d = event.data
@@ -347,7 +334,81 @@ export class SessionModel {
     if (next !== child) this.children = this.children.map((c, i) => (i === index ? next : c))
   }
 
-  private upsertChild(child: ChildSummary): void {
+  /**
+   * Folds a child's stream, tool, and error events into its trace. The server
+   * saves a child's archive only when an invocation starts and settles, so
+   * this is the only way to show what a running child is doing.
+   */
+  private foldChildTrace(id: string, invocationId: string, event: ServerEvent): void {
+    const d = event.data
+    let trace = this.childTraces.get(id)
+    if (!trace || trace.invocationId !== invocationId) {
+      trace = this.startTrace(id, invocationId, false)
+    }
+
+    const round = this.childRounds.get(id) ?? new RoundAssembler()
+    this.childRounds.set(id, round)
+    let next: ChildTrace | null = null
+    switch (event.type) {
+      case 'stream.text':
+      case 'stream.reasoning':
+      case 'stream.tool-call':
+        if (round.apply(event.type, d)) next = { ...trace, live: round.live() }
+        break
+      case 'retry.scheduled':
+        round.retry()
+        next = { ...trace, live: round.live() }
+        break
+      case 'round.closed':
+        next = { ...trace, items: [...trace.items, ...round.commit()], live: null }
+        round.reset(false)
+        break
+      case 'tools.called':
+        next = { ...trace, items: withIssuedCalls(trace.items, arr(d.calls).map(parseToolCall)) }
+        break
+      case 'tools.results':
+        next = { ...trace, items: [...trace.items, ...toolResultItems(d)] }
+        break
+      case 'error':
+        next = { ...trace, errors: [...trace.errors.slice(-19), str(d.text)] }
+        break
+      default:
+        break
+    }
+
+    if (next) this.setTrace(id, next)
+  }
+
+  private startTrace(id: string, invocationId: string, complete: boolean): ChildTrace {
+    this.childRounds.set(id, new RoundAssembler())
+    const trace: ChildTrace = { invocationId, items: [], live: null, errors: [], complete, settled: false }
+    this.setTrace(id, trace)
+    return trace
+  }
+
+  private setTrace(id: string, trace: ChildTrace): void {
+    const next = new Map(this.childTraces)
+    next.set(id, trace)
+    this.childTraces = next
+  }
+
+  /** The sheet calls this once it holds the saved archive, which covers the trace. */
+  dropChildTrace(id: string): void {
+    if (!this.childTraces.has(id)) return
+    const next = new Map(this.childTraces)
+    next.delete(id)
+    this.childTraces = next
+    this.childRounds.delete(id)
+  }
+
+  private clearChildren(): void {
+    this.children = []
+    this.childTraces = new Map()
+    this.childRounds = new Map()
+  }
+
+  private upsertChild(child: ChildSummary, invocationId: string): void {
+    this.followTrace(child, invocationId)
     const index = this.children.findIndex((c) => c.id === child.id)
     if (index < 0) {
       this.children = [...this.children, child]
@@ -357,83 +418,66 @@ export class SessionModel {
     const known = this.children[index]
     // While a child runs, its usage and todos come from live events. A saved
     // copy would put them back to the last settled values.
-    const active = child.status === 'running' || child.status === 'queued'
     const merged =
-      known && active
+      known && isChildActive(child.status)
         ? { ...child, usage: known.usage, cumulativeUsage: known.cumulativeUsage, todos: known.todos }
         : child
     this.children = this.children.map((c, i) => (i === index ? merged : c))
   }
 
-  private applyStream(type: string, d: Record<string, unknown>): void {
-    // The engine assembles candidate 0 only.
-    if (num(d.candidate) !== 0) return
-    this.hasRound = true
-    if (type === 'stream.text') {
-      this.roundText += str(d.delta)
-    } else if (type === 'stream.reasoning') {
-      this.roundReasoning += str(d.delta)
-    } else {
-      const item = num(d.item)
-      const call = this.roundCalls.get(item) ?? { id: '', name: '', arguments: '', kind: str(d.inputKind, 'json') }
-      call.id += str(d.callIdDelta)
-      call.name += str(d.nameDelta)
-      call.arguments += str(d.argumentsDelta)
-      this.roundCalls.set(item, call)
+  /** An invocation that starts here is watched from its first event; one that ends is sealed. */
+  private followTrace(child: ChildSummary, invocationId: string): void {
+    const trace = this.childTraces.get(child.id)
+    if (isChildActive(child.status)) {
+      if (!trace || trace.invocationId !== invocationId) this.startTrace(child.id, invocationId, true)
+      return
     }
 
-    this.refreshLive()
+    if (!trace || trace.settled) return
+    const round = this.childRounds.get(child.id)
+    this.setTrace(child.id, {
+      ...trace,
+      items: [...trace.items, ...(round?.commit() ?? [])],
+      live: null,
+      settled: true,
+    })
+    round?.reset(false)
+    this.trimSettledTraces()
   }
 
-  private roundToolCalls(): ToolCall[] {
-    return [...this.roundCalls.entries()]
-      .sort(([a], [b]) => a - b)
-      .map(([, call]) => call)
-      .filter((call) => call.id.length > 0 && call.name.length > 0)
-      .map((call) => ({ callId: call.id, name: call.name, arguments: call.arguments, inputKind: call.kind }))
+  /** Traces of children nobody opened would otherwise stay until the session is cleared. */
+  private trimSettledTraces(): void {
+    const settled = [...this.childTraces.entries()].filter(([, trace]) => trace.settled)
+    if (settled.length <= 8) return
+    const next = new Map(this.childTraces)
+    for (const [id] of settled.slice(0, settled.length - 8)) {
+      next.delete(id)
+      this.childRounds.delete(id)
+    }
+
+    this.childTraces = next
+  }
+
+  private applyStream(type: string, d: Record<string, unknown>): void {
+    if (this.round.apply(type, d)) this.refreshLive()
   }
 
   private refreshLive(): void {
-    this.live = this.hasRound
-      ? { text: this.roundText, reasoning: this.roundReasoning, toolCalls: this.roundToolCalls(), retries: this.roundRetries }
-      : null
+    this.live = this.round.live()
   }
 
   private loadLive(live: LiveRound | null): void {
-    this.roundCalls = new Map()
-    this.roundText = live?.text ?? ''
-    this.roundReasoning = live?.reasoning ?? ''
-    this.roundRetries = live?.retries ?? 0
-    this.hasRound = live !== null
-    // A snapshot has whole tool calls, not deltas. Keep them in item order so
-    // later argument deltas for the same item extend them.
-    live?.toolCalls.forEach((call, index) => {
-      this.roundCalls.set(index, { id: call.callId, name: call.name, arguments: call.arguments, kind: call.inputKind })
-    })
+    this.round.load(live)
     this.live = live
   }
 
   private resetRound(active: boolean): void {
-    this.roundText = ''
-    this.roundReasoning = ''
-    this.roundCalls = new Map()
-    this.roundRetries = 0
-    this.hasRound = active
+    this.round.reset(active)
     this.refreshLive()
   }
 
   private commitRound(): void {
-    if (!this.hasRound) return
-    const items: ConversationItem[] = []
-    if (this.roundReasoning.length > 0) {
-      items.push({ kind: 'reasoning', segments: [{ kind: 'trace', text: this.roundReasoning }], hasState: false })
-    }
-
-    if (this.roundText.length > 0) {
-      items.push({ kind: 'message', role: 'assistant', text: this.roundText, images: [] })
-    }
-
-    for (const call of this.roundToolCalls()) items.push({ kind: 'tool_call', ...call })
+    const items = this.round.commit()
     if (items.length > 0) this.conversation = [...this.conversation, ...items]
     if (this.notices.some((notice) => notice.at === null)) {
       const placed = this.conversation.length
@@ -441,13 +485,8 @@ export class SessionModel {
     }
   }
 
-  /** Issued calls carry final arguments and replace the streamed copies. */
   private addCalls(calls: ToolCall[]): void {
-    const ids = new Set(calls.map((c) => c.callId))
-    this.conversation = [
-      ...this.conversation.filter((item) => !(item.kind === 'tool_call' && ids.has(item.callId))),
-      ...calls.map((call) => ({ kind: 'tool_call' as const, ...call })),
-    ]
+    this.conversation = withIssuedCalls(this.conversation, calls)
   }
 
   private removeRecalled(text: string): void {

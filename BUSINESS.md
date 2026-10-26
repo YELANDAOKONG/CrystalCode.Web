@@ -103,7 +103,12 @@ Session:
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
 - Quick prompts: list, fill into the composer, and send.
-- Child Agents: list and inspect.
+- Child Agents: list and inspect. A running child shows its work as it
+  happens: reply text, reasoning, tool calls and results, errors, and what it
+  is doing now. The server saves a child's archive only when an invocation
+  starts and ends, so the live view is built from the child's events. A page
+  that opens mid-run misses the earlier steps and says so; they appear when
+  the child finishes.
 - Export the conversation as Markdown or JSON through `GET /export`.
 - Answer all five interaction kinds. An approval shows the call, its
   classification, the primary and extended review verdicts, and only the
