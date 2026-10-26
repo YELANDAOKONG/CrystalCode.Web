@@ -349,7 +349,6 @@ export const en = {
   'settings.theme': 'Theme',
   'settings.interface.help': 'These apply to this browser only.',
   'settings.server.connected': 'Connected to',
-  'settings.server.build': 'Build',
   'settings.server.workspace': 'Workspace',
   'settings.server.disconnect': 'Disconnect from this server',
   'settings.saved': 'Saved',
@@ -361,6 +360,15 @@ export const en = {
   'chip.needsAdmin': 'Needs the admin scope.',
   'chip.unsupported': 'This model does not support thinking.',
   'chip.more': 'More settings',
+  'settings.server.section.connection': 'Connection',
+  'settings.server.section.build': 'Build',
+  'settings.server.section.host': 'Host',
+  'settings.server.build.crystalCode': 'Crystal Code',
+  'settings.server.build.crystal': 'Crystal',
+  'settings.server.build.sdk': 'SDK',
+  'settings.server.build.configuration': 'Configuration',
+  'settings.server.build.runtime': 'Runtime',
+  'settings.server.build.os': 'OS',
 } as const
 
 export type MessageKey = keyof typeof en
