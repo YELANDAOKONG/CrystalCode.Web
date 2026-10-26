@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { ChevronRight } from '@lucide/vue'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import type { Notice } from '@/session/state'
 import { parseTodos } from '@/protocol/parse'
 import HelpReportView from './HelpReportView.vue'
@@ -44,7 +45,7 @@ const todos = computed(() => parseTodos(props.notice.data.items))
       <ul v-else-if="notice.type === 'report.todos'" class="space-y-1">
         <li v-if="todos.length === 0" class="text-muted-foreground">{{ t('report.none') }}</li>
         <li v-for="todo in todos" :key="todo.id" class="flex gap-2">
-          <span class="text-muted-foreground w-24 shrink-0 text-xs leading-5">{{ todo.status }}</span>
+          <span class="text-muted-foreground w-24 shrink-0 text-xs leading-5">{{ displayToken(todo.status) }}</span>
           <span>{{ todo.content }}</span>
         </li>
       </ul>

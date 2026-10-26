@@ -44,7 +44,9 @@ async function answer(body: unknown): Promise<void> {
 }
 
 function verdictLines(verdict: Verdict | null): string {
-  return verdict ? `${verdict.outcome} · ${verdict.riskLevel} · ${verdict.userAuthorization}\n${verdict.rationale}` : ''
+  return verdict
+    ? `${displayToken(verdict.outcome)} · ${displayToken(verdict.riskLevel)} · ${displayToken(verdict.userAuthorization)}\n${verdict.rationale}`
+    : ''
 }
 
 const title = computed<MessageKey>(() => {
@@ -171,7 +173,7 @@ const children = computed(() => (props.interaction.kind === 'choose_child' ? (pr
               @click="answer({ childId: item.id })"
             >
               <span class="font-medium">{{ item.label || item.id }}</span>
-              <span class="text-muted-foreground block text-xs">{{ item.agent }} · {{ item.status }}</span>
+              <span class="text-muted-foreground block text-xs">{{ item.agent }} · {{ displayToken(item.status) }}</span>
             </button>
           </li>
         </ul>

@@ -354,4 +354,12 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.server.workspace': '工作区',
   'settings.server.disconnect': '断开与此服务端的连接',
   'settings.saved': '已保存',
+  'chip.mode': '模式',
+  'chip.approval': '审批',
+  'chip.thinking': '思考',
+  'chip.change': '{name}：{value}。点击更换。',
+  'chip.noOptions': '没有其他选项。',
+  'chip.needsAdmin': '需要 admin 权限。',
+  'chip.unsupported': '此模型不支持思考。',
+  'chip.more': '更多设置',
 }

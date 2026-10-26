@@ -353,6 +353,14 @@ export const en = {
   'settings.server.workspace': 'Workspace',
   'settings.server.disconnect': 'Disconnect from this server',
   'settings.saved': 'Saved',
+  'chip.mode': 'Mode',
+  'chip.approval': 'Approval',
+  'chip.thinking': 'Thinking',
+  'chip.change': '{name}: {value}. Choose another.',
+  'chip.noOptions': 'No other choices.',
+  'chip.needsAdmin': 'Needs the admin scope.',
+  'chip.unsupported': 'This model does not support thinking.',
+  'chip.more': 'More settings',
 } as const
 
 export type MessageKey = keyof typeof en

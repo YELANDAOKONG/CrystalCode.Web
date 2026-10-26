@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { ChevronRight, Wrench } from '@lucide/vue'
 import { Badge } from '@/components/ui/badge'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import { argumentSummary, prettyArguments, type ToolResult } from '@/session/blocks'
 import type { ToolCall } from '@/protocol/types'
 import ServerImage from './ServerImage.vue'
@@ -23,7 +24,7 @@ const failed = computed(() => (props.result ? /error|fail|denied|reject|timeout|
       <Wrench class="text-muted-foreground size-4 shrink-0" />
       <span class="font-mono font-medium">{{ call.name || t('session.tool.orphan') }}</span>
       <span class="text-muted-foreground min-w-0 flex-1 truncate font-mono text-xs">{{ summary }}</span>
-      <Badge v-if="result" :variant="failed ? 'destructive' : 'secondary'">{{ result.status }}</Badge>
+      <Badge v-if="result" :variant="failed ? 'destructive' : 'secondary'">{{ displayToken(result.status) }}</Badge>
       <Badge v-else-if="running" variant="outline">{{ t('session.tool.running') }}</Badge>
     </summary>
     <div class="space-y-2 border-t px-3 py-2">

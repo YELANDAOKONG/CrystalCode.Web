@@ -5,6 +5,7 @@ import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
 
@@ -30,7 +31,7 @@ const openChild = ref<string | null>(null)
           >
             <span class="flex items-center gap-2">
               <span class="min-w-0 flex-1 truncate font-medium">{{ child.label || child.agent }}</span>
-              <Badge variant="secondary">{{ child.status }}</Badge>
+              <Badge variant="secondary">{{ displayToken(child.status) }}</Badge>
             </span>
             <span class="text-muted-foreground mt-1 block text-xs">
               {{ t('panel.children.calls', { model: child.modelCalls, tool: child.toolCalls }) }}

@@ -354,4 +354,12 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.server.workspace': '工作區',
   'settings.server.disconnect': '中斷與此伺服器的連線',
   'settings.saved': '已儲存',
+  'chip.mode': '模式',
+  'chip.approval': '審批',
+  'chip.thinking': '思考',
+  'chip.change': '{name}：{value}。點擊更換。',
+  'chip.noOptions': '沒有其他選項。',
+  'chip.needsAdmin': '需要 admin 權限。',
+  'chip.unsupported': '此模型不支援思考。',
+  'chip.more': '更多設定',
 }

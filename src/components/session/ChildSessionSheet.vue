@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import type { ChildSummary } from '@/protocol/types'
 import { toBlocks } from '@/session/blocks'
 import ToolBlock from './ToolBlock.vue'
@@ -55,7 +56,7 @@ const number = new Intl.NumberFormat()
         <SheetTitle>{{ child?.label || child?.agent || t('child.title') }}</SheetTitle>
         <SheetDescription class="flex flex-wrap items-center gap-2">
           <template v-if="child">
-            <Badge variant="secondary">{{ child.status }}</Badge>
+            <Badge variant="secondary">{{ displayToken(child.status) }}</Badge>
             <span class="font-mono text-xs">{{ child.agent }}</span>
           </template>
         </SheetDescription>
@@ -99,7 +100,7 @@ const number = new Intl.NumberFormat()
           <h3 class="mb-1 text-sm font-medium">{{ t('child.tasks') }}</h3>
           <ul class="space-y-1 text-sm">
             <li v-for="todo in child.todos" :key="todo.id" class="flex gap-2">
-              <span class="text-muted-foreground w-24 shrink-0 text-xs leading-5">{{ todo.status }}</span>
+              <span class="text-muted-foreground w-24 shrink-0 text-xs leading-5">{{ displayToken(todo.status) }}</span>
               <span>{{ todo.content }}</span>
             </li>
           </ul>

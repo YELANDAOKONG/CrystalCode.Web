@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { ArrowUp, ImagePlus, Square, Undo2, Zap } from '@lucide/vue'
+import { ArrowUp, Brain, ImagePlus, Layers, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
+import { approvalModes, currentByLabel, findArguments, toOptions, type Option } from '@/session/settings'
+import ComposerChip from './ComposerChip.vue'
 import QuickPromptPicker from './QuickPromptPicker.vue'
 
 const model = server.model
-const { canOperate } = server
+const { canOperate, isAdmin } = server
 
 const text = ref('')
 const field = ref<InstanceType<typeof Textarea> | null>(null)
@@ -181,7 +184,24 @@ function fillQuick(template: string): void {
 }
 
 const canQuick = computed(() => canOperate.value && server.can('GET /quick-prompts'))
+const pickMode = (value: string) => void server.setMode('set', value)
+const pickApproval = (value: string) => void server.send(`/approval ${value}`)
+const pickThinking = (value: string) => void server.send(`/thinking ${value}`)
+
 const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
+
+// The choices come from the server's own command list, so a custom mode or a
+// model with its own thinking gears shows exactly what the terminal offers.
+const modeOptions = computed<Option[]>(() =>
+  toOptions(findArguments(model.commands, 'mode')).map((option) => ({ ...option, label: modeLabel(option.value) })),
+)
+const approvalOptions = computed(() => approvalModes(model.commands))
+const thinkingOptions = computed(() => toOptions(findArguments(model.commands, 'thinking')))
+const approvalValue = computed(() => (model.chrome?.approval ? displayToken(model.chrome.approval) : ''))
+
+// The chrome carries "Think High". An empty string means the model has no thinking.
+const thinkingValue = computed(() => (model.chrome?.thinking ?? '').replace(/^Think\s+/i, ''))
+const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thinkingValue.value))
 </script>
 
 <template>
@@ -226,18 +246,38 @@ const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
           @compositionend="composing = false"
         />
         <div class="flex items-center gap-1 px-2 pb-2">
-          <Button
+          <ComposerChip
             v-if="mode"
-            variant="ghost"
-            size="sm"
-            class="text-xs"
+            :icon="Layers"
+            :name="t('chip.mode')"
+            :value="mode"
+            :options="modeOptions"
+            :current="model.chrome?.mode"
             :disabled="blocked"
-            :title="t('composer.mode', { mode })"
-            :aria-label="t('composer.mode', { mode })"
-            @click="server.setMode('cycle')"
-          >
-            {{ mode }}
-          </Button>
+            @pick="pickMode"
+          />
+          <ComposerChip
+            v-if="approvalValue"
+            :icon="ShieldCheck"
+            :name="t('chip.approval')"
+            :value="approvalValue"
+            :options="approvalOptions"
+            :current="model.chrome?.approval.toLowerCase()"
+            :disabled="blocked || !isAdmin"
+            :note="canOperate && !isAdmin ? t('chip.needsAdmin') : undefined"
+            @pick="pickApproval"
+          />
+          <ComposerChip
+            v-if="thinkingValue"
+            :icon="Brain"
+            :name="t('chip.thinking')"
+            :value="thinkingValue"
+            :options="thinkingOptions"
+            :current="currentThinking"
+            :disabled="blocked || !isAdmin"
+            :note="canOperate && !isAdmin ? t('chip.needsAdmin') : undefined"
+            @pick="pickThinking"
+          />
 
           <input ref="fileInput" type="file" accept="image/*" multiple class="hidden" @change="onPick" />
           <Button

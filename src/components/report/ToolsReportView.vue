@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import { parseToolsReport } from '@/protocol/parse'
 
 const props = defineProps<{ data: Record<string, unknown> }>()
@@ -32,7 +33,7 @@ const catalogs = (tool: { plan: boolean; work: boolean }) =>
           <div class="flex flex-wrap items-center gap-2">
             <span class="font-mono text-xs font-medium">{{ tool.name }}</span>
             <Badge variant="outline">{{ catalogs(tool) }}</Badge>
-            <Badge variant="secondary">{{ tool.effectiveApproval }}</Badge>
+            <Badge variant="secondary">{{ displayToken(tool.effectiveApproval) }}</Badge>
           </div>
           <span class="text-muted-foreground text-xs">{{ t('report.tools.set', { set: tool.set, source: tool.source }) }}</span>
         </li>
