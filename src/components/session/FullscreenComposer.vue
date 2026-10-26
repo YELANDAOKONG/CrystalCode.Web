@@ -10,7 +10,7 @@ import { bodyBytes, formatBytes, MAX_BODY_BYTES, sizeState } from '@/session/dra
 const open = defineModel<boolean>('open', { required: true })
 const text = defineModel<string>('text', { required: true })
 
-const props = defineProps<{ busy: boolean; blocked: boolean; sending: boolean }>()
+const props = defineProps<{ busy: boolean; blocked: boolean }>()
 const emit = defineEmits<{ send: [] }>()
 
 const area = ref<InstanceType<typeof Textarea> | null>(null)
@@ -22,7 +22,7 @@ const shortcut = isApple ? '⌘ Enter' : 'Ctrl Enter'
 const state = computed(() => sizeState(text.value))
 const bytes = computed(() => bodyBytes(text.value))
 const limit = formatBytes(MAX_BODY_BYTES)
-const canSend = computed(() => !props.blocked && !props.sending && text.value.trim() !== '' && state.value !== 'over')
+const canSend = computed(() => !props.blocked && text.value.trim() !== '' && state.value !== 'over')
 
 // Opening moves focus to the end of the draft, where the writer left off.
 watch(open, async (isOpen) => {

@@ -20,7 +20,6 @@ const text = ref('')
 const field = ref<InstanceType<typeof Textarea> | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const composing = ref(false)
-const sending = ref(false)
 const fullOpen = ref(false)
 const choice = ref(0)
 const historyIndex = ref<number | null>(null)
@@ -50,17 +49,14 @@ function complete(name: string): void {
 
 async function submit(): Promise<void> {
   const value = text.value
-  if (sending.value || blocked.value || value.trim() === '' || sizeState(value) === 'over') return
-  sending.value = true
-  try {
-    const result = await server.send(value)
-    if (result) {
-      text.value = ''
-      historyIndex.value = null
-    }
-  } finally {
-    sending.value = false
-  }
+  if (blocked.value || value.trim() === '' || sizeState(value) === 'over') return
+  // The server answers only after it has handled the text (hooks, a slash
+  // command, starting the turn), so clearing on the answer left the draft
+  // frozen in the box. Clear now and put the text back if the request fails.
+  text.value = ''
+  historyIndex.value = null
+  const result = await server.send(value)
+  if (!result && text.value === '') text.value = value
 }
 
 function element(): HTMLTextAreaElement | null {
@@ -236,7 +232,6 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         v-model:text="text"
         :busy="busy"
         :blocked="blocked"
-        :sending="sending"
         @send="submit"
       />
 
@@ -344,7 +339,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
             <Square class="size-3.5" />
             {{ t('composer.stop') }}
           </Button>
-          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || sending || text.trim() === ''" :aria-label="t('composer.send')" @click="submit">
+          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || text.trim() === ''" :aria-label="t('composer.send')" @click="submit">
             <ArrowUp class="size-4" />
           </Button>
         </div>
