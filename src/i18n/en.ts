@@ -369,6 +369,16 @@ export const en = {
   'settings.server.build.configuration': 'Configuration',
   'settings.server.build.runtime': 'Runtime',
   'settings.server.build.os': 'OS',
+  'composer.expand': 'Write in full screen',
+  'full.title': 'Write a message',
+  'full.description': 'Press {shortcut} to send. Enter adds a new line.',
+  'full.placeholder': 'Write your message',
+  'full.send': 'Send',
+  'full.done': 'Keep as draft',
+  'full.discard': 'Clear',
+  'full.count': '{chars} characters · {size}',
+  'full.tooLarge': 'Too large to send. The server accepts up to {limit} per message.',
+  'full.nearLimit': 'Close to the {limit} limit the server accepts per message.',
 } as const
 
 export type MessageKey = keyof typeof en

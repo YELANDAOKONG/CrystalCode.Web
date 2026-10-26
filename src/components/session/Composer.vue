@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { ArrowUp, Brain, ImagePlus, Layers, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
+import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -8,7 +8,9 @@ import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import { approvalModes, currentByLabel, findArguments, toOptions, type Option } from '@/session/settings'
+import { sizeState } from '@/session/draft-size'
 import ComposerChip from './ComposerChip.vue'
+import FullscreenComposer from './FullscreenComposer.vue'
 import QuickPromptPicker from './QuickPromptPicker.vue'
 
 const model = server.model
@@ -19,6 +21,7 @@ const field = ref<InstanceType<typeof Textarea> | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const composing = ref(false)
 const sending = ref(false)
+const fullOpen = ref(false)
 const choice = ref(0)
 const historyIndex = ref<number | null>(null)
 
@@ -47,7 +50,7 @@ function complete(name: string): void {
 
 async function submit(): Promise<void> {
   const value = text.value
-  if (sending.value || blocked.value || value.trim() === '') return
+  if (sending.value || blocked.value || value.trim() === '' || sizeState(value) === 'over') return
   sending.value = true
   try {
     const result = await server.send(value)
@@ -228,6 +231,14 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
       </ul>
 
       <QuickPromptPicker v-model:open="quickOpen" @fill="fillQuick" />
+      <FullscreenComposer
+        v-model:open="fullOpen"
+        v-model:text="text"
+        :busy="busy"
+        :blocked="blocked"
+        :sending="sending"
+        @send="submit"
+      />
 
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
@@ -302,6 +313,18 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
             @click="quickOpen = true"
           >
             <Zap class="size-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-10 md:size-8"
+            :disabled="blocked"
+            :title="t('composer.expand')"
+            :aria-label="t('composer.expand')"
+            @click="fullOpen = true"
+          >
+            <Maximize2 class="size-4" />
           </Button>
 
           <span class="flex-1" />
