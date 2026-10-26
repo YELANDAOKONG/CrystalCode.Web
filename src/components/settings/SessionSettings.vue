@@ -56,7 +56,11 @@ const modelOptions = computed<Option[]>(() =>
 
 const currentMode = computed(() => chrome.value?.mode)
 const currentApproval = computed(() => chrome.value?.approval.toLowerCase())
-const currentModel = computed(() => modelOptions.value.find((option) => option.value.endsWith(` ${chrome.value?.model ?? ''}`))?.value)
+// The same model name can exist under several providers, so match both.
+const currentModel = computed(() => {
+  const current = chrome.value
+  return current ? modelOptions.value.find((option) => option.value === `${current.provider} ${current.model}`)?.value : undefined
+})
 const currentThinking = computed(() => currentByLabel(thinking.value, chrome.value?.thinking.replace(/^Think\s+/i, '') ?? ''))
 const currentTier = computed(() => currentByLabel(tiers.value, chrome.value?.serviceTier.replace(/^Tier\s+/i, '') ?? ''))
 const currentSpeed = computed(() => currentByLabel(speeds.value, chrome.value?.speed.replace(/^Speed\s+/i, '') ?? ''))

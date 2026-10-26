@@ -36,7 +36,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     <div class="min-w-0 flex-1">
       <div class="truncate font-mono text-xs" :title="model.chrome?.workspace">{{ model.chrome?.workspace }}</div>
       <div v-if="model.chrome" class="text-muted-foreground truncate text-xs">
-        {{ model.chrome.model }} · {{ model.chrome.thinking }}
+        {{ model.chrome.provider }} / {{ model.chrome.model }} · {{ model.chrome.thinking }}
       </div>
     </div>
 

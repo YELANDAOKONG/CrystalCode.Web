@@ -38,6 +38,7 @@ export interface ServerInfo {
 }
 
 export interface Chrome {
+  provider: string
   model: string
   workspace: string
   mode: string

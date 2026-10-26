@@ -76,6 +76,7 @@ export function parseInfo(value: unknown): ServerInfo {
 export function parseChrome(value: unknown): Chrome | null {
   if (!isObject(value)) return null
   return {
+    provider: str(value.provider),
     model: str(value.model),
     workspace: str(value.workspace),
     mode: str(value.mode, 'work'),
