@@ -87,14 +87,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Palette copied from ../CrystalCode.Website. With no data-theme the browser
-   decides through color-scheme; the theme setting forces one side. */
+/* Palette from ../CrystalCode.Website, except the dark backgrounds (bg,
+   surface, raised, field), which are lifted so a long session is not read on
+   near-black. With no data-theme the browser decides through color-scheme; the
+   theme setting forces one side. */
 :root {
   color-scheme: light dark;
 
-  --site-bg: light-dark(#eef1f4, #0c0d10);
-  --site-surface: light-dark(#e7ebf0, #111318);
-  --site-raised: light-dark(#dfe5eb, #15181e);
+  --site-bg: light-dark(#eef1f4, #171a20);
+  --site-surface: light-dark(#e7ebf0, #1c2027);
+  --site-raised: light-dark(#dfe5eb, #232831);
   --site-ink: light-dark(#10151c, #ebe8e3);
   --site-muted: light-dark(#4f5c6b, #b7b3ac);
   --site-faint: light-dark(#66717d, #8b929d);
@@ -105,6 +107,10 @@
   --site-button-ink: light-dark(#eef1f4, #0c0d10);
   --site-tint: light-dark(rgb(16 21 28 / 3%), rgb(255 255 255 / 2%));
   --site-hover: light-dark(rgb(16 21 28 / 6%), rgb(255 255 255 / 6%));
+  /* Form control fill. The shadcn default put the border color at 30% over the
+     page, which reads as flat gray on the blue-black background. */
+  --site-field: light-dark(transparent, #1d2128);
+  --site-field-hover: light-dark(rgb(16 21 28 / 4%), #252a33);
   --site-warn: light-dark(#7a5314, #e6c38a);
   --site-warn-line: light-dark(rgb(122 83 20 / 45%), rgb(230 195 138 / 45%));
   --site-error: light-dark(#a8361b, #f0a58f);
@@ -203,6 +209,8 @@ html:lang(zh-TW) {
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-field: var(--site-field);
+  --color-field-hover: var(--site-field-hover);
   --color-ok: var(--site-ok);
   --color-warn: var(--site-warn);
   --color-faint: var(--site-faint);

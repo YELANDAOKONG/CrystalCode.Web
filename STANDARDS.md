@@ -78,7 +78,9 @@
 - Visual language follows `../CrystalCode.Website`: Archivo and IBM Plex Mono
   from bundled files, the same palette, borders, focus rings, and motion
   timing, with light, dark, and auto themes. Copy design assets by hand; do
-  not redesign them here.
+  not redesign them here. One owner-approved deviation: the dark background,
+  surface, raised, and field colors in `src/style.css` are lighter than the
+  website's, because the website's near-black was too heavy in a long session.
 - Respect `prefers-reduced-motion`.
 - All controls are keyboard reachable with visible focus. Dialogs trap focus
   and return it on close. Streaming text does not steal focus or scroll the
