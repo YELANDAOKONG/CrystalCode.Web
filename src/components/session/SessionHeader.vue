@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Download, LogOut, PanelRight } from '@lucide/vue'
+import { Download, PanelRight, Settings } from '@lucide/vue'
 import { server } from '@/app/server'
 import LogoMark from '@/components/common/LogoMark.vue'
-import PreferenceMenu from '@/components/common/PreferenceMenu.vue'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -13,7 +12,7 @@ import {
 import { t } from '@/i18n'
 
 defineProps<{ panelOpen: boolean }>()
-const emit = defineEmits<{ togglePanel: [] }>()
+const emit = defineEmits<{ togglePanel: []; openSettings: [] }>()
 
 const model = server.model
 
@@ -62,9 +61,15 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     >
       <PanelRight class="size-4" />
     </Button>
-    <PreferenceMenu />
-    <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="t('header.disconnect')" :title="t('header.disconnect')" @click="server.disconnect()">
-      <LogOut class="size-4" />
+    <Button
+      variant="ghost"
+      size="icon"
+      class="size-10 md:size-9"
+      :aria-label="t('header.settings')"
+      :title="t('header.settings')"
+      @click="emit('openSettings')"
+    >
+      <Settings class="size-4" />
     </Button>
   </header>
 </template>

@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { t, type MessageKey } from '@/i18n'
 import { parseStatusReport } from '@/protocol/parse'
+import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import ReportRows from './ReportRows.vue'
 
@@ -35,7 +36,7 @@ const workspace = computed(() => {
   return [
     { label: label('workspace'), value: r.workspace, mono: true },
     { label: label('mode'), value: modeLabel(r.mode) },
-    { label: label('approval'), value: r.approval },
+    { label: label('approval'), value: displayToken(r.approval) },
     ...(r.promptSet ? [{ label: label('promptSet'), value: r.promptSet }] : []),
   ]
 })

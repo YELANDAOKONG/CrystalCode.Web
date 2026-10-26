@@ -5,10 +5,8 @@ import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t } from '@/i18n'
-import AdminPanel from './AdminPanel.vue'
 import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
-import VerbosePanel from './VerbosePanel.vue'
 
 const model = server.model
 const openChild = ref<string | null>(null)
@@ -18,7 +16,6 @@ const openChild = ref<string | null>(null)
   <div class="space-y-6 text-sm">
     <TodoList />
 
-    <VerbosePanel />
 
     <section v-if="model.chrome?.agentsEnabled">
       <h2 class="mb-2 text-sm font-medium">{{ t('panel.children') }}</h2>
@@ -60,8 +57,6 @@ const openChild = ref<string | null>(null)
       </div>
       <p v-if="model.side.failure" role="alert" class="text-destructive">{{ model.side.failure }}</p>
     </section>
-    <AdminPanel />
-
     <ChildSessionSheet v-model:child-id="openChild" />
   </div>
 </template>

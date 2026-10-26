@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { server } from '@/app/server'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 
 const model = server.model
 
@@ -39,7 +40,7 @@ const contextLabel = computed(() => (contextPercent.value === null ? 'CTX --' : 
     </template>
     <template v-else>
       <template v-if="model.chrome">
-        <span v-if="model.chrome.approval">{{ model.chrome.approval }}</span>
+        <span v-if="model.chrome.approval">{{ displayToken(model.chrome.approval) }}</span>
         <span v-if="model.chrome.serviceTier">{{ model.chrome.serviceTier }}</span>
         <span v-if="model.chrome.speed">{{ model.chrome.speed }}</span>
       </template>

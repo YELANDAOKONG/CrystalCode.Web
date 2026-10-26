@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t, type MessageKey } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import type { Interaction, Verdict } from '@/protocol/types'
 import { prettyArguments } from '@/session/blocks'
@@ -84,8 +85,8 @@ const children = computed(() => (props.interaction.kind === 'choose_child' ? (pr
       <div v-if="approval" class="space-y-3">
         <div class="flex flex-wrap items-center gap-2">
           <span class="font-mono text-sm font-medium">{{ approval.call.name }}</span>
-          <Badge variant="outline">{{ t('interaction.approval.risk', { risk: approval.classification.risk }) }}</Badge>
-          <Badge variant="outline">{{ t('interaction.approval.authority', { authority: approval.classification.authority }) }}</Badge>
+          <Badge variant="outline">{{ t('interaction.approval.risk', { risk: displayToken(approval.classification.risk) }) }}</Badge>
+          <Badge variant="outline">{{ t('interaction.approval.authority', { authority: displayToken(approval.classification.authority) }) }}</Badge>
         </div>
         <p v-if="approval.classification.summary" class="text-sm whitespace-pre-wrap">{{ approval.classification.summary }}</p>
         <pre class="bg-muted max-h-56 overflow-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap">{{ prettyArguments(approval.call.arguments) }}</pre>
