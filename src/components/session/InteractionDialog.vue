@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t, type MessageKey } from '@/i18n'
+import { modeLabel } from '@/session/mode'
 import type { Interaction, Verdict } from '@/protocol/types'
 import { prettyArguments } from '@/session/blocks'
 import QuestionForm from './QuestionForm.vue'
@@ -149,7 +150,7 @@ const children = computed(() => (props.interaction.kind === 'choose_child' ? (pr
                 <Badge v-if="item.id === sessions.currentId" variant="secondary">{{ t('interaction.session.current') }}</Badge>
               </span>
               <span class="text-muted-foreground block truncate font-mono text-xs">
-                {{ item.workspace }} · {{ item.mode }} · {{ t('interaction.session.turns', { count: item.userTurns }) }}
+                {{ item.workspace }} · {{ modeLabel(item.mode) }} · {{ t('interaction.session.turns', { count: item.userTurns }) }}
               </span>
             </button>
           </li>

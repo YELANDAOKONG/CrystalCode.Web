@@ -5,20 +5,37 @@ import { t } from '@/i18n'
 
 const model = server.model
 
-const tokens = computed(() => model.usage ?? model.cumulativeUsage)
-const contextPercent = computed(() => {
+const compact = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 })
+const count = (value: number) => compact.format(value)
+
+// The CLI's custom status line is optional, and the server sends its fields
+// only when the user turned it on. The built-in items below always show.
+const tokens = computed(() => model.cumulativeUsage ?? model.usage)
+
+// The last call's input size is what the next call starts from, which is the
+// context in use. An estimate covers the time before the first call returns.
+const contextUsed = computed(() => model.estimatedContextTokens ?? model.usage?.inputTokens ?? null)
+
+const context = computed(() => {
   const window = model.contextWindow
-  const used = model.usage?.inputTokens ?? model.estimatedContextTokens
-  return window && used ? Math.min(100, Math.round((used / window) * 100)) : null
+  if (!window) return null
+  const used = contextUsed.value
+  if (used === null) return t('status.context.window', { window: count(window) })
+  const percent = Math.min(100, Math.round((used / window) * 100))
+  return t('status.context', { used: count(used), window: count(window), percent })
 })
-const show = computed(() => model.preferences?.statusLineEnabled ?? true)
 </script>
 
 <template>
-  <footer v-if="show" class="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 border-t px-4 py-1.5 text-xs">
-    <span v-for="field in model.statusFields" :key="field.name">{{ field.text }}</span>
-    <span v-if="tokens">{{ t('status.tokens', { input: tokens.inputTokens, output: tokens.outputTokens }) }}</span>
-    <span v-if="contextPercent !== null">{{ t('status.context', { percent: contextPercent }) }}</span>
+  <footer class="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 border-t px-4 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] text-xs">
+    <template v-if="model.statusFields.length">
+      <span v-for="field in model.statusFields" :key="field.name">{{ field.text }}</span>
+    </template>
+    <template v-else>
+      <span v-if="model.chrome">{{ t('status.approval', { approval: model.chrome.approval }) }}</span>
+      <span v-if="context">{{ context }}</span>
+      <span v-if="tokens">{{ t('status.tokens', { input: count(tokens.inputTokens), output: count(tokens.outputTokens) }) }}</span>
+    </template>
     <span v-if="model.lastTurn">{{ t('status.turn', { reason: model.lastTurn.reason }) }}</span>
   </footer>
 </template>

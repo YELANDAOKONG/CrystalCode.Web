@@ -147,6 +147,11 @@ export const en = {
   'banner.waiting': 'The server is {state}. Waiting for it to be ready.',
   'panel.todos': 'Tasks',
   'panel.todos.empty': 'No tasks.',
+  'panel.todos.progress': '{done} / {total} done',
+  'todo.status.pending': 'Pending',
+  'todo.status.in_progress': 'In progress',
+  'todo.status.completed': 'Completed',
+  'todo.status.cancelled': 'Cancelled',
   'panel.children': 'Child sessions',
   'panel.children.empty': 'No child sessions.',
   'panel.children.calls': '{model} model calls, {tool} tool calls',
@@ -154,9 +159,11 @@ export const en = {
   'panel.side.running': 'Answering',
   'panel.side.cancel': 'Cancel',
   'panel.side.clear': 'Clear',
-  'status.tokens': '{input} in · {output} out',
-  'status.context': 'Context {percent}%',
+  'status.tokens': 'Tokens {input} in · {output} out',
+  'status.context': 'Context {used} / {window} ({percent}%)',
   'status.turn': 'Last turn: {reason}',
+  'status.context.window': 'Context window {window}',
+  'status.approval': 'Approval {approval}',
 } as const
 
 export type MessageKey = keyof typeof en

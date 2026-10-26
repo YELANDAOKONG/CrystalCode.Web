@@ -20,7 +20,7 @@ const { theme, setTheme } = useTheme()
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" size="icon" :aria-label="`${t('common.language')} / ${t('common.theme')}`">
+      <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="`${t('common.language')} / ${t('common.theme')}`">
         <Languages class="size-4" />
       </Button>
     </DropdownMenuTrigger>

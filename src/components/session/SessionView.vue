@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { t } from '@/i18n'
 import Composer from './Composer.vue'
 import InteractionDialog from './InteractionDialog.vue'
@@ -13,6 +15,7 @@ const model = server.model
 const { phase, retryIn, waitingState } = server
 
 const panelOpen = ref(false)
+const wide = useMediaQuery('(min-width: 768px)')
 const current = computed(() => model.interactions[0])
 
 const banner = computed(() => {
@@ -39,8 +42,19 @@ const banner = computed(() => {
         <Composer />
         <StatusBar />
       </main>
-      <SidePanel v-if="panelOpen" class="hidden md:block" />
+      <aside v-if="panelOpen && wide" class="bg-card w-80 shrink-0 overflow-y-auto border-l p-4">
+        <SidePanel />
+      </aside>
     </div>
+    <Sheet v-if="!wide" v-model:open="panelOpen">
+      <SheetContent side="bottom" class="max-h-[80dvh] overflow-y-auto rounded-t-xl px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <SheetHeader class="px-0">
+          <SheetTitle>{{ t('header.panel') }}</SheetTitle>
+          <SheetDescription class="sr-only">{{ t('header.panel') }}</SheetDescription>
+        </SheetHeader>
+        <SidePanel />
+      </SheetContent>
+    </Sheet>
     <InteractionDialog v-if="current" :key="current.id" :interaction="current" :waiting="model.interactions.length - 1" />
   </div>
 </template>

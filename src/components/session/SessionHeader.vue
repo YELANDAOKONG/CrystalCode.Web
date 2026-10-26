@@ -30,8 +30,8 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
 </script>
 
 <template>
-  <header class="flex h-12 shrink-0 items-center gap-3 border-b px-3">
-    <LogoMark class="size-5 shrink-0" />
+  <header class="flex h-12 shrink-0 items-center gap-1 border-b pr-1 pl-3 md:gap-2 md:pr-3">
+    <LogoMark class="mr-2 hidden size-5 shrink-0 sm:block" />
     <div class="min-w-0 flex-1">
       <div class="truncate font-mono text-xs" :title="model.chrome?.workspace">{{ model.chrome?.workspace }}</div>
       <div v-if="model.chrome" class="text-muted-foreground truncate text-xs">
@@ -41,7 +41,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
 
     <DropdownMenu v-if="server.can('GET /export')">
       <DropdownMenuTrigger as-child>
-        <Button variant="ghost" size="icon" :aria-label="t('header.export')" :title="t('header.export')">
+        <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="t('header.export')" :title="t('header.export')">
           <Download class="size-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -54,6 +54,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     <Button
       variant="ghost"
       size="icon"
+      class="size-10 md:size-9"
       :aria-label="t('header.panel')"
       :aria-pressed="panelOpen"
       :title="t('header.panel')"
@@ -62,7 +63,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
       <PanelRight class="size-4" />
     </Button>
     <PreferenceMenu />
-    <Button variant="ghost" size="icon" :aria-label="t('header.disconnect')" :title="t('header.disconnect')" @click="server.disconnect()">
+    <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="t('header.disconnect')" :title="t('header.disconnect')" @click="server.disconnect()">
       <LogOut class="size-4" />
     </Button>
   </header>

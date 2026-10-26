@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Textarea } from '@/components/ui/textarea'
 import { t } from '@/i18n'
+import { modeLabel } from '@/session/mode'
 import type { QuickPromptCatalog } from '@/protocol/types'
 
 const model = server.model
@@ -182,11 +183,11 @@ async function loadQuick(open: boolean): Promise<void> {
 }
 
 const canQuick = computed(() => canOperate.value && server.can('GET /quick-prompts'))
-const mode = computed(() => model.chrome?.mode ?? '')
+const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
 </script>
 
 <template>
-  <div class="bg-background border-t px-4 pt-3 pb-4" @dragover.prevent @drop="onDrop">
+  <div class="bg-background border-t px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" @dragover.prevent @drop="onDrop">
     <div class="relative mx-auto max-w-3xl">
       <ul
         v-if="suggestions.length"
@@ -229,7 +230,7 @@ const mode = computed(() => model.chrome?.mode ?? '')
             v-if="mode"
             variant="ghost"
             size="sm"
-            class="font-mono text-xs"
+            class="text-xs"
             :disabled="blocked"
             :title="t('composer.mode', { mode })"
             :aria-label="t('composer.mode', { mode })"
@@ -243,7 +244,7 @@ const mode = computed(() => model.chrome?.mode ?? '')
             v-if="canAttach"
             variant="ghost"
             size="icon"
-            class="size-8"
+            class="size-10 md:size-8"
             :title="t('composer.attach')"
             :aria-label="t('composer.attach')"
             @click="fileInput?.click()"
@@ -253,7 +254,7 @@ const mode = computed(() => model.chrome?.mode ?? '')
 
           <DropdownMenu v-if="canQuick" @update:open="loadQuick">
             <DropdownMenuTrigger as-child>
-              <Button variant="ghost" size="icon" class="size-8" :title="t('composer.quick')" :aria-label="t('composer.quick')">
+              <Button variant="ghost" size="icon" class="size-10 md:size-8" :title="t('composer.quick')" :aria-label="t('composer.quick')">
                 <Zap class="size-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -294,7 +295,7 @@ const mode = computed(() => model.chrome?.mode ?? '')
             <Square class="size-3.5" />
             {{ t('composer.stop') }}
           </Button>
-          <Button size="icon" class="size-8" :disabled="blocked || sending || text.trim() === ''" :aria-label="t('composer.send')" @click="submit">
+          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || sending || text.trim() === ''" :aria-label="t('composer.send')" @click="submit">
             <ArrowUp class="size-4" />
           </Button>
         </div>
