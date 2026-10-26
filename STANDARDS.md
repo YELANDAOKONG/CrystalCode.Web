@@ -47,6 +47,21 @@
 - Images and exports are fetched with the `Authorization` header into a blob
   and shown through an object URL. Revoke the object URL when done.
 
+## Hosted page security
+
+- The site is served by a public host, so a compromise of the deployed files
+  is remote access to operators' servers. Treat every change as a supply-chain
+  change: pin dependency versions and review what the build bundles.
+- No script, style, font, image, or frame from another origin. No analytics.
+  `index.html` and CSS reference only bundled files.
+- The address and token fields are filled only from operator input. Reading
+  the page URL to prefill, connect, or select a server is not allowed.
+- The CSP in ARCHITECTURE.md ("Hosted-page trust") is a deployment
+  requirement. Do not add inline scripts or `eval`, which that policy forbids.
+- A request to a hostname the client cannot classify may carry
+  `targetAddressSpace` only when the operator chose "local network" or "this
+  computer" for that server.
+
 ## Rendering untrusted text
 
 - Never use `v-html` or `innerHTML` on model output, tool output, server
@@ -75,8 +90,8 @@
 
 ## Dependencies
 
-Package manager: pnpm only. npm is not allowed. `package-lock.json` is a
-leftover from the starter and must not be used or updated.
+Package manager: pnpm only. npm is not allowed, and there is no
+`package-lock.json`.
 
 Authorized today (from `package.json` and owner decisions):
 
@@ -88,9 +103,6 @@ Authorized today (from `package.json` and owner decisions):
   `shiki`, for rendering model output. Pin versions when installing and check
   their transitive dependencies first.
 
-Marked for removal (owner chose to clean up legacy starter dependencies; not
-done yet): `@fortawesome/fontawesome-free`, `devicon`, and `package-lock.json`.
-
 Needs review before use: the `cn` package, which `src/lib/utils.ts`
 re-exports. The shadcn-vue `cn` helper normally comes from `clsx` and
 `tailwind-merge`, neither of which is installed. Do not add them without
@@ -98,9 +110,15 @@ approval.
 
 Do not add any other dependency without asking. A dependency needs the user's
 confirmation that it is safe and trustworthy. No CDN script, font, or style
-link in `index.html` or CSS. The starter `src/style.css` imports Inter from
-Google Fonts; that import is to be removed because it breaks the
-no-third-party-request invariant.
+link in `index.html` or CSS.
+
+Fonts are local files in `src/assets/fonts`, wired in `src/style.css`.
+Archivo and IBM Plex Mono (copied from `../CrystalCode.Website`, licenses
+alongside) come first. The Noto Sans files are the fallback, and the owner
+wants them kept: `Noto Sans` for Latin gaps, `Noto Sans Mono`, and
+`Noto Sans SC`, `TC`, `HK`, `JP` for Han and kana. `html:lang(zh-CN)` and
+`html:lang(zh-TW)` reorder the stack so each locale gets its own glyph forms.
+Do not delete these files or reintroduce a remote font.
 
 ## Verification
 
@@ -112,14 +130,6 @@ pnpm build
 `pnpm build` runs `vue-tsc -b && vite build`. `pnpm dev` starts Vite and does
 not exit; start it in the background and stop it when done.
 
-Known state on 2026-10-26, both outside this documentation change:
-
-- `pnpm build` fails with `TS5101` because `baseUrl` in `tsconfig.app.json`
-  is deprecated in TypeScript 6. Fixing it is the first code task.
-- `pnpm-lock.yaml` does not match `package.json` (it lacks `@lucide/vue`,
-  `class-variance-authority`, `cn`, and `tw-animate-css`), so
-  `--frozen-lockfile` fails until the lockfile is regenerated.
-
 There is no unit test, component test, lint, or format command. Test framework
 is an Open question: Vitest is a candidate. Do not add one without approval,
 and do not claim coverage that does not exist.
@@ -130,10 +140,14 @@ and cover the cases that apply:
 
 - loopback, with the generated token and with `--auth none`;
 - a LAN address with `--listen 0.0.0.0:<port>` and `--allow-host <lan-address>`;
-- the page served from a different origin, with that origin in
-  `--allow-origin`;
-- an HTTPS page against a server with TLS, and against a plain HTTP LAN
+- the page served from a different origin than the server, with that origin
+  in `--allow-origin`, and a missing `--allow-origin` and `--allow-host` to
+  confirm the checklist names both flags and the page origin;
+- an HTTPS page against a public or local server with TLS;
+- an HTTPS page against a plain HTTP LAN or loopback server in Chrome or Edge,
+  with the permission granted and denied, and against a plain HTTP public
   server to confirm the advisory;
+- a copy of the build served over HTTP on a LAN against a LAN server;
 - a dropped and restored connection, and a `resync`.
 
 Never write a real token, certificate, or key into the repository, a
@@ -142,5 +156,8 @@ screenshot, or a commit.
 ## Open questions
 
 - Test framework and lint tooling.
-- Whether the Noto Sans files in `src/assets/fonts` stay. They are large
-  Chinese fallbacks and are not referenced yet.
+- Size of the Noto fallback fonts. They are unsubsetted TTF files (about
+  47 MB in total, 18 MB for SC alone) and `pnpm build` copies all of them into
+  `dist`. A browser downloads one only when an earlier face lacks a glyph, but
+  a hosted copy still carries them. Keep them as they are until the owner
+  decides whether to convert them to subsetted woff2.

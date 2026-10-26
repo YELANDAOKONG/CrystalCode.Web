@@ -12,9 +12,12 @@ question.
 ## Mission
 
 Crystal Code Web is a browser front end for `crystal server`, the HTTP surface
-of Crystal Code (`../CrystalCode`). An operator starts `crystal server` in a
-workspace, opens this client, enters the server address and a token if one is
-needed, and drives the one active coding session from the browser.
+of Crystal Code (`../CrystalCode`). It is deployed once as a public HTTPS site,
+for example `https://example.com`. An operator starts `crystal server` in a
+workspace, opens that site in any browser, types the server's address (public
+or local network) and a token if one is needed, and drives the one active
+coding session from the browser. The site holds no list of servers and is tied
+to no address.
 
 It is a front end. It holds no product logic. Approval, trust, the workspace
 fence, compaction, and tool execution stay in the server process. The client
@@ -23,8 +26,8 @@ shows what the server reports and sends what the operator chooses.
 ## Intended users
 
 - Developers who already run Crystal Code in a terminal and want a graphical
-  view of the same session, on the same machine or on another machine in the
-  local network.
+  view of the same session, on the same machine, on another machine in the
+  local network, or on a server reachable over the internet.
 - Operators who start `crystal server` from a wrapper or a remote shell and
   need a client that is not tied to one address.
 
@@ -47,8 +50,7 @@ does not start, install, or manage one.
 
 Current: a Vue 3 + TypeScript + Vite + Tailwind 4 scaffold. `src/App.vue`
 renders the starter `HelloWorld` component. There is no connection code, no
-protocol code, and no test framework. `pnpm build` currently fails and the
-lockfile is out of date (see [STANDARDS.md](STANDARDS.md)). Nothing in the
+protocol code, and no test framework. `pnpm build` passes. Nothing in the
 Planned list below exists.
 
 ## Planned product (first release)
@@ -61,18 +63,26 @@ them or records an exclusion under "Exclusions" below.
 Connection:
 
 - Connect to any address the operator types: host and port, with a scheme.
-  Nothing about a specific address is built in.
+  Public and local network addresses are equal cases. Nothing about a specific
+  address is built in.
 - Send a bearer token when the operator provides one. A server started with
   `--auth none` needs none.
 - Remember addresses between visits. Keep the token in memory only unless the
   operator ticks a box to keep it for the current tab (see Data).
 - Show the server state (`starting`, `awaiting_operator`, `ready`, `closing`,
   `failed`) and the granted scope.
-- Detect connections the browser will block (an HTTPS page reaching an HTTP
-  server) before connecting, say why, and list the legal ways out. Do not
-  work around them. See [ARCHITECTURE.md](ARCHITECTURE.md).
-- Turn server failures into specific messages: 401 token, 403 scope or
-  Origin, 421 Host, 429 rate limit, 503 session not ready, network failure.
+- Detect connections the browser may block before connecting. The main case
+  is the public HTTPS page reaching an `http://` server. Say why, and list the
+  legal ways out. Do not work around them. Where a browser asks the operator
+  for the Local Network Access permission, explain the prompt. See
+  [ARCHITECTURE.md](ARCHITECTURE.md).
+- Tell the operator the server must be started with `--allow-origin` naming
+  this site's origin, and show the exact flag, since every first connection
+  needs it.
+- Turn server failures into specific messages: 401 token, 403 scope, 429 rate
+  limit, 503 session not ready. A rejected Origin (403) or Host (421) reaches
+  the page only as a network failure; show a combined checklist instead of
+  one guessed cause (see [ARCHITECTURE.md](ARCHITECTURE.md)).
 
 Session:
 
@@ -114,21 +124,26 @@ Model output is untrusted. It is rendered as Markdown with code highlighting
 
 ## Acceptance for the first release
 
-1. A client served over plain HTTP from a local or LAN static host connects to
-   a loopback server and to a LAN server on `http://`, with and without a
-   token.
-2. A client served over HTTPS connects to a server that has TLS. Against an
-   `http://` LAN server the client reports the browser restriction and the
-   options instead of a generic network error.
-3. Every entry in `operations`, `eventTypes`, `interactionKinds`, and
+1. The public HTTPS site connects to an `https://` server with a trusted
+   certificate, public or local, with and without a token.
+2. The public HTTPS site connects to an `http://` loopback server, and to an
+   `http://` local network server in Chrome and Edge after the operator grants
+   the permission.
+3. Against an `http://` public server, or where the browser refuses, the client
+   reports the restriction and the options instead of a generic network
+   error.
+4. A copy of the same build served over `http://` on a local network connects
+   to a local network server.
+5. Every entry in `operations`, `eventTypes`, `interactionKinds`, and
    `slashCommands` returned by `GET /info` is handled or listed under
    Exclusions. An unknown entry is ignored without breaking the page.
-4. After a dropped connection the client resumes with no duplicated and no
+6. After a dropped connection the client resumes with no duplicated and no
    missing events, and redraws after `resync`.
-5. A token never appears in a URL, in `localStorage`, in logs, in an error
+7. A token never appears in a URL, in `localStorage`, in logs, in an error
    message, or in an export.
-6. A model reply containing HTML or script text renders as inert text.
-7. The build output contains no server address, origin, or token.
+8. A model reply containing HTML or script text renders as inert text.
+9. The build output contains no server address, origin, or token. A link to
+   the site never connects or fills a token by itself.
 
 ## Exclusions
 
@@ -136,8 +151,10 @@ These are not part of the product:
 
 - Embedding in Crystal Code. The client ships and runs separately and is not
   hosted by `crystal server`.
-- A backend, proxy, or relay of our own. The browser talks to the server
-  directly. This includes a proxy to get around mixed-content blocking.
+- A backend, proxy, or relay of our own, including a hosted relay for servers
+  behind a firewall or a proxy to get around mixed-content blocking. The
+  browser talks to the server directly. Reaching a server from the internet is
+  the operator's setup (TLS, port, firewall).
 - Several active sessions in one server. The server is one process, one
   session (deferred in `../CrystalCode/TODO.md`). A user who wants more
   connects to more servers.
@@ -159,8 +176,10 @@ Forbidden:
 - Putting a long-lived token in a URL.
 - Rendering model output, server text, or tool output as HTML.
 - Fetching remote images named in model Markdown automatically.
-- Any request to a host other than the server the operator entered. This
-  includes web fonts, analytics, and icon CDNs.
+- Any request to a host other than the server the operator entered and the
+  site that served the page. This includes web fonts, analytics, and icon
+  CDNs.
+- Connecting, or filling an address or token, from the page URL.
 - Changing `../CrystalCode` from this repository.
 
 ## Deferred
@@ -168,7 +187,6 @@ Forbidden:
 Not scheduled. Do not implement without a new decision.
 
 - Offline use, service worker, and installable app.
-- A fixed official hosting domain. None exists yet.
 - A browser-side permission to remember tokens beyond the tab.
 - A desktop or mobile wrapper.
 
@@ -210,12 +228,17 @@ received and is not translated. Interface text contains no emoji.
 ## Open questions
 
 - Which browsers are supported. Chrome and Edge behavior for HTTPS to local
-  network is documented; Firefox and Safari behavior is not verified.
+  network is documented (Chrome 142, Edge 143); Firefox and Safari behavior is
+  not verified.
 - Whether one page may hold several server connections at once. Recommended
   default: one active connection per tab.
 - How the terminal shortcuts (Tab and Shift+Tab mode cycle, F6 quick prompts,
   F7 child picker, Ctrl+O and Ctrl+G verbose, Ctrl+C recall) map to the
   browser, where several are reserved by the browser.
 - The scheme to assume when the operator types `host:port` with no scheme.
-  Recommended default: match the page scheme, and show the choice.
-- Hosting domain for an official build, if any.
+  Recommended default: `https://`, with the scheme shown and editable, because
+  the hosted page is HTTPS and an `http://` guess would be blocked.
+- The official hosting domain and platform. `example.com` is a placeholder
+  and appears nowhere in the build.
+- Whether to ship a documented self-host recipe for the HTTP local network
+  case (a static folder served by any web server) or only mention it.

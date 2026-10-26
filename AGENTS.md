@@ -22,10 +22,11 @@ change. The implementation must not become the only source of truth.
 ## Product
 
 Crystal Code Web is the browser front end for `crystal server`. It is a static
-site that connects to a server address and optional token the operator types.
-It is not embedded in Crystal Code, has no backend of its own, and is tied to
-no address. It works when served over HTTPS and when self-hosted over plain
-HTTP on a local network.
+site, deployed once as a public HTTPS site (for example `https://example.com`),
+that connects to any server address and optional token the operator types:
+public or local network. It is not embedded in Crystal Code, has no backend of
+its own, and is tied to no address. The same build may also be self-hosted
+over plain HTTP on a local network.
 
 The interface says "Crystal Code". Documents and conversation say "Crystal
 Code Web".
@@ -47,11 +48,15 @@ them. The two sites lag the product; the product repository wins.
   as HTML. No `v-html` or `innerHTML` on them.
 - The client holds no product logic. It does not decide approval, trust, risk,
   or budgets, and it offers only the choices the server sent.
-- No request goes anywhere but the server the operator entered. No CDN,
+- No request goes anywhere but the server the operator entered and the site
+  that served the page. No CDN,
   web font, analytics, or icon service. Do not embed an address, origin, or
   token in the build.
 - Do not work around the browser's mixed-content block with a proxy or a
   relay. Detect it, explain it, and list the legal options.
+- The page is a trusted-code boundary: it holds a token that drives a session
+  with tool access. No third-party script, style, font, or frame. The page
+  never connects or fills a token from its own URL.
 - Ask about anything uncertain. Do not decide product scope, a dependency, or
   a new top-level folder on your own.
 - Interface text is hand-written i18n: `en` source, `zh-cn`, `zh-tw`. No i18n
@@ -75,7 +80,6 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-Both currently fail for known reasons listed in
-[STANDARDS.md](STANDARDS.md). There is no test or lint command yet. For
-connection or session changes, also run the manual check in STANDARDS.md
-against a real `crystal server`.
+There is no test or lint command yet. For connection or session changes, also
+run the manual check in [STANDARDS.md](STANDARDS.md) against a real
+`crystal server`.

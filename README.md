@@ -26,16 +26,22 @@ pnpm dev
 pnpm build
 ```
 
-The output in `dist/` is static. Host it on HTTPS, or self-host it over HTTP
-on a local network. It carries no server address.
+The output in `dist/` is static and carries no server address. The intended
+deployment is one public HTTPS site. Operators open it and type their own
+server address, public or on a local network. The same build can be served
+over HTTP on a local network.
 
 ## Connecting from a browser
 
-- The server must list this page's origin with `--allow-origin`.
-- A server reached by a LAN address needs `--allow-host <address>`.
-- An HTTPS page cannot reach a plain `http://` LAN server in most browsers.
-  Give the server a certificate (`--tls-cert`, `--tls-key`), or open this
-  client from an `http://` host. The client explains this when it applies.
+- Start the server with `--allow-origin` naming the site you opened, for
+  example `--allow-origin https://example.com`.
+- A server reached by a LAN address or a public name needs that name in
+  `--allow-host` when it listens on `0.0.0.0`.
+- An HTTPS page cannot reach a plain `http://` public server. A plain
+  `http://` local network or localhost server works only in browsers that
+  support the Local Network Access permission (Chrome and Edge) and after you
+  allow it. The reliable fix is TLS on the server (`--tls-cert`, `--tls-key`).
+  The client explains this when it applies.
 
 ## Documents
 

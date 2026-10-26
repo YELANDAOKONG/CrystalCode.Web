@@ -6,9 +6,15 @@ unless marked Current. Product scope is in `BUSINESS.md`.
 
 ## Position
 
-Crystal Code Web is a static single-page application. It talks to one
-`crystal server` over HTTP and server-sent events. There is no server-side
-code in this repository, no proxy, and no shared process with the server.
+Crystal Code Web is a static single-page application. The primary deployment
+is one public HTTPS site (for example `https://example.com`) that any operator
+opens and points at their own server, public or on a local network. It also
+works when the same build is served from another static host.
+
+It talks to one `crystal server` at a time over HTTP and server-sent events.
+There is no server-side code in this repository, no proxy, and no shared
+process with the server. Every request goes from the operator's browser
+straight to the address the operator entered.
 
 The wire contract belongs to `../CrystalCode` (`docs/server.md`). The client
 adapts to the server and never the reverse.
@@ -80,52 +86,102 @@ is pending, and waits.
 
 Open question, with a recommended default.
 
-- Native `EventSource` cannot set headers. The server offers
-  `POST /auth/ticket`: a single-use ticket valid for 30 seconds, accepted only
-  by `GET /events?ticket=`. A reconnect by `EventSource` reuses the old URL
-  and its spent ticket, so the page would have to replace the connection on
-  every drop.
+- Native `EventSource` cannot set headers and cannot take fetch options such
+  as `targetAddressSpace` (see below). The server offers `POST /auth/ticket`:
+  a single-use ticket valid for 30 seconds, accepted only by
+  `GET /events?ticket=`. A reconnect by `EventSource` reuses the old URL and
+  its spent ticket, so the page would have to replace the connection on every
+  drop.
 - A `fetch` stream with `Authorization`, `X-Crystal-Client`, and
-  `Last-Event-ID` headers avoids tickets and keeps the token out of every URL.
-  The client then parses the SSE frames itself.
+  `Last-Event-ID` headers avoids tickets, keeps the token out of every URL,
+  and can carry `targetAddressSpace`. The client then parses the SSE frames
+  itself.
 
-Recommended: `fetch` streaming through `protocol`, with the ticket path as the
-fallback. Either choice keeps the token out of URLs. Do not implement
-until the owner confirms.
+Recommended: `fetch` streaming through `protocol`. The ticket path with
+`EventSource` cannot reach an HTTP server on a private network from the public
+HTTPS page, so it is not a fallback for that case. Do not implement until the
+owner confirms.
 
 ## Mixed content and local network access
 
-A page's scheme and address decide what the browser allows. The client cannot
-observe a block directly: a blocked request looks like any other network
-failure. So `connection` computes an advisory from the page and the target
-before connecting.
+The hosted page is HTTPS, so it is a secure context. The operator may type any
+target: a public server with TLS, a public server without TLS, a LAN address,
+or localhost. The browser decides what is allowed from the page's scheme and
+the target's address space. The client cannot observe a block directly: a
+blocked request looks like any other network failure. So `connection` computes
+an advisory from the page and the target before connecting, and uses it to
+explain a later failure.
 
-Classify the target host as loopback (`localhost`, `127.0.0.0/8`, `::1`),
-private (RFC 1918 IPv4 literals, `.local`), or other. Classify the page the
-same way, plus its scheme.
+Address spaces (MDN "Local network access"): loopback (`localhost`,
+`127.0.0.0/8`, `::1`), local (private IP literals such as `192.168.0.1`, and
+`.local` names), and public. `connection` classifies a typed host from its
+text only. A hostname such as `nas.home.lan`, or a public name that resolves to
+a private address, looks public to the client and may be local to the browser.
 
-| Page | Target | Result | Client behavior |
-| :--- | :--- | :--- | :--- |
-| `http://` (local or LAN host) | `http://` any | Not mixed content. Chrome and Edge may ask the operator for the Local Network Access permission when the page is local and the target is loopback. | Connect. If it fails, say the permission may have been denied. |
-| `https://` | `https://` any | Allowed if the certificate is trusted by the browser. A self-signed certificate must be accepted in the browser first. | Connect. Name the certificate as a likely cause of failure. |
-| `https://` | `http://` loopback | Browsers treat loopback as trustworthy. Chrome and Edge also gate it behind the Local Network Access permission. Other browsers not verified. | Connect. Explain the permission prompt. |
-| `https://` | `http://` private (`192.168.x.x`, `.local`) | Blocked as mixed content. Chrome and Edge relax it only after the operator grants Local Network Access. Firefox and Safari not verified; assume blocked. | Warn before connecting. List the options below. Allow the attempt. |
-| `https://` | `http://` other | Blocked as mixed content. | Warn. Same options, without the permission option. |
+Result for an HTTPS page, as documented for Chrome and Edge:
 
-Options the client lists, and nothing beyond them:
+| Target | Browser behavior | Client behavior |
+| :--- | :--- | :--- |
+| `https://` public | Allowed if the certificate is trusted. | Connect. |
+| `https://` local or loopback | Allowed if the certificate is trusted. Chrome 142+ and Edge 143+ ask the operator for the Local Network Access permission. | Connect. Say a permission prompt is expected. |
+| `http://` public | Blocked as mixed content. No permission relaxes it. | Warn before connecting. The only way out is TLS on the server. |
+| `http://` private IP literal or `.local` | Blocked as mixed content until the operator grants Local Network Access in Chrome or Edge, which then relaxes the check. | Warn. Allow the attempt. List the options. |
+| `http://localhost` or another loopback address | Chrome and Edge gate it behind the loopback permission and relax mixed content once granted. | Allow the attempt. Explain the prompt. |
+| `http://` hostname that resolves to a private or loopback address | Treated as public unless the request declares `targetAddressSpace`. | Offer an operator choice "this server is on my local network" or "on this computer" that sets `targetAddressSpace` to `local` or `loopback`. |
 
-1. Start the server with TLS (`--tls-cert` and `--tls-key`) and connect by
-   `https://`. The private key password comes from
-   `CRYSTAL_SERVER_TLS_PASSWORD`, never a flag.
-2. Open this client from an `http://` host on the same network (any static
-   file server; the build needs no rewrite rules).
-3. For a server on the same machine, connect by `http://localhost` or
-   `http://127.0.0.1`.
-4. Chrome or Edge: allow the Local Network Access permission when prompted.
+Firefox and Safari: behavior for these cases is not verified. Until it is,
+treat every `http://` target from the HTTPS page as blocked there and show the
+warning. The advisory text must say "may be blocked", not "is blocked".
 
-Sources checked on 2026-10-26: MDN "Local network access", Chrome 142 release
-notes and "New permission prompt for Local Network Access", and Microsoft Edge
-"Adapting your website for new Local Network Access restrictions".
+Permission state: `navigator.permissions.query` with `local-network` or
+`loopback-network` (MDN names; Edge's guide uses `local-network-access`) can
+tell the client whether the operator already granted it. Unsupported or
+unknown states are not an error. Which name each browser accepts is an Open
+question.
+
+Options the client lists for an `http://` target, and nothing beyond them:
+
+1. Start the server with TLS (`--tls-cert` and `--tls-key`) behind a
+   certificate the browser trusts, and connect by `https://`. The private key
+   password comes from `CRYSTAL_SERVER_TLS_PASSWORD`, never a flag.
+2. Chrome or Edge, local or loopback target: allow the Local Network Access
+   permission for this site when prompted.
+3. Open a copy of this client served over `http://` on the same network. The
+   build needs no rewrite rules, so any static file server works.
+   Whether a LAN-hosted HTTP page reaches a LAN HTTP server without a prompt
+   is by the same specification (local to local is not gated); not verified.
+
+A self-signed server certificate fails until the browser trusts it. The client
+tells the operator to open the server's address once in the browser and accept
+the certificate, then retry. Whether that exception applies to cross-origin
+`fetch` in each browser is not verified.
+
+Sources checked on 2026-10-26: MDN "Local network access", Microsoft Edge
+"Adapting your website for new Local Network Access restrictions" (updated
+2026-03-09), and the Chrome 142 release notes.
+
+## Hosted-page trust
+
+The hosted page runs code that holds the operator's token and can send input
+to a session that executes tools on the operator's machine. A compromised
+hosted page is therefore remote access to every server whose operator opens it.
+The deployment must not weaken this:
+
+- No third-party script, style, font, or frame on the page. All assets are
+  built into the deployment.
+- The page is served with a Content Security Policy header: `default-src 'self'`,
+  `script-src 'self'` with no `unsafe-inline` or `unsafe-eval`, `object-src 'none'`,
+  `base-uri 'none'`, `frame-ancestors 'none'`. `connect-src` cannot be
+  narrowed because the target is operator-chosen, so it allows `https:` and
+  `http:`. Whether the hosting platform allows setting headers is an Open
+  question; a `<meta>` CSP cannot set `frame-ancestors`.
+- Dependencies are pinned and audited (see STANDARDS.md).
+- The client sends the token only to the address the operator entered and
+  confirmed. A link, a query parameter, or a fragment never pre-fills and
+  connects. Otherwise a crafted link could send a token to an attacker's
+  server.
+- Because any operator-chosen server can return arbitrary content, every
+  server-supplied string is untrusted (see Invariants).
 
 ## Server facts the client depends on
 
@@ -135,11 +191,23 @@ The client reports the matching failure; it cannot fix any of them.
 
 - CORS is off unless `--allow-origin` lists the page's origin. A request with
   an unlisted `Origin` gets 403, even with `--auth none`. This applies to
-  `GET /health` as well. An operator using this client from a hosted page must
-  add that origin.
-- The `Host` header must name `localhost`, `127.0.0.1`, `::1`, the listen
-  address, or an `--allow-host` value. Otherwise 421. Reaching a server by a
-  LAN address needs it in `--allow-host` when the server listens on `0.0.0.0`.
+  `GET /health` as well. An operator using the hosted page must start the
+  server with `--allow-origin https://example.com` (the hosting origin). This
+  is a setup step every operator performs.
+- The 403 (Origin) and 421 (Host) responses are written before the server
+  adds any CORS header (`AccessGuard.InvokeAsync`). A browser therefore hides
+  them from the page: the client sees a network failure, not a status code.
+  The client cannot tell a missing `--allow-origin`, a missing `--allow-host`,
+  a wrong address, a down server, a certificate error, and a mixed-content
+  block apart. It must show one combined checklist for a failed first
+  request, including the exact flag with the page's `window.location.origin`,
+  and must not claim a single cause. Only responses after those checks
+  (401, 403 scope, 429, 503) are readable.
+- The `Host` header must name `localhost`, `127.0.0.1`, `::1`, a
+  specific (non-wildcard) listen address, or an `--allow-host` value
+  (`CrystalServer.cs`). Otherwise 421. A server on `0.0.0.0` reached by a LAN
+  address or a public name, or through a reverse proxy that keeps the original
+  Host, needs that name in `--allow-host`.
 - Preflight allows only these request headers: `Authorization`,
   `Content-Type`, `X-Crystal-Client`, `Last-Event-ID`. Allowed methods: GET,
   POST, PUT, DELETE, OPTIONS. The client sends no other custom header.
@@ -153,9 +221,10 @@ The client reports the matching failure; it cannot fix any of them.
 - A non-loopback listener without TLS is allowed by the server with a
   warning; tokens and session content then travel in clear text. The client
   shows a persistent notice when it connects to such a server.
-- Chrome replaced Private Network Access preflights with the Local Network
-  Access permission prompt. The server sets no `Access-Control-Allow-Private-Network`
-  header. Whether it should is a question for the server owner, not a change
+- The server sets no `Access-Control-Allow-Private-Network` header. Chrome
+  moved from Private Network Access preflights to the Local Network Access
+  permission prompt, so the header is not needed for the cases above. Whether
+  an older browser needs it is a question for the server owner, not a change
   made here.
 
 ## Invariants
@@ -172,6 +241,8 @@ The client reports the matching failure; it cannot fix any of them.
 - The build contains no server address, no origin, no token, and makes no
   request to any host but the server the operator entered. Fonts and icons are
   bundled.
+- The page never connects, and never fills the address or token, from its own
+  URL (path, query, or fragment). Only the operator's typed input does.
 - The page needs no server-side routing or rewrite rules. If routing is
   added, it is hash based.
 - The client tolerates unknown event types, fields, operations, and
@@ -189,6 +260,13 @@ no test framework and no lint rule. See Open questions.
 ## Open questions
 
 - Event transport: `fetch` stream or ticket plus `EventSource` (above).
+  Recommended: `fetch` stream.
+- Whether the hosting platform can set response headers, so the Content
+  Security Policy above can include `frame-ancestors`.
+- The permission name each browser accepts in `navigator.permissions.query`,
+  and Firefox and Safari behavior for HTTPS to HTTP targets.
+- Whether a self-signed server certificate accepted in a browser tab applies
+  to cross-origin `fetch` from the hosted page.
 - Folder names for `protocol`, `connection`, `session`, `render`, `i18n`, and
   `theme`. The scaffold has `src/components` and `src/lib` (shadcn aliases in
   `components.json`).
