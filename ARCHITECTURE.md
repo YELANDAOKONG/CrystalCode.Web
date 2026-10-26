@@ -194,15 +194,16 @@ The client reports the matching failure; it cannot fix any of them.
   `GET /health` as well. An operator using the hosted page must start the
   server with `--allow-origin https://example.com` (the hosting origin). This
   is a setup step every operator performs.
-- The 403 (Origin) and 421 (Host) responses are written before the server
-  adds any CORS header (`AccessGuard.InvokeAsync`). A browser therefore hides
-  them from the page: the client sees a network failure, not a status code.
-  The client cannot tell a missing `--allow-origin`, a missing `--allow-host`,
-  a wrong address, a down server, a certificate error, and a mixed-content
-  block apart. It must show one combined checklist for a failed first
-  request, including the exact flag with the page's `window.location.origin`,
-  and must not claim a single cause. Only responses after those checks
-  (401, 403 scope, 429, 503) are readable.
+- A page whose origin is listed gets CORS headers on every response, including
+  401, 421, and 429 (`AccessGuard.InvokeAsync`). So for a listed origin, 421
+  (Host not allowed), 401, 403 scope, 429, and 503 are all readable statuses.
+  A page whose origin is not listed gets no CORS header on its 403, so the
+  browser hides that response. The client then sees a network failure that it
+  cannot tell apart from a wrong address, a down server, a certificate error,
+  or a mixed-content block. For a failed first request the client shows one
+  combined checklist, including the exact `--allow-origin` flag with the
+  page's `window.location.origin`, and does not claim one cause. A readable
+  421 is reported on its own: the server needs that address in `--allow-host`.
 - The `Host` header must name `localhost`, `127.0.0.1`, `::1`, a
   specific (non-wildcard) listen address, or an `--allow-host` value
   (`CrystalServer.cs`). Otherwise 421. A server on `0.0.0.0` reached by a LAN
@@ -211,21 +212,25 @@ The client reports the matching failure; it cannot fix any of them.
 - Preflight allows only these request headers: `Authorization`,
   `Content-Type`, `X-Crystal-Client`, `Last-Event-ID`. Allowed methods: GET,
   POST, PUT, DELETE, OPTIONS. The client sends no other custom header.
-- The server exposes no response headers to scripts
-  (`Access-Control-Expose-Headers` is not set). The client cannot read
-  `Retry-After` or `Content-Disposition`; it names downloads itself and uses
-  its own backoff after a 429.
+- Scripts can read `Retry-After`, `Content-Disposition`, and
+  `WWW-Authenticate` on responses to a listed origin. The client uses
+  `Retry-After` after a 429 and `Content-Disposition` to name a download.
+  Other headers are readable only if the operator adds them with
+  `--expose-header`; the client does not depend on any.
 - Twenty failed authentications from one address in a minute return 429 for
   the rest of that minute.
 - JSON bodies are limited to 1 MiB. Image upload is limited to 20 MiB.
 - A non-loopback listener without TLS is allowed by the server with a
   warning; tokens and session content then travel in clear text. The client
   shows a persistent notice when it connects to such a server.
-- The server sets no `Access-Control-Allow-Private-Network` header. Chrome
-  moved from Private Network Access preflights to the Local Network Access
-  permission prompt, so the header is not needed for the cases above. Whether
-  an older browser needs it is a question for the server owner, not a change
-  made here.
+- `--allow-private-network` (or `server.allowPrivateNetwork` in `config.json`)
+  makes the server answer a Private Network Access preflight with
+  `Access-Control-Allow-Private-Network: true`. It is off by default. Current
+  Chrome asks the operator instead of sending this preflight, so the client
+  does not tell operators to turn it on for Chrome 142+ or Edge 143+. It may
+  matter for older browsers; not verified.
+- `--allow-origin` and `--allow-host` also live in `config.json` under
+  `server` (`allowOrigins`, `allowHosts`). The client may show either form.
 
 ## Invariants
 

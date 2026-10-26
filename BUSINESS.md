@@ -80,9 +80,10 @@ Connection:
   this site's origin, and show the exact flag, since every first connection
   needs it.
 - Turn server failures into specific messages: 401 token, 403 scope, 429 rate
-  limit, 503 session not ready. A rejected Origin (403) or Host (421) reaches
-  the page only as a network failure; show a combined checklist instead of
-  one guessed cause (see [ARCHITECTURE.md](ARCHITECTURE.md)).
+  limit, 503 session not ready, 421 host not allowed. Only a rejected Origin
+  (403) reaches the page as a network failure; for a failed first request show
+  a combined checklist instead of one guessed cause (see
+  [ARCHITECTURE.md](ARCHITECTURE.md)).
 
 Session:
 

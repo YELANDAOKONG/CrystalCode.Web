@@ -96,17 +96,27 @@ Package manager: pnpm only. npm is not allowed, and there is no
 Authorized today (from `package.json` and owner decisions):
 
 - Runtime: `vue`, `tailwindcss`, `@tailwindcss/vite`, `@lucide/vue` (the one
-  icon library), `class-variance-authority`.
+  icon library), `class-variance-authority`, `cn` (maintained by shadcn;
+  `src/lib/utils.ts` re-exports `cn`, a replacement for `clsx` plus
+  `tailwind-merge`, so those two are not added).
+- Runtime, approved by the owner on 2026-10-26 and installed with exact
+  versions: `markdown-it` 15.0.3 (ships its own types) and `shiki` 4.5.0, for
+  rendering model output. Render untrusted model output with `html: false` and
+  never insert it with `v-html` without that setting.
+- Runtime, pulled in by the shadcn-vue components the owner approved:
+  `reka-ui`, `@vueuse/core`, `vue-sonner`.
 - Development: `vite`, `@vitejs/plugin-vue`, `typescript`, `vue-tsc`,
   `@vue/tsconfig`, `@types/node`, `tw-animate-css`.
-- Approved by the owner on 2026-10-26, not yet installed: `markdown-it` and
-  `shiki`, for rendering model output. Pin versions when installing and check
-  their transitive dependencies first.
 
-Needs review before use: the `cn` package, which `src/lib/utils.ts`
-re-exports. The shadcn-vue `cn` helper normally comes from `clsx` and
-`tailwind-merge`, neither of which is installed. Do not add them without
-approval.
+shadcn-vue components: the owner allows agents to add them with
+`pnpm dlx shadcn-vue@<version> add <names>`; the packages the CLI brings are
+expected. Installed on 2026-10-26: alert, alert-dialog, badge, button,
+checkbox, collapsible, command, dialog, dropdown-menu, input, kbd, label,
+popover, progress, radio-group, scroll-area, select, separator, sheet,
+skeleton, sonner, spinner, switch, table, tabs, textarea, toggle,
+toggle-group, tooltip. After each run, check `src/style.css`: the CLI adds a
+Google Fonts `@import` at the top (because `components.json` has `font` set to
+inter). Remove it every time.
 
 Do not add any other dependency without asking. A dependency needs the user's
 confirmation that it is safe and trustworthy. No CDN script, font, or style
@@ -156,8 +166,4 @@ screenshot, or a commit.
 ## Open questions
 
 - Test framework and lint tooling.
-- Size of the Noto fallback fonts. They are unsubsetted TTF files (about
-  47 MB in total, 18 MB for SC alone) and `pnpm build` copies all of them into
-  `dist`. A browser downloads one only when an earlier face lacks a glyph, but
-  a hosted copy still carries them. Keep them as they are until the owner
-  decides whether to convert them to subsetted woff2.
+
