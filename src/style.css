@@ -1,8 +1,89 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* Primary faces, copied from ../CrystalCode.Website. */
+@font-face {
+  font-family: 'Archivo';
+  src: url('./assets/fonts/archivo-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('./assets/fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('./assets/fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback faces. A browser fetches one only when a character is not covered
+   by the faces before it in the stack, so plain Latin text does not download
+   them. */
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('./assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('./assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Mono';
+  src: url('./assets/fonts/NotoSansMono-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('./assets/fonts/NotoSansSC-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans TC';
+  src: url('./assets/fonts/NotoSansTC-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans HK';
+  src: url('./assets/fonts/NotoSansHK-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url('./assets/fonts/NotoSansJP-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -19,9 +100,11 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: 'Archivo', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK',
+    'Noto Sans JP', system-ui, sans-serif;
+  --heading: var(--sans);
+  --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans SC', 'Noto Sans TC',
+    ui-monospace, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -363,7 +446,25 @@ code {
   }
 }
 
+/* Han characters share code points across Chinese variants. Put the face for
+   the page language first so each locale draws its own glyph forms. */
+html:lang(zh-CN) {
+  --sans: 'Archivo', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK',
+    'Noto Sans JP', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans SC', 'Noto Sans TC',
+    ui-monospace, monospace;
+}
+
+html:lang(zh-TW) {
+  --sans: 'Archivo', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK',
+    'Noto Sans JP', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans TC', 'Noto Sans SC',
+    ui-monospace, monospace;
+}
+
 @theme inline {
+  --font-sans: var(--sans);
+  --font-mono: var(--mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
