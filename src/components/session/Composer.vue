@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import { approvalModes, currentByLabel, findArguments, toOptions, type Option } from '@/session/settings'
 import { sizeState } from '@/session/draft-size'
+import { aliasesOf, completedText, createPicker, isExact } from '@/session/slash'
 import ComposerChip from './ComposerChip.vue'
 import FullscreenComposer from './FullscreenComposer.vue'
 import QuickPromptPicker from './QuickPromptPicker.vue'
@@ -29,20 +30,37 @@ const blocked = computed(() => !canOperate.value)
 
 // --- slash command suggestions ------------------------------------------
 
-const suggestions = computed(() => {
-  const value = text.value
-  if (!value.startsWith('/') || /\s/.test(value)) return []
-  const prefix = value.slice(1).toLowerCase()
-  return model.commands.filter((command) => command.name.toLowerCase().startsWith(prefix)).slice(0, 8)
-})
+// Commands, their aliases, and their arguments, three levels deep, from the
+// server's own list. A picker is only offered while the draft is one line.
+const picker = computed(() => createPicker(text.value, model.commands))
+const suggestions = computed(() => picker.value?.matches ?? [])
+const options = useTemplateRef<HTMLLIElement[]>('options')
 
-watch(suggestions, () => {
+watch(picker, () => {
   choice.value = 0
 })
 
-function complete(name: string): void {
-  text.value = `/${name} `
-  void nextTick(() => element()?.focus())
+watch(choice, () => {
+  void nextTick(() => options.value?.[choice.value]?.scrollIntoView({ block: 'nearest' }))
+})
+
+function complete(index: number): void {
+  const current = picker.value
+  const picked = current?.matches[index]
+  if (!current || !picked) return
+  text.value = completedText(current, picked)
+  void nextTick(() => {
+    const target = element()
+    target?.focus()
+    target?.setSelectionRange(text.value.length, text.value.length)
+  })
+}
+
+// Enter completes the highlighted entry until the text already is that entry.
+const needsCompletion = () => {
+  const current = picker.value
+  const picked = current?.matches[choice.value]
+  return !!current && !!picked && !isExact(current, picked, text.value)
 }
 
 // --- sending --------------------------------------------------------------
@@ -76,10 +94,9 @@ function onKeydown(event: KeyboardEvent): void {
       return
     }
 
-    if (event.key === 'Tab' || (event.key === 'Enter' && !event.shiftKey && text.value !== `/${suggestions.value[choice.value]?.name}`)) {
+    if ((event.key === 'Tab' && !event.shiftKey) || (event.key === 'Enter' && !event.shiftKey && needsCompletion())) {
       event.preventDefault()
-      const picked = suggestions.value[choice.value]
-      if (picked) complete(picked.name)
+      complete(choice.value)
       return
     }
   }
@@ -215,13 +232,17 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         <li
           v-for="(command, index) in suggestions"
           :key="command.name"
+          ref="options"
           role="option"
           :aria-selected="index === choice"
           class="flex cursor-pointer items-baseline gap-3 rounded-md px-3 py-1.5 text-sm"
           :class="index === choice ? 'bg-accent text-accent-foreground' : ''"
-          @mousedown.prevent="complete(command.name)"
+          @mousedown.prevent="complete(index)"
         >
-          <span class="font-mono">/{{ command.name }}</span>
+          <span class="font-mono">{{ picker?.nested ? '' : '/' }}{{ command.name }}</span>
+          <span v-if="aliasesOf(command, picker?.nested ?? false).length" class="text-muted-foreground font-mono text-xs">
+            ({{ aliasesOf(command, picker?.nested ?? false).join(', ') }})
+          </span>
           <span class="text-muted-foreground truncate text-xs">{{ command.help }}</span>
         </li>
       </ul>
