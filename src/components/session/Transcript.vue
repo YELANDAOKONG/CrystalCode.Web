@@ -11,8 +11,9 @@ import ServerImage from './ServerImage.vue'
 import ToolBlock from './ToolBlock.vue'
 
 const model = server.model
-const blocks = computed(() => toBlocks(model.conversation))
+const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
+const pending = computed(() => model.notices.filter((notice) => notice.at === null))
 const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
 
 const scroller = ref<HTMLElement | null>(null)
@@ -80,6 +81,19 @@ const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model
             <div class="text-muted-foreground mt-1 border-l-2 pl-4"><MarkdownView :source="block.text" /></div>
           </details>
 
+          <template v-else-if="block.kind === 'notice'">
+            <div
+              v-if="block.notice.kind === 'error'"
+              role="alert"
+              class="border-destructive/40 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
+            >
+              <CircleAlert class="mt-0.5 size-4 shrink-0" />
+              <span class="whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ block.notice.text }}</span>
+            </div>
+            <p v-else-if="block.notice.kind === 'note'" class="text-muted-foreground text-sm whitespace-pre-wrap">{{ block.notice.text }}</p>
+            <ReportBlock v-else :notice="block.notice" />
+          </template>
+
           <ToolBlock v-else :call="block.call" :result="block.result" />
         </template>
 
@@ -100,7 +114,7 @@ const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model
           <p v-if="live.retries > 0" class="text-muted-foreground text-sm">{{ t('session.retrying', { count: live.retries }) }}</p>
         </template>
 
-        <template v-for="notice in model.notices" :key="notice.seq">
+        <template v-for="notice in pending" :key="notice.seq">
           <div
             v-if="notice.kind === 'error'"
             role="alert"
@@ -112,6 +126,7 @@ const isEmpty = computed(() => blocks.value.length === 0 && !live.value && model
           <p v-else-if="notice.kind === 'note'" class="text-muted-foreground text-sm whitespace-pre-wrap">{{ notice.text }}</p>
           <ReportBlock v-else :notice="notice" />
         </template>
+
       </div>
     </div>
     <Button

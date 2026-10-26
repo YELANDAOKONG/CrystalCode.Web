@@ -6,7 +6,6 @@ import { t } from '@/i18n'
 import type { Notice } from '@/session/state'
 import { parseTodos } from '@/protocol/parse'
 import HelpReportView from './HelpReportView.vue'
-import StatsReportView from './StatsReportView.vue'
 import StatusReportView from './StatusReportView.vue'
 import ToolsReportView from './ToolsReportView.vue'
 
@@ -19,8 +18,6 @@ const title = computed(() => {
       return t('report.help')
     case 'report.status':
       return data.full === true ? t('report.status.full') : t('report.status')
-    case 'report.stats':
-      return data.allWorkspaces === true ? t('report.stats.all') : t('report.stats')
     case 'report.tools':
       return t('report.tools')
     case 'report.todos':
@@ -30,7 +27,7 @@ const title = computed(() => {
   }
 })
 
-const known = computed(() => ['report.help', 'report.status', 'report.stats', 'report.tools', 'report.todos'].includes(props.notice.type))
+const known = computed(() => ['report.help', 'report.status', 'report.tools', 'report.todos'].includes(props.notice.type))
 const todos = computed(() => parseTodos(props.notice.data.items))
 </script>
 
@@ -43,7 +40,6 @@ const todos = computed(() => parseTodos(props.notice.data.items))
     <div class="max-h-[28rem] overflow-y-auto border-t px-3 py-3">
       <HelpReportView v-if="notice.type === 'report.help'" :data="notice.data" />
       <StatusReportView v-else-if="notice.type === 'report.status'" :data="notice.data" />
-      <StatsReportView v-else-if="notice.type === 'report.stats'" :data="notice.data" />
       <ToolsReportView v-else-if="notice.type === 'report.tools'" :data="notice.data" />
       <ul v-else-if="notice.type === 'report.todos'" class="space-y-1">
         <li v-if="todos.length === 0" class="text-muted-foreground">{{ t('report.none') }}</li>

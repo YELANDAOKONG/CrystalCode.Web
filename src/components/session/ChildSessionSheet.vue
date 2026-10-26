@@ -91,7 +91,7 @@ const number = new Intl.NumberFormat()
               <summary class="cursor-pointer">{{ t('session.reasoning') }}</summary>
               <MarkdownView :source="block.text" />
             </details>
-            <ToolBlock v-else :call="block.call" :result="block.result" />
+            <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" />
           </template>
         </template>
 

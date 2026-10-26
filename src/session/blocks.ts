@@ -1,4 +1,5 @@
 import type { ConversationItem, ToolCall } from '@/protocol/types'
+import type { Notice } from './state'
 
 // Turns the flat conversation list into what the transcript draws: a tool call
 // and its result become one block, matched by call id.
@@ -13,8 +14,13 @@ export type Block =
   | { kind: 'message'; key: string; role: string; text: string; images: number[] }
   | { kind: 'reasoning'; key: string; text: string }
   | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null }
+  | { kind: 'notice'; key: string; notice: Notice }
 
-export function toBlocks(items: ConversationItem[]): Block[] {
+/**
+ * @param notices Notes, errors, and reports. Each is placed before the item at
+ *   its `at` index, so output appears where the command that caused it was typed.
+ */
+export function toBlocks(items: ConversationItem[], notices: Notice[] = []): Block[] {
   const results = new Map<string, ToolResult>()
   for (const item of items) {
     if (item.kind === 'tool_result') {
@@ -24,7 +30,17 @@ export function toBlocks(items: ConversationItem[]): Block[] {
 
   const blocks: Block[] = []
   const called = new Set<string>()
+  let next = 0
+  const placed = notices.filter((notice) => notice.at !== null).sort((a, b) => (a.at as number) - (b.at as number) || a.seq - b.seq)
+  const flush = (index: number) => {
+    while (next < placed.length && (placed[next]!.at as number) <= index) {
+      blocks.push({ kind: 'notice', key: `n${placed[next]!.seq}`, notice: placed[next]! })
+      next += 1
+    }
+  }
+
   items.forEach((item, index) => {
+    flush(index)
     switch (item.kind) {
       case 'message':
         blocks.push({ kind: 'message', key: `m${index}`, role: item.role, text: item.text, images: item.images })
@@ -57,6 +73,7 @@ export function toBlocks(items: ConversationItem[]): Block[] {
         break
     }
   })
+  flush(Number.POSITIVE_INFINITY)
   return blocks
 }
 

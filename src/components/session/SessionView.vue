@@ -4,6 +4,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { t } from '@/i18n'
+import StatsWindow from '@/components/report/StatsWindow.vue'
 import Composer from './Composer.vue'
 import InteractionDialog from './InteractionDialog.vue'
 import SessionHeader from './SessionHeader.vue'
@@ -55,6 +56,7 @@ const banner = computed(() => {
         <SidePanel />
       </SheetContent>
     </Sheet>
+    <StatsWindow />
     <InteractionDialog v-if="current" :key="current.id" :interaction="current" :waiting="model.interactions.length - 1" />
   </div>
 </template>

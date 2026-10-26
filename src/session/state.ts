@@ -33,6 +33,12 @@ import type {
 /** A note, error, or report that answers one request. Reports are not session state. */
 export interface Notice {
   seq: number
+  /**
+   * Where it belongs in the conversation: the number of items before it. Null
+   * while a model round is still streaming; it takes its place when that round
+   * is committed, so a note never lands in the middle of a reply.
+   */
+  at: number | null
   kind: 'note' | 'error' | 'report'
   /** For a report, the event type such as `report.status`. */
   type: string
@@ -84,6 +90,8 @@ export class SessionModel {
   lastTurn: LastTurn | null = null
   interactions: Interaction[] = []
   notices: Notice[] = []
+  /** The `/stats` page. It is a window of its own, not part of the conversation. */
+  statsPage: { seq: number; data: Record<string, unknown> } | null = null
   /** Set by `message.recalled`: the text the composer should take back. */
   recalledDraft: { seq: number; text: string } | null = null
 
@@ -233,6 +241,8 @@ export class SessionModel {
       }
       case 'conversation.cleared':
         this.conversation = []
+        this.notices = []
+        this.statsPage = null
         this.children = []
         this.hasRound = false
         this.live = null
@@ -240,6 +250,7 @@ export class SessionModel {
         break
       case 'conversation.replayed':
         this.conversation = parseItems(d.items)
+        this.notices = []
         this.children = []
         this.hasRound = false
         this.live = null
@@ -276,7 +287,9 @@ export class SessionModel {
         }
         break
       default:
-        if (event.type.startsWith('report.')) {
+        if (event.type === 'report.stats') {
+          this.statsPage = { seq: event.seq, data: event.data }
+        } else if (event.type.startsWith('report.')) {
           this.pushNotice(event, 'report', '')
         }
 
@@ -291,12 +304,25 @@ export class SessionModel {
     this.notices = []
   }
 
+  dismissStats(): void {
+    this.statsPage = null
+  }
+
   // --- internals -----------------------------------------------------------
 
   private pushNotice(event: ServerEvent, kind: Notice['kind'], text: string): void {
+    const streaming = this.roundText.length > 0 || this.roundReasoning.length > 0 || this.roundCalls.size > 0
     this.notices = [
       ...this.notices.slice(-199),
-      { seq: event.seq, kind, type: event.type, text, data: event.data, time: event.time },
+      {
+        seq: event.seq,
+        at: streaming ? null : this.conversation.length,
+        kind,
+        type: event.type,
+        text,
+        data: event.data,
+        time: event.time,
+      },
     ]
   }
 
@@ -406,6 +432,10 @@ export class SessionModel {
 
     for (const call of this.roundToolCalls()) items.push({ kind: 'tool_call', ...call })
     if (items.length > 0) this.conversation = [...this.conversation, ...items]
+    if (this.notices.some((notice) => notice.at === null)) {
+      const placed = this.conversation.length
+      this.notices = this.notices.map((notice) => (notice.at === null ? { ...notice, at: placed } : notice))
+    }
   }
 
   /** Issued calls carry final arguments and replace the streamed copies. */
