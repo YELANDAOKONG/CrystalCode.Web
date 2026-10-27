@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { server } from '@/app/server'
 import { Toaster } from '@/components/ui/sonner'
 import { t, type MessageKey } from '@/i18n'
 import { ProtocolError } from '@/protocol/errors'
+import { useTheme } from '@/theme/theme'
+
+const { theme } = useTheme()
+// The toaster has its own palette, so it must follow the theme the operator
+// picked here, not only the system setting.
+const toasterTheme = computed(() => (theme.value === 'auto' ? 'system' : theme.value))
 
 // A failed action reports here. The server's text is shown as received and
 // follows the interface message, since it is English and may explain the cause.
@@ -25,5 +31,5 @@ watch(
 </script>
 
 <template>
-  <Toaster position="top-center" :duration="6000" close-button rich-colors />
+  <Toaster position="top-center" :theme="toasterTheme" :duration="6000" close-button rich-colors />
 </template>

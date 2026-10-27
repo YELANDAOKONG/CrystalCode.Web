@@ -3,6 +3,7 @@ import type { ToasterProps } from "vue-sonner"
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon, XIcon } from "@lucide/vue"
 import { cn } from "cn"
 import { Toaster as Sonner } from "vue-sonner"
+import "vue-sonner/style.css"
 
 const props = defineProps<ToasterProps>()
 </script>
