@@ -239,6 +239,26 @@ The client reports the matching failure; it cannot fix any of them.
   matter for older browsers; not verified.
 - `--allow-origin` and `--allow-host` also live in `config.json` under
   `server` (`allowOrigins`, `allowHosts`). The client may show either form.
+- Progress. `activity.changed` reports only `loading_tools`,
+  `loading_plugins`, `compacting`, `waiting_for_model`, and `idle`. The
+  progress row reads everything else from events the way the terminal does
+  (`SessionRenderer`, `ProgressText`): `stream.reasoning` is Thinking,
+  `stream.text` is Writing, `stream.tool-call` is Calling, `tools.called` and
+  `approval.passed` are Running with the terminal's wording per tool,
+  `tools.results` returns to Waiting, `retry.scheduled` counts down, and
+  `approval.reviewing` is Reviewing. A pending approval or question wins. The
+  elapsed time restarts whenever the wording changes. `SessionModel.step`
+  holds the step; `session/progress.ts` turns it into text.
+- Compaction summaries are not in a snapshot. They arrive once as a `note`
+  event, and `SessionState` does not keep notes, so a refresh loses them.
+  Requirement for the server owner: keep the summary in the snapshot's
+  `conversation` (as the `## Earlier context` system message the archive
+  already holds), or keep the compaction note in `SessionState`. The summary
+  is written to the archive only when `showCompactionSummary` (manual) or
+  `showAutomaticCompactionSummary` (automatic) is on.
+- The toaster (`vue-sonner`) ships its own stylesheet and does not inject it.
+  `ui/sonner/Sonner.vue` imports `vue-sonner/style.css`; without it the toasts
+  render unpositioned at the bottom of the page.
 
 ## Invariants
 

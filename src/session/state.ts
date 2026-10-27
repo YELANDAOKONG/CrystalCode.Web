@@ -1,4 +1,4 @@
-import { arr, bool, num, optNum, optStr, str } from '@/protocol/json'
+import { arr, asObject, bool, num, optNum, optStr, str } from '@/protocol/json'
 import {
   parseChild,
   parseChrome,
@@ -30,6 +30,7 @@ import type {
   Usage,
 } from '@/protocol/types'
 import { isChildActive, type ChildTrace } from './child-trace'
+import { isActivityStep, sameStep, stepForActivity, stepFromSnapshot, type Step } from './progress'
 import { RoundAssembler, toolResultItems, withIssuedCalls } from './round'
 
 /** A note, error, or report that answers one request. Reports are not session state. */
@@ -75,6 +76,8 @@ export class SessionModel {
   live: LiveRound | null = null
   turnActive = false
   activity = 'idle'
+  /** What the main session is doing now, for the progress row. Null when idle. */
+  step: Step | null = null
   queue: string[] = []
   todos: Todo[] = []
   statusFields: StatusField[] = []
@@ -111,6 +114,7 @@ export class SessionModel {
     this.conversation = snapshot.conversation
     this.turnActive = snapshot.turnActive
     this.activity = snapshot.activity
+    this.step = stepFromSnapshot(snapshot.activity, snapshot.turnActive, snapshot.live)
     this.queue = snapshot.queue
     this.todos = snapshot.todos
     this.statusFields = snapshot.statusFields
@@ -166,9 +170,15 @@ export class SessionModel {
       case 'prompt-history.loaded':
         this.promptHistory = arr(d.entries).filter((e): e is string => typeof e === 'string')
         break
-      case 'activity.changed':
+      case 'activity.changed': {
         this.activity = str(d.activity, 'idle')
+        const next = stepForActivity(this.activity)
+        // Idle ends a step only an activity event can set. A stream step is
+        // replaced by the next delta, so leave it alone.
+        if (next) this.setStep(next)
+        else if (isActivityStep(this.step)) this.setStep(this.turnActive ? { kind: 'waiting' } : null)
         break
+      }
       case 'queue.changed':
         this.queue = arr(d.items).filter((e): e is string => typeof e === 'string')
         break
@@ -200,12 +210,14 @@ export class SessionModel {
       case 'turn.started':
         this.turnActive = true
         this.resetRound(true)
+        this.setStep({ kind: 'waiting' })
         break
       case 'turn.finished': {
         this.turnActive = false
         this.commitRound()
         this.round.reset(false)
         this.live = null
+        this.setStep(null)
         this.lastTurn = { reason: str(d.reason), modelCalls: num(d.modelCalls), toolCalls: num(d.toolCalls) }
         this.usage = parseUsage(d.usage)
         this.cumulativeUsage = parseUsage(d.cumulativeUsage)
@@ -219,13 +231,27 @@ export class SessionModel {
       case 'retry.scheduled':
         this.round.retry()
         this.refreshLive()
+        this.setStep({ kind: 'retrying', attempt: num(d.attempt), until: Date.now() + num(d.delayMilliseconds) })
         break
-      case 'tools.called':
-        this.addCalls(arr(d.calls).map(parseToolCall))
+      case 'tools.called': {
+        const calls = arr(d.calls).map(parseToolCall)
+        this.addCalls(calls)
+        const first = calls[0]
+        if (first) this.setStep({ kind: 'running', name: first.name })
         break
+      }
       case 'tools.results':
         this.conversation = [...this.conversation, ...toolResultItems(d)]
+        this.setStep({ kind: 'waiting' })
         break
+      case 'approval.reviewing':
+        this.setStep({ kind: 'reviewing', extended: str(d.stage) === 'extended' })
+        break
+      case 'approval.passed': {
+        const name = str(asObject(d.call).name)
+        if (name) this.setStep({ kind: 'running', name })
+        break
+      }
       case 'conversation.cleared':
         this.conversation = []
         this.notices = []
@@ -233,6 +259,7 @@ export class SessionModel {
         this.clearChildren()
         this.round.reset(false)
         this.live = null
+        this.setStep(null)
         this.lastTurn = null
         break
       case 'conversation.replayed':
@@ -241,6 +268,7 @@ export class SessionModel {
         this.clearChildren()
         this.round.reset(false)
         this.live = null
+        this.setStep(null)
         break
       case 'child.changed':
         this.upsertChild(parseChild(d.child), str(d.invocationId))
@@ -459,7 +487,22 @@ export class SessionModel {
   }
 
   private applyStream(type: string, d: Record<string, unknown>): void {
-    if (this.round.apply(type, d)) this.refreshLive()
+    if (!this.round.apply(type, d)) return
+    this.refreshLive()
+    if (type === 'stream.reasoning') {
+      this.setStep({ kind: 'thinking' })
+    } else if (type === 'stream.text') {
+      this.setStep({ kind: 'writing' })
+    } else {
+      // The name arrives in pieces; show the call once it has one.
+      const name = this.round.callName(num(d.item))
+      if (name) this.setStep({ kind: 'calling', name })
+    }
+  }
+
+  /** Streams touch this on every token, so an unchanged step must not re-render the page. */
+  private setStep(next: Step | null): void {
+    if (!sameStep(this.step, next)) this.step = next
   }
 
   private refreshLive(): void {

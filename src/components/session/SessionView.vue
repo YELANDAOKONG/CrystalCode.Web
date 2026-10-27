@@ -8,6 +8,7 @@ import SettingsView from '@/components/settings/SettingsView.vue'
 import StatsWindow from '@/components/report/StatsWindow.vue'
 import Composer from './Composer.vue'
 import InteractionDialog from './InteractionDialog.vue'
+import ProgressRow from './ProgressRow.vue'
 import SessionHeader from './SessionHeader.vue'
 import SidePanel from './SidePanel.vue'
 import StatusBar from './StatusBar.vue'
@@ -42,6 +43,7 @@ const banner = computed(() => {
     <div class="flex min-h-0 flex-1">
       <main class="flex min-w-0 flex-1 flex-col">
         <Transcript />
+        <ProgressRow />
         <Composer />
         <StatusBar />
       </main>

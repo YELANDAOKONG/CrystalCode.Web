@@ -59,6 +59,11 @@ export class RoundAssembler {
     })
   }
 
+  /** The tool name assembled so far for the call at stream item `item`, empty until it arrives. */
+  callName(item: number): string {
+    return this.calls.get(item)?.name ?? ''
+  }
+
   /** Returns false for a delta the engine does not assemble. */
   apply(type: string, d: Record<string, unknown>): boolean {
     // The engine assembles candidate 0 only.
