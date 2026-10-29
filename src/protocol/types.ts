@@ -81,6 +81,10 @@ export interface Chrome {
   /** Null while that reviewer is off. */
   reviewer: Reviewer | null
   extendedApproval: ExtendedReviewer | null
+  /** The compaction model, or null while it is off. */
+  compaction: Reviewer | null
+  /** The image-description model, or null while none is set. */
+  image: Reviewer | null
 }
 
 export interface Preferences {

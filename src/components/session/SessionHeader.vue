@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Download, LibraryBig, PanelRight, Settings } from '@lucide/vue'
 import { server } from '@/app/server'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
 import LogoMark from '@/components/common/LogoMark.vue'
 import ThemeMenu from '@/components/common/ThemeMenu.vue'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +25,12 @@ const hasCatalog = computed(() =>
   ['GET /sessions', 'GET /models', 'GET /agents', 'GET /skills', 'GET /mcp', 'GET /plugins', 'GET /tasks'].some((route) => server.can(route)),
 )
 
+const exporting = ref(false)
+
 async function download(format: 'markdown' | 'json'): Promise<void> {
-  const file = await server.exportSession(format, false)
+  if (exporting.value) return
+  exporting.value = true
+  const file = await server.exportSession(format, false).finally(() => (exporting.value = false))
   if (!file) return
   const url = URL.createObjectURL(file.blob)
   const link = document.createElement('a')
@@ -52,7 +57,8 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     <DropdownMenu v-if="server.can('GET /export')">
       <DropdownMenuTrigger as-child>
         <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="t('header.export')" :title="t('header.export')">
-          <Download class="size-4" />
+          <Spinner v-if="exporting" class="size-4 motion-reduce:animate-none" />
+          <Download v-else class="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

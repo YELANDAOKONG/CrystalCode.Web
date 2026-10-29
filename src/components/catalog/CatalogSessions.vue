@@ -3,7 +3,9 @@ import { ref, watch } from 'vue'
 import { server } from '@/app/server'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
+import { useBusy } from '@/composables/busy'
 import { useQuery } from '@/composables/query'
 import { t } from '@/i18n'
 import { modeLabel } from '@/session/mode'
@@ -24,8 +26,9 @@ const when = (iso: string | null) => {
 
 // /resume replaces the session in this process. The transcript redraws from
 // the conversation.replayed event, so the dialog only has to get out of the way.
+const { busy, anyBusy, run } = useBusy()
 async function resume(id: string): Promise<void> {
-  const result = await server.send(`/resume ${id}`)
+  const result = await run(id, () => server.send(`/resume ${id}`))
   if (result?.accepted) emit('leave')
 }
 </script>
@@ -50,7 +53,8 @@ async function resume(id: string): Promise<void> {
         <div class="flex shrink-0 flex-col items-end gap-1.5">
           <Badge v-if="session.current">{{ t('catalog.sessions.current') }}</Badge>
           <Badge v-else-if="session.open" variant="outline">{{ t('catalog.sessions.open') }}</Badge>
-          <Button v-else variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin" :title="isAdmin ? undefined : t('settings.adminOnly')" @click="resume(session.id)">
+          <Button v-else variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin || anyBusy()" :aria-busy="busy(session.id) || undefined" :title="isAdmin ? undefined : t('settings.adminOnly')" @click="resume(session.id)">
+            <Spinner v-if="busy(session.id)" class="size-3.5 motion-reduce:animate-none" />
             {{ t('catalog.sessions.resume') }}
           </Button>
         </div>

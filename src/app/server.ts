@@ -65,6 +65,8 @@ const SCOPE_RANK: Record<Scope, number> = { observe: 0, operate: 1, admin: 2 }
 function createServer() {
   const model = shallowReactive(new SessionModel())
   const phase = ref<Phase>('idle')
+  /** Requests the operator started that have not answered yet. */
+  const pendingActions = ref(0)
   const info = shallowRef<ServerInfo | null>(null)
   const diagnosis = shallowRef<Diagnosis | null>(null)
   const formError = shallowRef<FormError | null>(null)
@@ -341,11 +343,14 @@ function createServer() {
   async function act<T>(task: (c: CrystalClient) => Promise<T>): Promise<T | undefined> {
     const c = client
     if (!c) return undefined
+    pendingActions.value += 1
     try {
       return await task(c)
     } catch (error) {
       report(error)
       return undefined
+    } finally {
+      pendingActions.value -= 1
     }
   }
 
@@ -418,6 +423,7 @@ function createServer() {
   return {
     model,
     phase,
+    pendingActions,
     info,
     diagnosis,
     formError,

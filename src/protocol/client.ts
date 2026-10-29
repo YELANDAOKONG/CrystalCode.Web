@@ -196,11 +196,12 @@ export class CrystalClient {
     text: string,
     requestId: string,
     signal?: AbortSignal,
-  ): Promise<{ accepted: boolean; pending: boolean; turnActive: boolean; quit: boolean }> {
+  ): Promise<{ accepted: boolean; pending: boolean; error: string | null; turnActive: boolean; quit: boolean }> {
     const body = asObject(await this.json('POST', '/input', { text, clientRequestId: requestId }, signal))
     return {
       accepted: bool(body.accepted, true),
       pending: bool(body.pending),
+      error: optStr(body.error),
       turnActive: bool(body.turnActive),
       quit: bool(body.quit),
     }
@@ -397,13 +398,21 @@ export class CrystalClient {
     if (contentType) headers['Content-Type'] = contentType
     if (authenticated && this.options.token) headers.Authorization = `Bearer ${this.options.token}`
 
-    const init: RequestInitWithSpace = { method, headers, body, signal, mode: 'cors', credentials: 'omit', cache: 'no-store' }
+    // The event stream is meant to stay open, so only ordinary requests time
+    // out. Without a limit a server that stops answering leaves the control
+    // that sent the request spinning for as long as the page lives.
+    const limited = path.startsWith('/events') ? signal : withTimeout(signal, REQUEST_TIMEOUT_MS)
+    const init: RequestInitWithSpace = { method, headers, body, signal: limited, mode: 'cors', credentials: 'omit', cache: 'no-store' }
     if (this.options.targetAddressSpace) init.targetAddressSpace = this.options.targetAddressSpace
 
     let response: Response
     try {
       response = await this.fetcher(this.options.baseUrl + path, init)
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'TimeoutError') {
+        throw new ProtocolError('network', 'The server did not answer in time.')
+      }
+
       if (isAbort(error)) throw new ProtocolError('aborted', 'The request was cancelled.')
       throw new ProtocolError('network', 'The server could not be reached.')
     }
@@ -411,6 +420,14 @@ export class CrystalClient {
     if (!response.ok) throw await problem(response)
     return response
   }
+}
+
+const REQUEST_TIMEOUT_MS = 30_000
+
+/** The caller's signal, plus a limit. A chat turn runs on the stream, so no request waits this long. */
+function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
+  const limit = AbortSignal.timeout(ms)
+  return signal ? AbortSignal.any([signal, limit]) : limit
 }
 
 async function problem(response: Response): Promise<ProtocolError> {

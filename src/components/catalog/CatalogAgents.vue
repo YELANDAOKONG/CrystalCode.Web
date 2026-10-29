@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { ChevronRight } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Badge } from '@/components/ui/badge'
 import { useQuery } from '@/composables/query'
 import { t } from '@/i18n'
 import type { AgentEntry } from '@/protocol/types'
 import { displayToken } from '@/session/display-case'
+import AgentEditor from './AgentEditor.vue'
 import CatalogNotes from './CatalogNotes.vue'
 import CatalogPane from './CatalogPane.vue'
 
@@ -49,6 +51,13 @@ function modelText(agent: AgentEntry): string {
             <template v-if="agent.tools === null">{{ t('catalog.agents.toolsDefault') }}</template>
             <template v-else>{{ agent.tools.join(', ') }}</template>
           </p>
+          <details v-if="data.enabled" class="group pt-1">
+            <summary class="text-muted-foreground hover:text-foreground flex min-h-10 cursor-pointer list-none items-center gap-1 text-xs">
+              <ChevronRight class="size-3.5 transition-transform group-open:rotate-90 motion-reduce:transition-none" />
+              {{ t('catalog.agents.edit') }}
+            </summary>
+            <AgentEditor :agent="agent" @changed="reload" />
+          </details>
         </li>
       </ul>
       <CatalogNotes :notes="data.notes" />

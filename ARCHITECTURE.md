@@ -273,6 +273,11 @@ The client reports the matching failure; it cannot fix any of them.
   and `PUT /options/{id}` feed the prompt set and the feature switches on the
   settings page; `options.changed` keeps `SessionModel.options` current.
   A task log is plain text read from `logStartOffset`, in chunks.
+- In-flight feedback. A control that sends a change shows a spinner, ignores
+  input until the server answers, and never sends twice (`composables/busy.ts`,
+  keyed per control). Ordinary requests time out after 30 seconds and report a
+  network failure; the event stream has no limit. `server.pendingActions`
+  counts requests in flight for anything that needs a global signal.
 - The chrome's `reviewer` and `extendedApproval` are `null` while off. The
   settings page shows them read-only.
 - The toaster (`vue-sonner`) ships its own stylesheet and does not inject it.

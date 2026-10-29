@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { server } from '@/app/server'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
+import { useBusy } from '@/composables/busy'
 import { useQuery } from '@/composables/query'
 import { t } from '@/i18n'
 import type { ModelEntry } from '@/protocol/types'
@@ -36,9 +38,13 @@ function traits(entry: ModelEntry): string {
   return parts.join(' · ')
 }
 
+const { busy, anyBusy, run } = useBusy()
+const keyOf = (entry: ModelEntry) => `${entry.provider} ${entry.model}`
 async function use(entry: ModelEntry): Promise<void> {
-  await server.send(`/model ${entry.provider} ${entry.model}`)
-  await reload()
+  await run(keyOf(entry), async () => {
+    await server.send(`/model ${keyOf(entry)}`)
+    await reload()
+  })
 }
 </script>
 
@@ -60,7 +66,8 @@ async function use(entry: ModelEntry): Promise<void> {
             </p>
             <p class="text-muted-foreground mt-0.5 text-xs">{{ entry.protocol }}<template v-if="traits(entry)"> · {{ traits(entry) }}</template></p>
           </div>
-          <Button v-if="!entry.current" variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin" @click="use(entry)">
+          <Button v-if="!entry.current" variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin || anyBusy()" :aria-busy="busy(keyOf(entry)) || undefined" @click="use(entry)">
+            <Spinner v-if="busy(keyOf(entry))" class="size-3.5 motion-reduce:animate-none" />
             {{ t('catalog.models.use') }}
           </Button>
         </li>

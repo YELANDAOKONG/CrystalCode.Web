@@ -10,6 +10,8 @@ export interface Option {
   value: string
   label: string
   help: string
+  /** Shown as a heading over the entries that share it. */
+  group?: string
 }
 
 /** Looks a command up by name, then follows nested argument names. */

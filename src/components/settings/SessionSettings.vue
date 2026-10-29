@@ -3,7 +3,9 @@ import { computed, onMounted } from 'vue'
 import { server } from '@/app/server'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { t } from '@/i18n'
+import { Spinner } from '@/components/ui/spinner'
+import { useBusy } from '@/composables/busy'
+import { t, type MessageKey } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import {
@@ -16,6 +18,7 @@ import {
 } from '@/session/settings'
 import { formatWindow } from '@/session/usage-text'
 import ChoiceSelect from './ChoiceSelect.vue'
+import SideModelSettings from './SideModelSettings.vue'
 import SettingRow from './SettingRow.vue'
 
 const model = server.model
@@ -81,11 +84,14 @@ const promptSets = computed<Option[]>(() =>
   (promptSet.value?.values ?? []).map((value) => ({ value: value.value, label: value.name, help: value.description ?? '' })),
 )
 const switches = computed(() => model.options.filter((option) => option.switch && option.id !== 'estimated_tokens'))
-const setPromptSet = (value: string) => void server.setOption('prompt_set', value)
-const setSwitch = (id: string, on: boolean | 'indeterminate') => void server.setOption(id, on === true)
+const setPromptSet = (value: string) => void track('prompt_set', () => server.setOption('prompt_set', value))
+const setSwitch = (id: string, on: boolean | 'indeterminate') => void track(id, () => server.setOption(id, on === true))
 
-const run = (command: string) => void server.send(command)
-const setMode = (name: string) => void server.setMode('set', name)
+// Each control keeps its own in-flight flag, so a slow answer shows a spinner
+// on the control that was changed and nowhere else.
+const { busy, run: track } = useBusy()
+const run = (key: string, command: string) => void track(key, () => server.send(command))
+const setMode = (name: string) => void track('mode', () => server.setMode('set', name))
 
 // While a turn or compaction runs, the server records a change and applies it
 // on the next turn. The chrome lists what waits; the control keeps showing the
@@ -108,18 +114,21 @@ const pendingContext = computed(() =>
 const pendingTier = computed(() => waiting(slotLabel(pending.value.serviceTier)))
 const pendingSpeed = computed(() => waiting(slotLabel(pending.value.speed)))
 
-// Reviewers are shown as the server reports them. Changing one is a
-// `/approval model` command the page does not offer.
-const reviewerText = (reviewer: { provider: string; model: string; thinking: string; serviceTier: string; speed: string }) =>
-  [`${reviewer.provider} / ${reviewer.model}`, reviewer.thinking, reviewer.serviceTier, reviewer.speed]
-    .filter((part) => part !== '')
-    .join(' · ')
-const reviewer = computed(() => (chrome.value?.reviewer ? reviewerText(chrome.value.reviewer) : t('settings.reviewer.off')))
-const extended = computed(() => {
-  const value = chrome.value?.extendedApproval
-  if (!value) return t('settings.reviewer.off')
-  const trigger = value.trigger ? ` · ${t('settings.reviewer.trigger', { trigger: value.trigger })}` : ''
-  return `${reviewerText(value)}${trigger}`
+// The server names its switches in English. Known ones get a translated name.
+const SWITCH_LABELS: Record<string, MessageKey> = {
+  agents: 'settings.opt.agents',
+  micro_compaction: 'settings.opt.micro_compaction',
+}
+const switchLabel = (id: string, name: string) => (SWITCH_LABELS[id] ? t(SWITCH_LABELS[id]) : name)
+const switchHelp = (id: string, description: string | null) => {
+  const key = `settings.opt.${id}.help` as MessageKey
+  return SWITCH_LABELS[id] ? t(key) : (description ?? undefined)
+}
+// The image model has no command to change it, so the page only shows it.
+const imageModel = computed(() => {
+  const image = chrome.value?.image
+  if (!image) return null
+  return [`${image.provider} / ${image.model}`, image.thinking, image.serviceTier, image.speed].filter((part) => part !== '')
 })
 const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '' ? t('settings.thinking.unsupported') : undefined))
 </script>
@@ -129,7 +138,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
     <p v-if="locked" class="text-muted-foreground pb-3 text-sm">{{ t('settings.readonly') }}</p>
 
     <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" :note="pendingMode" label-for="set-mode">
-      <ChoiceSelect id="set-mode" :options="modes" :model-value="currentMode" :disabled="locked" @change="setMode" />
+      <ChoiceSelect id="set-mode" :options="modes" :model-value="currentMode" :disabled="locked" :loading="busy('mode')" @change="setMode" />
     </SettingRow>
 
     <SettingRow
@@ -143,7 +152,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="approvals"
         :model-value="currentApproval"
         :disabled="locked || adminLocked"
-        @change="(v) => run(`/approval ${v}`)"
+        :loading="busy('approval')"
+        @change="(v) => run('approval', `/approval ${v}`)"
       />
     </SettingRow>
 
@@ -158,7 +168,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="modelOptions"
         :model-value="currentModel"
         :disabled="locked || adminLocked"
-        @change="(v) => run(`/model ${v}`)"
+        :loading="busy('model')"
+        @change="(v) => run('model', `/model ${v}`)"
       />
     </SettingRow>
 
@@ -173,7 +184,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="thinking"
         :model-value="currentThinking"
         :disabled="locked || adminLocked"
-        @change="(v) => run(`/thinking ${v}`)"
+        :loading="busy('thinking')"
+        @change="(v) => run('thinking', `/thinking ${v}`)"
       />
     </SettingRow>
 
@@ -189,7 +201,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="windows"
         :model-value="currentWindow"
         :disabled="locked || adminLocked || windows.length < 2"
-        @change="(v) => run(`/context ${v}`)"
+        :loading="busy('context')"
+        @change="(v) => run('context', `/context ${v}`)"
       />
     </SettingRow>
 
@@ -199,7 +212,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="tiers"
         :model-value="currentTier"
         :disabled="locked || adminLocked"
-        @change="(v) => run(`/tier ${v}`)"
+        :loading="busy('tier')"
+        @change="(v) => run('tier', `/tier ${v}`)"
       />
     </SettingRow>
 
@@ -209,7 +223,8 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="speeds"
         :model-value="currentSpeed"
         :disabled="locked || adminLocked"
-        @change="(v) => run(`/speed ${v}`)"
+        :loading="busy('speed')"
+        @change="(v) => run('speed', `/speed ${v}`)"
       />
     </SettingRow>
 
@@ -219,28 +234,41 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :options="promptSets"
         :model-value="promptSet?.current"
         :disabled="locked || adminLocked"
+        :loading="busy('prompt_set')"
         @change="setPromptSet"
       />
     </SettingRow>
 
     <template v-if="canOptions">
-      <SettingRow v-for="option in switches" :key="option.id" :label="option.name" :help="option.description ?? undefined" :label-for="`opt-${option.id}`">
-        <Switch
-          :id="`opt-${option.id}`"
-          :model-value="option.current === 'on'"
-          :disabled="locked || adminLocked"
-          @update:model-value="(on) => setSwitch(option.id, on)"
-        />
+      <SettingRow
+        v-for="option in switches"
+        :key="option.id"
+        :label="switchLabel(option.id, option.name)"
+        :help="switchHelp(option.id, option.description)"
+        :label-for="`opt-${option.id}`"
+      >
+        <div class="flex items-center gap-2 sm:justify-end">
+          <Spinner v-if="busy(option.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+          <Switch
+            :id="`opt-${option.id}`"
+            :model-value="option.current === 'on'"
+            :aria-busy="busy(option.id) || undefined"
+            :disabled="locked || adminLocked || busy(option.id)"
+            @update:model-value="(on) => setSwitch(option.id, on)"
+          />
+        </div>
+      </SettingRow>
+
+      <SideModelSettings slot="approval" />
+      <SideModelSettings slot="extended" />
+      <SideModelSettings slot="compaction" />
+
+      <SettingRow v-if="imageModel" :label="t('settings.image')" :help="t('settings.image.help')">
+        <p class="flex min-w-0 flex-wrap gap-x-2 text-sm sm:justify-end">
+          <span v-for="(part, index) in imageModel" :key="index" class="whitespace-nowrap">{{ part }}</span>
+        </p>
       </SettingRow>
     </template>
-
-    <SettingRow :label="t('settings.reviewer')" :help="t('settings.reviewer.help')">
-      <p class="min-w-0 text-sm break-words sm:text-right">{{ reviewer }}</p>
-    </SettingRow>
-
-    <SettingRow :label="t('settings.extended')">
-      <p class="min-w-0 text-sm break-words sm:text-right">{{ extended }}</p>
-    </SettingRow>
 
     <Separator class="hidden" />
   </div>

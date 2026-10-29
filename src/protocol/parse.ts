@@ -142,6 +142,8 @@ export function parseChrome(value: unknown): Chrome | null {
     pending: parsePending(value.pending),
     reviewer: parseReviewer(value.reviewer),
     extendedApproval: parseExtendedReviewer(value.extendedApproval),
+    compaction: parseReviewer(value.compaction),
+    image: parseReviewer(value.image),
   }
 }
 

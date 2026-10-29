@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { Spinner } from '@/components/ui/spinner'
+import { useBusy } from '@/composables/busy'
 import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
@@ -65,6 +67,11 @@ const needsCompletion = () => {
 
 // --- sending --------------------------------------------------------------
 
+const { busy: acting, run: track } = useBusy()
+const sending = computed(() => acting('send'))
+const recall = () => void track('recall', () => server.recall())
+const stop = () => void track('stop', () => server.interrupt())
+
 async function submit(): Promise<void> {
   const value = text.value
   if (blocked.value || value.trim() === '' || sizeState(value) === 'over') return
@@ -73,7 +80,7 @@ async function submit(): Promise<void> {
   // frozen in the box. Clear now and put the text back if the request fails.
   text.value = ''
   historyIndex.value = null
-  const result = await server.send(value)
+  const result = await track('send', () => server.send(value))
   // A refused input (the reason arrives as an error notice) keeps its text.
   if ((!result || !result.accepted) && text.value === '') text.value = value
 }
@@ -352,17 +359,20 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
             size="sm"
             :disabled="blocked"
             :title="t('composer.recall')"
-            @click="server.recall()"
+            @click="recall"
           >
-            <Undo2 class="size-4" />
+            <Spinner v-if="acting('recall')" class="size-4 motion-reduce:animate-none" />
+            <Undo2 v-else class="size-4" />
             {{ t('composer.queued', { count: model.queue.length }) }}
           </Button>
-          <Button v-if="busy" variant="outline" size="sm" :disabled="blocked" @click="server.interrupt()">
-            <Square class="size-3.5" />
+          <Button v-if="busy" variant="outline" size="sm" :disabled="blocked || acting('stop')" @click="stop">
+            <Spinner v-if="acting('stop')" class="size-3.5 motion-reduce:animate-none" />
+            <Square v-else class="size-3.5" />
             {{ t('composer.stop') }}
           </Button>
-          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || text.trim() === ''" :aria-label="t('composer.send')" @click="submit">
-            <ArrowUp class="size-4" />
+          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || text.trim() === ''" :aria-busy="sending || undefined" :aria-label="t('composer.send')" @click="submit">
+            <Spinner v-if="sending" class="size-4 motion-reduce:animate-none" />
+            <ArrowUp v-else class="size-4" />
           </Button>
         </div>
       </div>
