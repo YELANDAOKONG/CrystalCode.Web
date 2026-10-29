@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { server } from '@/app/server'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
 import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
@@ -68,6 +69,21 @@ const currentWindow = computed(() => currentWindowOption(windowOptions.value, ch
 // The engine reports the outcome as a note or an error in the conversation, and
 // the new value arrives as a chrome event. The page shows the server's answer,
 // never its own guess.
+// `GET /options` lists what a front end may offer as a switch or a picker, each
+// value tied to its slash command. The page draws the prompt set and the
+// feature switches from it. Estimated tokens has its own row on the Display tab.
+const canOptions = computed(() => server.can('GET /options') && server.can('PUT /options/{id}'))
+onMounted(() => {
+  if (server.can('GET /options')) void server.loadOptions()
+})
+const promptSet = computed(() => model.options.find((option) => option.id === 'prompt_set'))
+const promptSets = computed<Option[]>(() =>
+  (promptSet.value?.values ?? []).map((value) => ({ value: value.value, label: value.name, help: value.description ?? '' })),
+)
+const switches = computed(() => model.options.filter((option) => option.switch && option.id !== 'estimated_tokens'))
+const setPromptSet = (value: string) => void server.setOption('prompt_set', value)
+const setSwitch = (id: string, on: boolean | 'indeterminate') => void server.setOption(id, on === true)
+
 const run = (command: string) => void server.send(command)
 const setMode = (name: string) => void server.setMode('set', name)
 
@@ -196,6 +212,27 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         @change="(v) => run(`/speed ${v}`)"
       />
     </SettingRow>
+
+    <SettingRow v-if="canOptions && promptSets.length > 1" :label="t('settings.promptSet')" :help="t('settings.promptSet.help')" label-for="set-promptset">
+      <ChoiceSelect
+        id="set-promptset"
+        :options="promptSets"
+        :model-value="promptSet?.current"
+        :disabled="locked || adminLocked"
+        @change="setPromptSet"
+      />
+    </SettingRow>
+
+    <template v-if="canOptions">
+      <SettingRow v-for="option in switches" :key="option.id" :label="option.name" :help="option.description ?? undefined" :label-for="`opt-${option.id}`">
+        <Switch
+          :id="`opt-${option.id}`"
+          :model-value="option.current === 'on'"
+          :disabled="locked || adminLocked"
+          @update:model-value="(on) => setSwitch(option.id, on)"
+        />
+      </SettingRow>
+    </template>
 
     <SettingRow :label="t('settings.reviewer')" :help="t('settings.reviewer.help')">
       <p class="min-w-0 text-sm break-words sm:text-right">{{ reviewer }}</p>

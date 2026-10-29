@@ -16,7 +16,15 @@ import {
 import { CrystalClient } from '@/protocol/client'
 import { ProtocolError, isAbort } from '@/protocol/errors'
 import type {
+  AgentsReport,
+  BackgroundTask,
   ChildSummary,
+  McpReport,
+  ModelCatalog,
+  PluginsReport,
+  SavedSession,
+  SkillsReport,
+  TaskLog,
   IssuedToken,
   QuickPromptCatalog,
   Scope,
@@ -372,6 +380,30 @@ function createServer() {
   const exportSession = (format: 'markdown' | 'json', includeSystem: boolean) =>
     act((c) => c.export(format, includeSystem))
 
+  // Structured queries. Each needs the observe scope and a ready session. A
+  // failure is reported once and the panel shows its empty state.
+  const loadSessions = (all: boolean): Promise<SavedSession[] | undefined> => act((c) => c.sessions(all))
+  const loadModels = (): Promise<ModelCatalog | undefined> => act((c) => c.models())
+  const loadAgents = (): Promise<AgentsReport | undefined> => act((c) => c.agents())
+  const loadSkills = (): Promise<SkillsReport | undefined> => act((c) => c.skills())
+  const loadMcp = (): Promise<McpReport | undefined> => act((c) => c.mcp())
+  const loadPlugins = (): Promise<PluginsReport | undefined> => act((c) => c.plugins())
+  const loadTasks = (): Promise<BackgroundTask[] | undefined> => act((c) => c.tasks())
+  const loadTaskLog = (id: string, offset: number): Promise<TaskLog | undefined> => act((c) => c.taskLog(id, offset))
+
+  async function loadOptions(): Promise<void> {
+    const catalog = await act((c) => c.optionCatalog())
+    if (catalog) model.options = catalog.options
+  }
+
+  /** Returns true when the server accepted the change. The new list comes back with it. */
+  async function setOption(id: string, value: string | boolean): Promise<boolean> {
+    const result = await act((c) => c.setOption(id, value, newRequestId()))
+    if (!result) return false
+    model.options = result.options
+    return true
+  }
+
   /** The draft only matters for image bookkeeping on the server, so failures stay quiet. */
   async function syncDraft(text: string): Promise<void> {
     const c = client
@@ -420,6 +452,16 @@ function createServer() {
     revokeToken,
     shutdown,
     exportSession,
+    loadSessions,
+    loadModels,
+    loadAgents,
+    loadSkills,
+    loadMcp,
+    loadPlugins,
+    loadTasks,
+    loadTaskLog,
+    loadOptions,
+    setOption,
     syncDraft,
   }
 }

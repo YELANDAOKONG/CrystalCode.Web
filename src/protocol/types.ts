@@ -385,3 +385,151 @@ export interface ReportDocument {
   title: string
   blocks: DocumentBlock[]
 }
+
+// --- structured queries (GET /sessions, /models, /options, /agents, /skills,
+// /mcp, /plugins, /tasks) ---------------------------------------------------
+
+export interface SavedSession extends SessionSummary {
+  /** This process's current session. */
+  current: boolean
+  /** Another process, or this one, holds it open, so it cannot be resumed. */
+  open: boolean
+}
+
+export interface ModelEntry {
+  provider: string
+  model: string
+  protocol: string
+  current: boolean
+  credentialReady: boolean
+  contextWindows: number[]
+  thinking: boolean
+  thinkingCanDisable: boolean
+  thinkingEfforts: string[]
+  serviceTiers: string[]
+  speeds: string[]
+  imageInput: boolean
+  maxTokens: number | null
+}
+
+export interface ModelCatalog {
+  models: ModelEntry[]
+  pending: PendingSettings
+}
+
+export interface OptionValue {
+  value: string
+  name: string
+  /** The slash command that selects it. Empty means it cannot be chosen directly. */
+  command: string
+  description: string | null
+  group: string | null
+}
+
+export interface SessionOption {
+  id: string
+  name: string
+  category: string
+  current: string
+  switch: boolean
+  description: string | null
+  values: OptionValue[]
+}
+
+export interface OptionCatalog {
+  options: SessionOption[]
+  pending: PendingSettings
+}
+
+export interface AgentEntry {
+  name: string
+  description: string
+  custom: boolean
+  /** Each field is null when the Agent inherits it from the session. */
+  model: {
+    provider: string | null
+    model: string | null
+    thinking: string | null
+    context: number | null
+    tier: string | null
+    speed: string | null
+  }
+  /** Null means the default tool set. */
+  tools: string[] | null
+}
+
+export interface AgentsReport {
+  enabled: boolean
+  concurrency: number
+  /** Null is unlimited. */
+  limits: { modelCalls: number | null; toolCalls: number | null; durationSeconds: number | null }
+  agents: AgentEntry[]
+  notes: string[]
+}
+
+export interface SkillEntry {
+  name: string
+  description: string
+  /** `home` or `project`. */
+  source: string
+  location: string
+}
+
+export interface SkillsReport {
+  enabled: boolean
+  skills: SkillEntry[]
+}
+
+export interface McpServerEntry {
+  name: string
+  source: string
+  transport: string
+  status: string
+  tools: string[]
+  error: string
+}
+
+export interface McpReport {
+  enabled: boolean
+  servers: McpServerEntry[]
+  notes: string[]
+}
+
+export interface PluginEntry {
+  directory: string
+  source: string
+  name: string | null
+  /** Null when the plugin has no switch of its own. */
+  enabled: boolean | null
+  effective: boolean
+  loaded: boolean
+  tools: number
+  commands: number
+  hooks: number
+  error: string
+}
+
+export interface PluginsReport {
+  enabled: boolean
+  plugins: PluginEntry[]
+  notes: string[]
+}
+
+export interface BackgroundTask {
+  id: string
+  command: string
+  workingDirectory: string
+  /** `starting`, `running`, `exited`, `failed`, `timed_out`, or `stopped`. */
+  status: string
+  exitCode: number | null
+  startedUtc: string | null
+  finishedUtc: string | null
+  logStartOffset: number
+  logEndOffset: number
+}
+
+export interface TaskLog {
+  text: string
+  nextOffset: number
+  hasMore: boolean
+}

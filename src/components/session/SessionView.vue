@@ -4,6 +4,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { t } from '@/i18n'
+import CatalogView from '@/components/catalog/CatalogView.vue'
 import SettingsView from '@/components/settings/SettingsView.vue'
 import StatsWindow from '@/components/report/StatsWindow.vue'
 import Composer from './Composer.vue'
@@ -19,6 +20,7 @@ const { phase, retryIn, waitingState } = server
 
 const panelOpen = ref(false)
 const settingsOpen = ref(false)
+const catalogOpen = ref(false)
 const wide = useMediaQuery('(min-width: 768px)')
 const current = computed(() => model.interactions[0])
 
@@ -38,7 +40,7 @@ const banner = computed(() => {
 
 <template>
   <div class="flex h-dvh flex-col">
-    <SessionHeader :panel-open="panelOpen" @toggle-panel="panelOpen = !panelOpen" @open-settings="settingsOpen = true" />
+    <SessionHeader :panel-open="panelOpen" @toggle-panel="panelOpen = !panelOpen" @open-settings="settingsOpen = true" @open-catalog="catalogOpen = true" />
     <p v-if="banner" role="status" class="bg-muted text-muted-foreground border-b px-4 py-1.5 text-sm">{{ banner }}</p>
     <div class="flex min-h-0 flex-1">
       <main class="flex min-w-0 flex-1 flex-col">
@@ -61,6 +63,7 @@ const banner = computed(() => {
       </SheetContent>
     </Sheet>
     <SettingsView v-model:open="settingsOpen" />
+    <CatalogView v-if="catalogOpen" v-model:open="catalogOpen" />
     <StatsWindow />
     <InteractionDialog v-if="current" :key="current.id" :interaction="current" :waiting="model.interactions.length - 1" />
   </div>

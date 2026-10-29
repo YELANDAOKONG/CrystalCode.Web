@@ -8,11 +8,29 @@ import {
   parseSnapshot,
   parseChild,
   parseScope,
+  parseAgents,
+  parseMcp,
+  parseModelCatalog,
+  parseOptionCatalog,
+  parsePlugins,
+  parseSavedSessions,
+  parseSkills,
+  parseTaskLog,
+  parseTasks,
 } from './parse'
 import { SseParser } from './sse'
 import type {
+  AgentsReport,
+  BackgroundTask,
   ChildSummary,
   Interaction,
+  McpReport,
+  ModelCatalog,
+  OptionCatalog,
+  PluginsReport,
+  SavedSession,
+  SkillsReport,
+  TaskLog,
   IssuedToken,
   QuickPromptCatalog,
   Scope,
@@ -88,6 +106,59 @@ export class CrystalClient {
   async child(id: string, signal?: AbortSignal): Promise<ChildSummary> {
     const body = asObject(await this.json('GET', `/children/${encodeURIComponent(id)}`, undefined, signal))
     return parseChild(body.child)
+  }
+
+  async sessions(all: boolean, signal?: AbortSignal): Promise<SavedSession[]> {
+    return parseSavedSessions(await this.json('GET', `/sessions?all=${all ? 'true' : 'false'}`, undefined, signal))
+  }
+
+  async models(signal?: AbortSignal): Promise<ModelCatalog> {
+    return parseModelCatalog(await this.json('GET', '/models', undefined, signal))
+  }
+
+  async optionCatalog(signal?: AbortSignal): Promise<OptionCatalog> {
+    return parseOptionCatalog(await this.json('GET', '/options', undefined, signal))
+  }
+
+  async agents(signal?: AbortSignal): Promise<AgentsReport> {
+    return parseAgents(await this.json('GET', '/agents', undefined, signal))
+  }
+
+  async skills(signal?: AbortSignal): Promise<SkillsReport> {
+    return parseSkills(await this.json('GET', '/skills', undefined, signal))
+  }
+
+  async mcp(signal?: AbortSignal): Promise<McpReport> {
+    return parseMcp(await this.json('GET', '/mcp', undefined, signal))
+  }
+
+  async plugins(signal?: AbortSignal): Promise<PluginsReport> {
+    return parsePlugins(await this.json('GET', '/plugins', undefined, signal))
+  }
+
+  async tasks(signal?: AbortSignal): Promise<BackgroundTask[]> {
+    return parseTasks(await this.json('GET', '/tasks', undefined, signal))
+  }
+
+  /** A 410 means the offset left the bounded log; the caller restarts from the task's `logStartOffset`. */
+  async taskLog(id: string, offset: number, signal?: AbortSignal): Promise<TaskLog> {
+    const path = `/tasks/${encodeURIComponent(id)}/logs?offset=${offset}`
+    return parseTaskLog(await this.json('GET', path, undefined, signal))
+  }
+
+  /**
+   * `PUT /options/{id}`: runs the value's slash command, so validation and
+   * next-turn rules match the terminal. A switch takes a boolean.
+   */
+  async setOption(
+    id: string,
+    value: string | boolean,
+    requestId: string,
+    signal?: AbortSignal,
+  ): Promise<OptionCatalog & { applied: 'now' | 'next-turn' }> {
+    const body = await this.json('PUT', `/options/${encodeURIComponent(id)}`, { value, clientRequestId: requestId }, signal)
+    const catalog = parseOptionCatalog(body, 'pendingSettings')
+    return { ...catalog, applied: bool(asObject(body).pending) ? 'next-turn' : 'now' }
   }
 
   /** `GET /export`. The server names the file in Content-Disposition. */

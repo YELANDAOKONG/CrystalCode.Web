@@ -264,6 +264,15 @@ The client reports the matching failure; it cannot fix any of them.
 - `report.document` carries a titled document with `paragraph`, `keyValues`,
   `table`, and `list` blocks (for example `/skills` and plugin commands). Every
   cell is drawn as text; an unknown block type falls back to its lines.
+- Structured queries. `components/catalog` holds one tab per route
+  (`/sessions`, `/models`, `/agents`, `/skills`, `/mcp`, `/plugins`, `/tasks`
+  with `/tasks/{id}/logs`). Each loads on open and on the refresh button; the
+  page keeps no copy and gets no event for them. An action is the same slash
+  command the terminal uses, sent through `POST /input`, so the server keeps
+  the scope rules (`/resume`, `/model`, `/skills` need admin). `GET /options`
+  and `PUT /options/{id}` feed the prompt set and the feature switches on the
+  settings page; `options.changed` keeps `SessionModel.options` current.
+  A task log is plain text read from `logStartOffset`, in chunks.
 - The chrome's `reviewer` and `extendedApproval` are `null` while off. The
   settings page shows them read-only.
 - The toaster (`vue-sonner`) ships its own stylesheet and does not inject it.

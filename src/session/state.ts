@@ -5,6 +5,7 @@ import {
   parseCommands,
   parseInteraction,
   parseItems,
+  parseOptions,
   parsePreferences,
   parseSide,
   parseStatusFields,
@@ -21,6 +22,7 @@ import type {
   LiveRound,
   Preferences,
   ServerEvent,
+  SessionOption,
   Side,
   SlashCommand,
   Snapshot,
@@ -71,6 +73,8 @@ export class SessionModel {
   chrome: Chrome | null = null
   preferences: Preferences | null = null
   commands: SlashCommand[] = []
+  /** From `options.changed` or `GET /options`. Not part of the snapshot. */
+  options: SessionOption[] = []
   promptHistory: string[] = []
   conversation: ConversationItem[] = []
   live: LiveRound | null = null
@@ -163,6 +167,9 @@ export class SessionModel {
         break
       case 'status-fields.changed':
         this.statusFields = parseStatusFields(d.fields)
+        break
+      case 'options.changed':
+        this.options = parseOptions(d.options)
         break
       case 'commands.changed':
         this.commands = parseCommands(d.commands)

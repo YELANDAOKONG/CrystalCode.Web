@@ -103,6 +103,11 @@ Session:
 - Settings chosen during a turn apply on the next turn. Show the active value
   and what waits.
 - Show the approval and extended approval reviewers.
+- A catalog dialog for the structured queries: saved sessions (resume), models
+  (switch), Agents, skills (switch, rescan), MCP servers, plugins, and
+  background tasks with their logs. A tab shows only when `GET /info` lists its
+  route. Prompt set and the feature switches come from `GET /options` and
+  change through `PUT /options/{id}`.
 - Show `report.document` results, such as `/skills` and plugin commands.
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
@@ -178,12 +183,6 @@ These are not part of the product:
 - Account sign-in, user management, and cloud sync.
 - Clipboard image paste through the server. `PasteClipboardImageAsync` reads
   the server's clipboard and the server excludes it; image upload replaces it.
-- Structured catalog queries beyond what the interface already shows
-  (`GET /sessions`, `/models`, `/options`, `PUT /options/{id}`, `/agents`,
-  `/skills`, `/mcp`, `/plugins`, `/tasks`, and task logs). The settings page
-  reads options from the snapshot's command list and changes them through
-  slash commands; the same commands are available in the composer. Revisit
-  when a picker needs the richer data.
 - Status-line gauges and ordering (`statusLineRules`, `statusLineDrop`, theme
   gauges). The client draws the server's `statusFields` text as received and
   does not color or reorder it.

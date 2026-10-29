@@ -31,6 +31,16 @@ import type {
   ReportDocument,
   Reviewer,
   ExtendedReviewer,
+  AgentsReport,
+  BackgroundTask,
+  McpReport,
+  ModelCatalog,
+  OptionCatalog,
+  PluginsReport,
+  SavedSession,
+  SessionOption,
+  SkillsReport,
+  TaskLog,
 } from './types'
 
 export function parseScope(value: unknown): Scope {
@@ -320,7 +330,7 @@ function parseQuestions(value: unknown): Question[] {
   })
 }
 
-function parseSessionSummary(value: unknown): SessionSummary {
+export function parseSessionSummary(value: unknown): SessionSummary {
   const o = asObject(value)
   return {
     id: str(o.id),
@@ -559,4 +569,174 @@ export function parseDocument(data: unknown): ReportDocument {
       }
     }),
   }
+}
+
+export function parseSavedSessions(data: unknown): SavedSession[] {
+  return arr(asObject(data).sessions).map((item) => ({
+    ...parseSessionSummary(item),
+    current: bool(asObject(item).current),
+    open: bool(asObject(item).open),
+  }))
+}
+
+export function parseModelCatalog(data: unknown): ModelCatalog {
+  const o = asObject(data)
+  return {
+    models: arr(o.models).map((item) => {
+      const m = asObject(item)
+      return {
+        provider: str(m.provider),
+        model: str(m.model),
+        protocol: str(m.protocol),
+        current: bool(m.current),
+        credentialReady: bool(m.credentialReady),
+        contextWindows: arr(m.contextWindows).filter((w): w is number => typeof w === 'number'),
+        thinking: bool(m.thinking),
+        thinkingCanDisable: bool(m.thinkingCanDisable),
+        thinkingEfforts: strings(m.thinkingEfforts),
+        serviceTiers: strings(m.serviceTiers),
+        speeds: strings(m.speeds),
+        imageInput: bool(m.imageInput),
+        maxTokens: optNum(m.maxTokens),
+      }
+    }),
+    pending: parsePending(o.pending),
+  }
+}
+
+export function parseOptions(value: unknown): SessionOption[] {
+  return arr(value).map((item) => {
+    const o = asObject(item)
+    return {
+      id: str(o.id),
+      name: str(o.name),
+      category: str(o.category),
+      current: str(o.current),
+      switch: bool(o.switch),
+      description: optStr(o.description),
+      values: arr(o.values).map((entry) => {
+        const v = asObject(entry)
+        return {
+          value: str(v.value),
+          name: str(v.name),
+          command: str(v.command),
+          description: optStr(v.description),
+          group: optStr(v.group),
+        }
+      }),
+    }
+  })
+}
+
+export function parseOptionCatalog(data: unknown, pendingKey = 'pending'): OptionCatalog {
+  const o = asObject(data)
+  return { options: parseOptions(o.options), pending: parsePending(o[pendingKey]) }
+}
+
+export function parseAgents(data: unknown): AgentsReport {
+  const o = asObject(data)
+  const limits = asObject(o.limits)
+  return {
+    enabled: bool(o.enabled),
+    concurrency: num(o.concurrency),
+    limits: {
+      modelCalls: optNum(limits.modelCalls),
+      toolCalls: optNum(limits.toolCalls),
+      durationSeconds: optNum(limits.durationSeconds),
+    },
+    agents: arr(o.agents).map((item) => {
+      const a = asObject(item)
+      const model = asObject(a.model)
+      return {
+        name: str(a.name),
+        description: str(a.description),
+        custom: bool(a.custom),
+        model: {
+          provider: optStr(model.provider),
+          model: optStr(model.model),
+          thinking: optStr(model.thinking),
+          context: optNum(model.context),
+          tier: optStr(model.tier),
+          speed: optStr(model.speed),
+        },
+        tools: Array.isArray(a.tools) ? strings(a.tools) : null,
+      }
+    }),
+    notes: strings(o.notes),
+  }
+}
+
+export function parseSkills(data: unknown): SkillsReport {
+  const o = asObject(data)
+  return {
+    enabled: bool(o.enabled),
+    skills: arr(o.skills).map((item) => {
+      const s = asObject(item)
+      return { name: str(s.name), description: str(s.description), source: str(s.source), location: str(s.location) }
+    }),
+  }
+}
+
+export function parseMcp(data: unknown): McpReport {
+  const o = asObject(data)
+  return {
+    enabled: bool(o.enabled),
+    servers: arr(o.servers).map((item) => {
+      const s = asObject(item)
+      return {
+        name: str(s.name),
+        source: str(s.source),
+        transport: str(s.transport),
+        status: str(s.status),
+        tools: strings(s.tools),
+        error: str(s.error),
+      }
+    }),
+    notes: strings(o.notes),
+  }
+}
+
+export function parsePlugins(data: unknown): PluginsReport {
+  const o = asObject(data)
+  return {
+    enabled: bool(o.enabled),
+    plugins: arr(o.plugins).map((item) => {
+      const p = asObject(item)
+      return {
+        directory: str(p.directory),
+        source: str(p.source),
+        name: optStr(p.name),
+        enabled: typeof p.enabled === 'boolean' ? p.enabled : null,
+        effective: bool(p.effective),
+        loaded: bool(p.loaded),
+        tools: num(p.tools),
+        commands: num(p.commands),
+        hooks: num(p.hooks),
+        error: str(p.error),
+      }
+    }),
+    notes: strings(o.notes),
+  }
+}
+
+export function parseTasks(data: unknown): BackgroundTask[] {
+  return arr(asObject(data).tasks).map((item) => {
+    const o = asObject(item)
+    return {
+      id: str(o.id),
+      command: str(o.command),
+      workingDirectory: str(o.workingDirectory),
+      status: str(o.status),
+      exitCode: optNum(o.exitCode),
+      startedUtc: optStr(o.startedUtc),
+      finishedUtc: optStr(o.finishedUtc),
+      logStartOffset: num(o.logStartOffset),
+      logEndOffset: num(o.logEndOffset),
+    }
+  })
+}
+
+export function parseTaskLog(data: unknown): TaskLog {
+  const o = asObject(data)
+  return { text: str(o.text), nextOffset: num(o.nextOffset), hasMore: bool(o.hasMore) }
 }

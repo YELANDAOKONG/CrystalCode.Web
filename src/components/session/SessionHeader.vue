@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Download, PanelRight, Settings } from '@lucide/vue'
+import { computed } from 'vue'
+import { Download, LibraryBig, PanelRight, Settings } from '@lucide/vue'
 import { server } from '@/app/server'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
 import LogoMark from '@/components/common/LogoMark.vue'
@@ -14,9 +15,14 @@ import {
 import { t } from '@/i18n'
 
 defineProps<{ panelOpen: boolean }>()
-const emit = defineEmits<{ togglePanel: []; openSettings: [] }>()
+const emit = defineEmits<{ togglePanel: []; openSettings: []; openCatalog: [] }>()
 
 const model = server.model
+
+// The catalog needs at least one of the query routes the server lists.
+const hasCatalog = computed(() =>
+  ['GET /sessions', 'GET /models', 'GET /agents', 'GET /skills', 'GET /mcp', 'GET /plugins', 'GET /tasks'].some((route) => server.can(route)),
+)
 
 async function download(format: 'markdown' | 'json'): Promise<void> {
   const file = await server.exportSession(format, false)
@@ -55,6 +61,17 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
       </DropdownMenuContent>
     </DropdownMenu>
 
+    <Button
+      v-if="hasCatalog"
+      variant="ghost"
+      size="icon"
+      class="size-10 md:size-9"
+      :aria-label="t('header.catalog')"
+      :title="t('header.catalog')"
+      @click="emit('openCatalog')"
+    >
+      <LibraryBig class="size-4" />
+    </Button>
     <Button
       variant="ghost"
       size="icon"
