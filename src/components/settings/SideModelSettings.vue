@@ -15,7 +15,11 @@ import SettingRow from './SettingRow.vue'
 // `GET /options`, where the server lists the model, and its thinking, tier,
 // and speed only while that model is on and offers a choice. A change goes
 // through `PUT /options/{id}`, which runs the terminal's own command.
-const props = defineProps<{ slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video' }>()
+const props = defineProps<{
+  slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video'
+  /** The feature this model belongs to is off. The choices stay editable, since they are saved for later. */
+  dimmed?: boolean
+}>()
 
 const model = server.model
 const { canOperate, isAdmin } = server
@@ -41,21 +45,33 @@ const ids = computed(() => ({
 
 const find = (id: string): SessionOption | undefined => model.options.find((entry) => entry.id === id)
 
-function choices(option: SessionOption | undefined, off = false): Option[] {
-  return (option?.values ?? []).map((value) => ({
-    value: value.value,
-    // The server names a value in English. Off and unset are the page's own words.
-    label:
-      value.value === 'off' && off
-        ? t('settings.reviewer.off')
-        : value.value === 'session' && off
-          ? t('settings.topic.session')
-          : value.value === 'unset'
-            ? t('settings.option.none')
-            : value.name,
-    help: '',
-    ...(value.group ? { group: value.group } : {}),
-  }))
+// The server's `off` and `session` values mean different things per slot, so
+// the page names them itself. Compaction and topic share one meaning: write
+// with the session model. The others have no model at all when it is off.
+const OFF_LABEL: Record<string, MessageKey> = {
+  approval: 'settings.off.approval',
+  extended: 'settings.off.extended',
+  compaction: 'settings.off.session',
+  image: 'settings.off.resource',
+  audio: 'settings.off.resource',
+  video: 'settings.off.resource',
+}
+
+function choices(option: SessionOption | undefined, models = false): Option[] {
+  return (option?.values ?? []).map((value) => {
+    const special = models && (value.value === 'off' || value.value === 'session')
+    return {
+      value: value.value,
+      // Off and unset are the page's own words; every other name is the server's.
+      label: special
+        ? t(value.value === 'session' ? 'settings.off.session' : (OFF_LABEL[props.slot] ?? 'settings.reviewer.off'))
+        : value.value === 'unset'
+          ? t('settings.option.none')
+          : value.name,
+      help: '',
+      ...(value.group ? { group: value.group } : {}),
+    }
+  })
 }
 
 const modelOption = computed(() => find(ids.value.model))
@@ -101,7 +117,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
 </script>
 
 <template>
-  <div v-if="modelOption">
+  <div v-if="modelOption" :class="dimmed ? 'opacity-60' : ''">
     <SettingRow :label="title" :help="help" :note="note" :label-for="id('model')">
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>

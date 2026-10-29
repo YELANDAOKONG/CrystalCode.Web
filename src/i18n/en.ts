@@ -500,7 +500,6 @@ export const en = {
   'catalog.agents.edit': 'Change model and options',
   'catalog.agents.field.model': 'Model',
   'settings.compaction': 'Compaction model',
-  'settings.compaction.help': 'The model that writes the summary when older turns are compacted.',
   'choice.search': 'Search',
   'choice.none': 'No match.',
   'choice.more': '{count} more. Type to narrow the list.',
@@ -520,8 +519,6 @@ export const en = {
   'catalog.mcp.switch': 'Turn {name} on or off',
   'catalog.mcp.replaced': 'A Project server with the same name takes effect instead.',
   'settings.topic': 'Topic model',
-  'settings.topic.help': 'Names the session from its first messages.',
-  'settings.topic.session': 'Session model',
   'settings.image': 'Image model',
   'settings.image.help': 'Describes images for the model.',
   'settings.audio': 'Audio model',
@@ -535,6 +532,12 @@ export const en = {
   'settings.server.uptime.minutes': 'up {minutes} min',
   'settings.server.uptime.hours': 'up {hours} h {minutes} min',
   'settings.server.uptime.days': 'up {days} d {hours} h',
+  'settings.off.session': 'Session model',
+  'settings.off.approval': 'No reviewer',
+  'settings.off.extended': 'Off',
+  'settings.off.resource': 'Off',
+  'settings.compaction.help': 'Writes the summary when older turns are compacted. Off uses the session model.',
+  'settings.topic.help': 'The model that names the session. These choices are saved even while naming is off.',
 } as const
 
 export type MessageKey = keyof typeof en

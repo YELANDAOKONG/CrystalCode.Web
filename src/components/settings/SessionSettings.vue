@@ -84,7 +84,10 @@ const promptSet = computed(() => model.options.find((option) => option.id === 'p
 const promptSets = computed<Option[]>(() =>
   (promptSet.value?.values ?? []).map((value) => ({ value: value.value, label: value.name, help: value.description ?? '' })),
 )
-const switches = computed(() => model.options.filter((option) => option.switch && option.id !== 'estimated_tokens'))
+// Topic naming is drawn with the topic model, so the group here leaves it out.
+const GROUPED = new Set(['estimated_tokens', 'topic'])
+const switches = computed(() => model.options.filter((option) => option.switch && !GROUPED.has(option.id)))
+const topicSwitch = computed(() => model.options.find((option) => option.id === 'topic' && option.switch))
 const setPromptSet = (value: string) => void track('prompt_set', () => server.setOption('prompt_set', value))
 const setSwitch = (id: string, on: boolean | 'indeterminate') => void track(id, () => server.setOption(id, on === true))
 
@@ -259,7 +262,19 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
       <SideModelSettings slot="extended" />
       <SideModelSettings slot="compaction" />
 
-      <SideModelSettings slot="topic" />
+      <SettingRow v-if="topicSwitch" :label="t('settings.opt.topic')" :help="t('settings.opt.topic.help')" label-for="opt-topic">
+        <div class="flex items-center gap-2 sm:justify-end">
+          <Spinner v-if="busy('topic')" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+          <Switch
+            id="opt-topic"
+            :model-value="topicSwitch.current === 'on'"
+            :aria-busy="busy('topic') || undefined"
+            :disabled="locked || adminLocked || busy('topic')"
+            @update:model-value="(on) => setSwitch('topic', on)"
+          />
+        </div>
+      </SettingRow>
+      <SideModelSettings slot="topic" :dimmed="topicSwitch?.current === 'off'" />
       <SideModelSettings slot="image" />
       <SideModelSettings slot="audio" />
       <SideModelSettings slot="video" />
