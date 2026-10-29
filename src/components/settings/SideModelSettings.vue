@@ -15,17 +15,29 @@ import SettingRow from './SettingRow.vue'
 // `GET /options`, where the server lists the model, and its thinking, tier,
 // and speed only while that model is on and offers a choice. A change goes
 // through `PUT /options/{id}`, which runs the terminal's own command.
-const props = defineProps<{ slot: 'approval' | 'extended' | 'compaction' }>()
+const props = defineProps<{ slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video' }>()
 
 const model = server.model
 const { canOperate, isAdmin } = server
 
-const IDS = {
-  approval: { model: 'approval_model', thinking: 'approval_thinking', tier: 'approval_tier', speed: 'approval_speed' },
-  extended: { model: 'extended_approval', thinking: 'extended_thinking', tier: 'extended_tier', speed: 'extended_speed' },
-  compaction: { model: 'compaction_model', thinking: 'compaction_thinking', tier: 'compaction_tier', speed: 'compaction_speed' },
+// The server names a slot's options `<slot>_thinking`, `_tier`, `_speed`, and
+// `_context`. Only the model option's own id differs.
+const MODEL_ID = {
+  approval: 'approval_model',
+  extended: 'extended_approval',
+  compaction: 'compaction_model',
+  topic: 'topic_model',
+  image: 'image_model',
+  audio: 'audio_model',
+  video: 'video_model',
 } as const
-const ids = computed(() => IDS[props.slot])
+const ids = computed(() => ({
+  model: MODEL_ID[props.slot],
+  thinking: `${props.slot}_thinking`,
+  tier: `${props.slot}_tier`,
+  speed: `${props.slot}_speed`,
+  context: `${props.slot}_context`,
+}))
 
 const find = (id: string): SessionOption | undefined => model.options.find((entry) => entry.id === id)
 
@@ -33,7 +45,14 @@ function choices(option: SessionOption | undefined, off = false): Option[] {
   return (option?.values ?? []).map((value) => ({
     value: value.value,
     // The server names a value in English. Off and unset are the page's own words.
-    label: value.value === 'off' && off ? t('settings.reviewer.off') : value.value === 'unset' ? t('settings.option.none') : value.name,
+    label:
+      value.value === 'off' && off
+        ? t('settings.reviewer.off')
+        : value.value === 'session' && off
+          ? t('settings.topic.session')
+          : value.value === 'unset'
+            ? t('settings.option.none')
+            : value.name,
     help: '',
     ...(value.group ? { group: value.group } : {}),
   }))
@@ -43,6 +62,7 @@ const modelOption = computed(() => find(ids.value.model))
 const thinking = computed(() => find(ids.value.thinking))
 const tier = computed(() => find(ids.value.tier))
 const speed = computed(() => find(ids.value.speed))
+const context = computed(() => find(ids.value.context))
 
 const locked = computed(() => !canOperate.value || !isAdmin.value)
 // The engine refuses a change to the compaction model, or to any model's tier
@@ -60,6 +80,10 @@ const TITLES = {
   approval: ['settings.reviewer', 'settings.reviewer.help'],
   extended: ['settings.extended', 'settings.extended.help'],
   compaction: ['settings.compaction', 'settings.compaction.help'],
+  topic: ['settings.topic', 'settings.topic.help'],
+  image: ['settings.image', 'settings.image.help'],
+  audio: ['settings.audio', 'settings.audio.help'],
+  video: ['settings.video', 'settings.video.help'],
 } as const satisfies Record<string, readonly [MessageKey, MessageKey]>
 const title = computed(() => t(TITLES[props.slot][0]))
 const help = computed(() => t(TITLES[props.slot][1]))
@@ -82,7 +106,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>
 
-    <div v-if="thinking || tier || speed || extended" class="border-l-2 pl-4">
+    <div v-if="thinking || tier || speed || context || extended" class="border-l-2 pl-4">
       <SettingRow v-if="thinking" :label="t('settings.thinking')" :label-for="id('thinking')">
         <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="slot === 'compaction' ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
       </SettingRow>
@@ -91,6 +115,9 @@ const run = (key: string, command: string) => void track(key, () => server.send(
       </SettingRow>
       <SettingRow v-if="speed" :label="t('settings.speed')" :note="turnBusy ? t('settings.reviewer.busy') : undefined" :label-for="id('speed')">
         <ChoiceSelect :id="id('speed')" :options="choices(speed)" :model-value="speed.current" :disabled="slotLocked" :loading="busy(speed.id)" @change="(v) => set(speed, v)" />
+      </SettingRow>
+      <SettingRow v-if="context" :label="t('settings.context')" :label-for="id('context')">
+        <ChoiceSelect :id="id('context')" :options="choices(context)" :model-value="context.current" :disabled="slotLocked" :loading="busy(context.id)" @change="(v) => set(context, v)" />
       </SettingRow>
       <template v-if="extended">
         <SettingRow v-if="triggers.length" :label="t('settings.extended.trigger')" :help="t('settings.extended.trigger.help')" :label-for="id('trigger')">

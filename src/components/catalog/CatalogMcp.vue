@@ -8,7 +8,8 @@ import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
 import { useBusy } from '@/composables/busy'
 import { useQuery } from '@/composables/query'
-import { t } from '@/i18n'
+import { t, type MessageKey } from '@/i18n'
+import type { McpServerEntry } from '@/protocol/types'
 import { displayToken } from '@/session/display-case'
 import CatalogNotes from './CatalogNotes.vue'
 import CatalogPane from './CatalogPane.vue'
@@ -28,9 +29,23 @@ const run = (key: string, command: string) =>
 
 // The server owns the status words. Only the ones known to mean "up" or
 // "broken" get a colour.
-const OK = new Set(['connected', 'ready', 'running'])
-const BAD = new Set(['failed', 'error'])
-const variant = (status: string) => (BAD.has(status.toLowerCase()) ? 'destructive' : OK.has(status.toLowerCase()) ? 'default' : 'secondary')
+const OK = new Set(['connected'])
+const BAD = new Set(['failed', 'invalid'])
+const variant = (status: string) => (BAD.has(status) ? 'destructive' : OK.has(status) ? 'default' : 'secondary')
+
+// A switch needs a file to rewrite, so a session server (supplied by the front
+// end) has none. An invalid definition cannot be switched until its file is
+// fixed, and a replaced one is overridden by a later source of the same name.
+const switchable = (entry: McpServerEntry) => entry.source !== 'session' && entry.status !== 'invalid' && entry.effective
+
+const key = (entry: McpServerEntry) => `${entry.source}/${entry.name}`
+const toggle = (entry: McpServerEntry, on: boolean | 'indeterminate') =>
+  run(key(entry), `/mcp ${on === true ? 'enable' : 'disable'} ${entry.name} ${entry.source}`)
+
+const statusText = (entry: McpServerEntry) => {
+  const known = ['connected', 'connecting', 'failed', 'disconnected', 'disabled', 'replaced', 'invalid']
+  return known.includes(entry.status) ? t(`catalog.mcp.status.${entry.status}` as MessageKey) : displayToken(entry.status)
+}
 </script>
 
 <template>
@@ -54,23 +69,24 @@ const variant = (status: string) => (BAD.has(status.toLowerCase()) ? 'destructiv
       <p v-if="!data.enabled" class="text-muted-foreground text-sm">{{ t('catalog.mcp.disabled') }}</p>
       <p v-else-if="data.servers.length === 0" class="text-muted-foreground py-4 text-center text-sm">{{ t('catalog.mcp.none') }}</p>
       <ul v-else class="divide-y">
-        <li v-for="entry in data.servers" :key="entry.name" class="space-y-1 py-3">
-          <p class="flex items-center gap-2 text-sm font-medium">
-            <span class="min-w-0 flex-1 break-all">{{ entry.name }}</span>
-            <Badge :variant="variant(entry.status)">{{ displayToken(entry.status) }}</Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              class="h-10 md:h-8"
-              :disabled="locked"
-              :aria-busy="busy(entry.name) || undefined"
-              @click="run(entry.name, `/mcp disable ${entry.name} ${entry.source}`)"
-            >
-              <Spinner v-if="busy(entry.name)" class="size-3.5 motion-reduce:animate-none" />
-              {{ t('catalog.mcp.disable') }}
-            </Button>
+        <li v-for="entry in data.servers" :key="key(entry)" class="space-y-1 py-3" :class="entry.enabled && entry.effective ? '' : 'opacity-80'">
+          <div class="flex items-center gap-2">
+            <span class="min-w-0 flex-1 text-sm font-medium break-all">{{ entry.name }}</span>
+            <Badge :variant="variant(entry.status)">{{ statusText(entry) }}</Badge>
+            <Spinner v-if="busy(key(entry))" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+            <Switch
+              v-if="switchable(entry)"
+              :model-value="entry.enabled"
+              :disabled="locked || !data.enabled"
+              :aria-busy="busy(key(entry)) || undefined"
+              :aria-label="t('catalog.mcp.switch', { name: entry.name })"
+              @update:model-value="(on) => toggle(entry, on)"
+            />
+          </div>
+          <p class="text-muted-foreground text-xs">
+            <template v-if="entry.transport">{{ entry.transport }} · </template>{{ entry.source }}
           </p>
-          <p class="text-muted-foreground text-xs">{{ entry.transport }} · {{ entry.source }}</p>
+          <p v-if="entry.status === 'replaced'" class="text-muted-foreground text-xs">{{ t('catalog.mcp.replaced') }}</p>
           <p v-if="entry.error" role="alert" class="text-destructive text-xs break-words whitespace-pre-wrap">{{ entry.error }}</p>
           <details v-if="entry.tools.length" class="text-xs">
             <summary class="text-muted-foreground cursor-pointer">{{ t('catalog.mcp.tools', { count: entry.tools.length }) }}</summary>
@@ -78,7 +94,6 @@ const variant = (status: string) => (BAD.has(status.toLowerCase()) ? 'destructiv
           </details>
         </li>
       </ul>
-      <p v-if="data.enabled && data.servers.length" class="text-muted-foreground text-xs">{{ t('catalog.mcp.hint') }}</p>
       <CatalogNotes :notes="data.notes" />
     </template>
   </CatalogPane>

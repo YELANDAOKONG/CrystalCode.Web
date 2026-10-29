@@ -274,11 +274,16 @@ function createServer() {
         continue
       }
 
-      // The stream ended or failed. A server that restarted has a new session
-      // id and a fresh counter, so look before resuming from an old cursor.
+      // The stream ended or failed. A server that restarted has a fresh event
+      // counter, so look before resuming from an old cursor. The start time
+      // says it is a new process even when the session id repeats (and does not
+      // change on /resume or /clear, which only swap the session). An older
+      // server reports no start time, so its session id still decides.
       try {
         const fresh = await c.info(signal)
-        if (fresh.sessionId !== model.sessionId || fresh.state !== 'ready') {
+        const known = info.value?.startedUtc ?? null
+        const restarted = fresh.startedUtc !== null && known !== null && fresh.startedUtc !== known
+        if (restarted || fresh.sessionId !== model.sessionId || fresh.state !== 'ready') {
           info.value = fresh
           needSnapshot = true
         }

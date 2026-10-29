@@ -272,7 +272,16 @@ The client reports the matching failure; it cannot fix any of them.
   the scope rules (`/resume`, `/model`, `/skills` need admin). `GET /options`
   and `PUT /options/{id}` feed the prompt set and the feature switches on the
   settings page; `options.changed` keeps `SessionModel.options` current.
-  A task log is plain text read from `logStartOffset`, in chunks.
+  A task log is plain text read from `logStartOffset`, in chunks. `GET /mcp`
+  lists every configured server with `enabled` and `effective`; a server
+  switch sends `/mcp enable|disable <name> <source>`. `GET /sessions` can take
+  over a second on a large history and the server answers one such query at a
+  time, so a tab that opens while it runs waits behind it.
+- Server start time. `GET /info` carries `startedUtc`, fixed for the life of
+  the process and unchanged by `/clear` and `/resume`. After the stream drops,
+  a different value means a new process, so the page loads the snapshot again
+  instead of resuming from its old event cursor. A server that does not report
+  it falls back to the session id. The settings page shows it with the uptime.
 - In-flight feedback. A control that sends a change shows a spinner, ignores
   input until the server answers, and never sends twice (`composables/busy.ts`,
   keyed per control). Ordinary requests time out after 30 seconds and report a

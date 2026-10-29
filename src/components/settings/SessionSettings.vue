@@ -119,18 +119,13 @@ const pendingSpeed = computed(() => waiting(slotLabel(pending.value.speed)))
 const SWITCH_LABELS: Record<string, MessageKey> = {
   agents: 'settings.opt.agents',
   micro_compaction: 'settings.opt.micro_compaction',
+  topic: 'settings.opt.topic',
 }
 const switchLabel = (id: string, name: string) => (SWITCH_LABELS[id] ? t(SWITCH_LABELS[id]) : name)
 const switchHelp = (id: string, description: string | null) => {
   const key = `settings.opt.${id}.help` as MessageKey
   return SWITCH_LABELS[id] ? t(key) : (description ?? undefined)
 }
-// The image model has no command to change it, so the page only shows it.
-const imageModel = computed(() => {
-  const image = chrome.value?.image
-  if (!image) return null
-  return [`${image.provider} / ${image.model}`, image.thinking, image.serviceTier, image.speed].filter((part) => part !== '')
-})
 const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '' ? t('settings.thinking.unsupported') : undefined))
 </script>
 
@@ -264,11 +259,10 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
       <SideModelSettings slot="extended" />
       <SideModelSettings slot="compaction" />
 
-      <SettingRow v-if="imageModel" :label="t('settings.image')" :help="t('settings.image.help')">
-        <p class="flex min-w-0 flex-wrap gap-x-2 text-sm sm:justify-end">
-          <span v-for="(part, index) in imageModel" :key="index" class="whitespace-nowrap">{{ part }}</span>
-        </p>
-      </SettingRow>
+      <SideModelSettings slot="topic" />
+      <SideModelSettings slot="image" />
+      <SideModelSettings slot="audio" />
+      <SideModelSettings slot="video" />
     </template>
 
     <Separator class="hidden" />

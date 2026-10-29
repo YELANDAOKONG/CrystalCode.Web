@@ -108,6 +108,13 @@ Session:
   background tasks with their logs. A tab shows only when `GET /info` lists its
   route. Prompt set and the feature switches come from `GET /options` and
   change through `PUT /options/{id}`.
+- MCP in the catalog: the master switch, reconnect, and a switch for every
+  configured server. A disabled server stays in `GET /mcp`, so it can be turned
+  back on. A session server (supplied by a front end), an invalid definition,
+  and a replaced one show no switch.
+- Resource description models (image, audio, video), the topic model and its
+  switch, and the session topic, as session options in settings. The topic is
+  the title of a saved session in the catalog.
 - Show `report.document` results, such as `/skills` and plugin commands.
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
@@ -183,12 +190,6 @@ These are not part of the product:
 - Account sign-in, user management, and cloud sync.
 - Clipboard image paste through the server. `PasteClipboardImageAsync` reads
   the server's clipboard and the server excludes it; image upload replaces it.
-- Per-server MCP switches that can turn a server back on. `GET /mcp` lists
-  only connected servers and carries no `enabled` field, so a server turned off
-  disappears from it. The catalog offers "turn off" (`/mcp disable`) and the
-  master switch and reconnect. Server requirement: `GET /mcp` should list every
-  configured server with `enabled`, `effective`, and `error`, the way
-  `/mcp list` does.
 - Status-line gauges and ordering (`statusLineRules`, `statusLineDrop`, theme
   gauges). The client draws the server's `statusFields` text as received and
   does not color or reorder it.

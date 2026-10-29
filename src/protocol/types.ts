@@ -26,6 +26,8 @@ export interface ServerInfo {
   product: string
   build: BuildIdentity
   state: string
+  /** When this server process started. Null from a server that does not report it. */
+  startedUtc: string | null
   error: string | null
   sessionId: string | null
   workspace: string | null
@@ -85,6 +87,10 @@ export interface Chrome {
   compaction: Reviewer | null
   /** The image-description model, or null while none is set. */
   image: Reviewer | null
+  audio: Reviewer | null
+  video: Reviewer | null
+  /** The session topic, or an empty string. */
+  topic: string
 }
 
 export interface Preferences {
@@ -225,6 +231,8 @@ export interface SessionSummary {
   updatedUtc: string | null
   userTurns: number
   preview: string
+  /** The session topic, or null when it has none. */
+  topic: string | null
 }
 
 export type InteractionPayload =
@@ -486,11 +494,18 @@ export interface SkillsReport {
 
 export interface McpServerEntry {
   name: string
+  /** `home`, `project`, or `session` (a server the front end supplied). */
   source: string
+  /** Empty for an invalid definition. */
   transport: string
+  /** `connected`, `connecting`, `failed`, `disconnected`, `disabled`, `replaced`, or `invalid`. */
   status: string
   tools: string[]
   error: string
+  /** The saved switch. */
+  enabled: boolean
+  /** False when a later source of the same name takes effect. */
+  effective: boolean
 }
 
 export interface McpReport {

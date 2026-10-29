@@ -75,6 +75,7 @@ export function parseInfo(value: unknown): ServerInfo {
     product: str(o.product),
     build: parseBuild(o.build),
     state: str(o.state),
+    startedUtc: optStr(o.startedUtc),
     error: optStr(o.error),
     sessionId: optStr(o.sessionId),
     workspace: optStr(o.workspace),
@@ -144,6 +145,9 @@ export function parseChrome(value: unknown): Chrome | null {
     extendedApproval: parseExtendedReviewer(value.extendedApproval),
     compaction: parseReviewer(value.compaction),
     image: parseReviewer(value.image),
+    audio: parseReviewer(value.audio),
+    video: parseReviewer(value.video),
+    topic: str(value.topic),
   }
 }
 
@@ -342,6 +346,7 @@ export function parseSessionSummary(value: unknown): SessionSummary {
     updatedUtc: optStr(o.updatedUtc),
     userTurns: num(o.userTurns),
     preview: str(o.preview),
+    topic: optStr(o.topic),
   }
 }
 
@@ -692,6 +697,9 @@ export function parseMcp(data: unknown): McpReport {
         status: str(s.status),
         tools: strings(s.tools),
         error: str(s.error),
+        // An older server omits both: treat its servers as on and in effect.
+        enabled: s.enabled === undefined ? true : bool(s.enabled),
+        effective: s.effective === undefined ? true : bool(s.effective),
       }
     }),
     notes: strings(o.notes),

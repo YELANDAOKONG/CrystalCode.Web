@@ -44,7 +44,8 @@ async function resume(id: string): Promise<void> {
     <ul class="divide-y">
       <li v-for="session in data" :key="session.id" class="flex items-start gap-3 py-3">
         <div class="min-w-0 flex-1 space-y-1">
-          <p class="line-clamp-2 text-sm font-medium break-words">{{ session.preview || t('catalog.sessions.untitled') }}</p>
+          <p class="line-clamp-2 text-sm font-medium break-words">{{ session.topic || session.preview || t('catalog.sessions.untitled') }}</p>
+          <p v-if="session.topic && session.preview" class="text-muted-foreground line-clamp-1 text-xs break-words">{{ session.preview }}</p>
           <p class="text-muted-foreground text-xs">
             {{ t('catalog.sessions.turns', { count: session.userTurns }) }} · {{ modeLabel(session.mode) }} · {{ when(session.updatedUtc) }}
           </p>
