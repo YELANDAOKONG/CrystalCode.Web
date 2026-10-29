@@ -25,7 +25,10 @@ const open = ref(false)
 const query = ref('')
 const search = ref<HTMLInputElement | null>(null)
 
-const label = computed(() => props.options.find((option) => option.value === props.modelValue)?.label ?? props.modelValue ?? '')
+const selected = computed(() => props.options.find((option) => option.value === props.modelValue))
+const label = computed(() => selected.value?.label ?? props.modelValue ?? '')
+// The provider goes on its own line, so a long model name keeps its room.
+const provider = computed(() => selected.value?.group ?? '')
 
 // Group headings and entries in one flat list, so the slice below counts rows.
 type Row = { kind: 'group'; name: string } | { kind: 'item'; option: Option }
@@ -70,9 +73,13 @@ watch(open, (now) => {
         :aria-expanded="open"
         :aria-busy="loading || undefined"
         :disabled="disabled || loading || options.length === 0"
-        class="border-input bg-field hover:bg-field-hover focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm shadow-xs outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50 sm:h-9"
+        :title="provider ? `${provider} / ${label}` : label"
+        class="border-input bg-field hover:bg-field-hover focus-visible:border-ring focus-visible:ring-ring/50 flex min-h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-left text-sm shadow-xs outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-9"
       >
-        <span class="line-clamp-1">{{ label }}</span>
+        <span class="min-w-0 flex-1">
+          <span v-if="provider" class="text-muted-foreground block truncate text-xs leading-4">{{ provider }}</span>
+          <span class="block leading-5 break-all">{{ label }}</span>
+        </span>
         <Spinner v-if="loading" class="text-muted-foreground size-4 shrink-0 motion-reduce:animate-none" />
         <ChevronDown v-else class="size-4 shrink-0 opacity-50" />
       </button>

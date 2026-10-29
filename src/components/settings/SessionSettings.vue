@@ -51,8 +51,9 @@ const modelOptions = computed<Option[]>(() =>
   providerModels.value.flatMap((provider) =>
     provider.arguments.map((entry) => ({
       value: `${provider.name} ${entry.name}`,
-      label: `${provider.name} / ${entry.name}`,
+      label: entry.name,
       help: '',
+      group: provider.name,
     })),
   ),
 )
