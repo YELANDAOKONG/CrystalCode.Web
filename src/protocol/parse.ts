@@ -27,6 +27,10 @@ import type {
   ToolDefinitionInfo,
   ToolsReport,
   HelpReport,
+  PendingSettings,
+  ReportDocument,
+  Reviewer,
+  ExtendedReviewer,
 } from './types'
 
 export function parseScope(value: unknown): Scope {
@@ -73,6 +77,43 @@ export function parseInfo(value: unknown): ServerInfo {
   }
 }
 
+export function parsePending(value: unknown): PendingSettings {
+  const o = asObject(value)
+  const pending: PendingSettings = {}
+  const provider = optStr(o.provider)
+  const model = optStr(o.model)
+  if (provider !== null && model !== null) {
+    pending.provider = provider
+    pending.model = model
+  }
+
+  const contextWindow = optNum(o.contextWindow)
+  if (contextWindow !== null) pending.contextWindow = contextWindow
+  for (const key of ['serviceTier', 'speed', 'thinking', 'mode', 'approval'] as const) {
+    const text = optStr(o[key])
+    if (text !== null) pending[key] = text
+  }
+
+  return pending
+}
+
+function parseReviewer(value: unknown): Reviewer | null {
+  if (!isObject(value)) return null
+  return {
+    provider: str(value.provider),
+    model: str(value.model),
+    thinking: str(value.thinking),
+    serviceTier: str(value.serviceTier),
+    speed: str(value.speed),
+  }
+}
+
+function parseExtendedReviewer(value: unknown): ExtendedReviewer | null {
+  const reviewer = parseReviewer(value)
+  if (!reviewer || !isObject(value)) return null
+  return { ...reviewer, trigger: str(value.trigger), includePrimaryReview: bool(value.includePrimaryReview) }
+}
+
 export function parseChrome(value: unknown): Chrome | null {
   if (!isObject(value)) return null
   return {
@@ -88,6 +129,9 @@ export function parseChrome(value: unknown): Chrome | null {
     serviceTier: str(value.serviceTier),
     speed: str(value.speed),
     agentsEnabled: bool(value.agentsEnabled),
+    pending: parsePending(value.pending),
+    reviewer: parseReviewer(value.reviewer),
+    extendedApproval: parseExtendedReviewer(value.extendedApproval),
   }
 }
 
@@ -498,4 +542,21 @@ export function parseToolsReport(data: unknown): ToolsReport {
 export function parseHelpReport(data: unknown): HelpReport {
   const o = asObject(data)
   return { builtIn: parseCommands(o.builtIn), plugins: parseCommands(o.plugins) }
+}
+
+export function parseDocument(data: unknown): ReportDocument {
+  const o = asObject(asObject(data).document)
+  return {
+    title: str(o.title),
+    blocks: arr(o.blocks).map((item) => {
+      const b = asObject(item)
+      return {
+        type: str(b.type),
+        columns: strings(b.columns),
+        rows: arr(b.rows).map(strings),
+        lines: strings(b.lines),
+        omitted: num(b.omitted),
+      }
+    }),
+  }
 }

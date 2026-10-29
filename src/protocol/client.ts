@@ -116,9 +116,23 @@ export class CrystalClient {
 
   // --- commands ------------------------------------------------------------
 
-  async input(text: string, requestId: string, signal?: AbortSignal): Promise<{ turnActive: boolean; quit: boolean }> {
+  /**
+   * `accepted` is false when the engine refused the input; the reason also
+   * arrives as an `error` event. `pending` means a setting was recorded for the
+   * next turn.
+   */
+  async input(
+    text: string,
+    requestId: string,
+    signal?: AbortSignal,
+  ): Promise<{ accepted: boolean; pending: boolean; turnActive: boolean; quit: boolean }> {
     const body = asObject(await this.json('POST', '/input', { text, clientRequestId: requestId }, signal))
-    return { turnActive: bool(body.turnActive), quit: bool(body.quit) }
+    return {
+      accepted: bool(body.accepted, true),
+      pending: bool(body.pending),
+      turnActive: bool(body.turnActive),
+      quit: bool(body.quit),
+    }
   }
 
   async interrupt(signal?: AbortSignal): Promise<boolean> {

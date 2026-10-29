@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { server } from '@/app/server'
 import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
+import { modeLabel } from '@/session/mode'
 import { contextTenths, formatContextUsed, formatCount, formatWindow } from '@/session/usage-text'
 
 const model = server.model
@@ -22,6 +23,22 @@ const contextClass = computed(() => {
   const percent = contextTenths(used, model.contextWindow) / 10
   if (percent >= 80) return 'text-destructive'
   return percent >= 60 ? 'text-warn' : ''
+})
+
+// Settings chosen during a turn wait for the next one. Show them the way the
+// terminal's status bar does, so the operator sees they were recorded.
+const waiting = computed(() => {
+  const pending = model.chrome?.pending
+  if (!pending) return ''
+  const parts: string[] = []
+  if (pending.provider !== undefined) parts.push(`${pending.provider} / ${pending.model}`)
+  if (pending.mode !== undefined) parts.push(modeLabel(pending.mode))
+  if (pending.approval !== undefined) parts.push(displayToken(pending.approval))
+  if (pending.thinking !== undefined) parts.push(displayToken(pending.thinking))
+  if (pending.contextWindow !== undefined) parts.push(formatWindow(pending.contextWindow))
+  if (pending.serviceTier !== undefined) parts.push(displayToken(pending.serviceTier))
+  if (pending.speed !== undefined) parts.push(displayToken(pending.speed))
+  return parts.join(' · ')
 })
 
 // The terminal capitalises the stop reason like any other token.
@@ -44,6 +61,7 @@ const lastTurn = computed(() => (model.lastTurn ? displayToken(model.lastTurn.re
       <span v-if="tokens">{{ formatCount(tokens.inputTokens) }} IN / {{ formatCount(tokens.outputTokens) }} OUT</span>
       <span v-if="model.queue.length">{{ t('status.queued', { count: model.queue.length }) }}</span>
     </template>
+    <span v-if="waiting">{{ t('status.pending', { value: waiting }) }}</span>
     <span v-if="model.lastTurn">{{ t('status.turn', { reason: lastTurn }) }}</span>
   </footer>
 </template>

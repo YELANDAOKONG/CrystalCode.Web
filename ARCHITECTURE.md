@@ -249,13 +249,23 @@ The client reports the matching failure; it cannot fix any of them.
   `approval.reviewing` is Reviewing. A pending approval or question wins. The
   elapsed time restarts whenever the wording changes. `SessionModel.step`
   holds the step; `session/progress.ts` turns it into text.
-- Compaction summaries are not in a snapshot. They arrive once as a `note`
-  event, and `SessionState` does not keep notes, so a refresh loses them.
-  Requirement for the server owner: keep the summary in the snapshot's
-  `conversation` (as the `## Earlier context` system message the archive
-  already holds), or keep the compaction note in `SessionState`. The summary
-  is written to the archive only when `showCompactionSummary` (manual) or
-  `showAutomaticCompactionSummary` (automatic) is on.
+- Compaction summaries are in the snapshot. Every summary is a `system`
+  message in `conversation` (heading `## Earlier context`), whatever the
+  summary display setting says, so a refresh keeps it. The live
+  `compaction.finished` event carries `summary` and `shown`; the client draws
+  the summary from the `note` the server still sends when the setting shows it.
+- Next-turn settings. A mode, approval, thinking, model, context, tier, or
+  speed change made while a turn or compaction runs is recorded and applied on
+  the next turn. `POST /input` answers `accepted: false` for a refused input
+  and `pending: true` for a recorded one; the chrome's `pending` object lists
+  what waits. The settings page keeps showing the active value and adds the
+  waiting one as a note. It no longer disables model, context, or thinking
+  during a turn. The status bar lists the waiting values.
+- `report.document` carries a titled document with `paragraph`, `keyValues`,
+  `table`, and `list` blocks (for example `/skills` and plugin commands). Every
+  cell is drawn as text; an unknown block type falls back to its lines.
+- The chrome's `reviewer` and `extendedApproval` are `null` while off. The
+  settings page shows them read-only.
 - The toaster (`vue-sonner`) ships its own stylesheet and does not inject it.
   `ui/sonner/Sonner.vue` imports `vue-sonner/style.css`; without it the toasts
   render unpositioned at the bottom of the page.

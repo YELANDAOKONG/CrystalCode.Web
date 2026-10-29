@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { server } from '@/app/server'
 import { Separator } from '@/components/ui/separator'
 import { t } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import {
   approvalModes,
@@ -12,6 +13,7 @@ import {
   toOptions,
   type Option,
 } from '@/session/settings'
+import { formatWindow } from '@/session/usage-text'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 
@@ -21,9 +23,6 @@ const { canOperate, isAdmin } = server
 const chrome = computed(() => model.chrome)
 const commands = computed(() => model.commands)
 
-// Changing the model, thinking, or context window rebuilds the model client,
-// which the engine refuses while a turn runs.
-const turnBusy = computed(() => model.turnActive)
 const locked = computed(() => !canOperate.value)
 
 // /approval and the model settings change saved configuration and session
@@ -71,6 +70,41 @@ const currentWindow = computed(() => currentWindowOption(windowOptions.value, ch
 // never its own guess.
 const run = (command: string) => void server.send(command)
 const setMode = (name: string) => void server.setMode('set', name)
+
+// While a turn or compaction runs, the server records a change and applies it
+// on the next turn. The chrome lists what waits; the control keeps showing the
+// active value until then.
+const pending = computed(() => chrome.value?.pending ?? {})
+const waiting = (value: string | undefined): string | undefined =>
+  value === undefined ? undefined : t('settings.pending', { value })
+const slotLabel = (value: string | undefined): string | undefined =>
+  value === undefined ? undefined : value === 'unset' ? t('settings.option.none') : displayToken(value)
+
+const pendingMode = computed(() => waiting(pending.value.mode === undefined ? undefined : modeLabel(pending.value.mode)))
+const pendingApproval = computed(() => waiting(slotLabel(pending.value.approval)))
+const pendingModel = computed(() =>
+  waiting(pending.value.provider === undefined ? undefined : `${pending.value.provider} / ${pending.value.model}`),
+)
+const pendingThinking = computed(() => waiting(slotLabel(pending.value.thinking)))
+const pendingContext = computed(() =>
+  waiting(pending.value.contextWindow === undefined ? undefined : formatWindow(pending.value.contextWindow)),
+)
+const pendingTier = computed(() => waiting(slotLabel(pending.value.serviceTier)))
+const pendingSpeed = computed(() => waiting(slotLabel(pending.value.speed)))
+
+// Reviewers are shown as the server reports them. Changing one is a
+// `/approval model` command the page does not offer.
+const reviewerText = (reviewer: { provider: string; model: string; thinking: string; serviceTier: string; speed: string }) =>
+  [`${reviewer.provider} / ${reviewer.model}`, reviewer.thinking, reviewer.serviceTier, reviewer.speed]
+    .filter((part) => part !== '')
+    .join(' · ')
+const reviewer = computed(() => (chrome.value?.reviewer ? reviewerText(chrome.value.reviewer) : t('settings.reviewer.off')))
+const extended = computed(() => {
+  const value = chrome.value?.extendedApproval
+  if (!value) return t('settings.reviewer.off')
+  const trigger = value.trigger ? ` · ${t('settings.reviewer.trigger', { trigger: value.trigger })}` : ''
+  return `${reviewerText(value)}${trigger}`
+})
 const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '' ? t('settings.thinking.unsupported') : undefined))
 </script>
 
@@ -78,14 +112,14 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
   <div class="divide-y">
     <p v-if="locked" class="text-muted-foreground pb-3 text-sm">{{ t('settings.readonly') }}</p>
 
-    <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" label-for="set-mode">
+    <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" :note="pendingMode" label-for="set-mode">
       <ChoiceSelect id="set-mode" :options="modes" :model-value="currentMode" :disabled="locked" @change="setMode" />
     </SettingRow>
 
     <SettingRow
       :label="t('settings.approval')"
       :help="t('settings.approval.help')"
-      :note="adminLocked && canOperate ? t('settings.adminOnly') : undefined"
+      :note="pendingApproval ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
       label-for="set-approval"
     >
       <ChoiceSelect
@@ -100,14 +134,14 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
     <SettingRow
       :label="t('settings.model')"
       :help="t('settings.model.help')"
-      :note="turnBusy ? t('settings.busy') : adminLocked && canOperate ? t('settings.adminOnly') : undefined"
+      :note="pendingModel ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
       label-for="set-model"
     >
       <ChoiceSelect
         id="set-model"
         :options="modelOptions"
         :model-value="currentModel"
-        :disabled="locked || adminLocked || turnBusy"
+        :disabled="locked || adminLocked"
         @change="(v) => run(`/model ${v}`)"
       />
     </SettingRow>
@@ -115,7 +149,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
     <SettingRow
       :label="t('settings.thinking')"
       :help="t('settings.thinking.help')"
-      :note="thinkingNote ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
+      :note="pendingThinking ?? thinkingNote ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
       label-for="set-thinking"
     >
       <ChoiceSelect
@@ -131,19 +165,19 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
       v-if="windows.length > 0"
       :label="t('settings.context')"
       :help="t('settings.context.help')"
-      :note="turnBusy ? t('settings.busy') : windows.length === 1 ? t('settings.single') : undefined"
+      :note="pendingContext ?? (windows.length === 1 ? t('settings.single') : undefined)"
       label-for="set-context"
     >
       <ChoiceSelect
         id="set-context"
         :options="windows"
         :model-value="currentWindow"
-        :disabled="locked || adminLocked || turnBusy || windows.length < 2"
+        :disabled="locked || adminLocked || windows.length < 2"
         @change="(v) => run(`/context ${v}`)"
       />
     </SettingRow>
 
-    <SettingRow v-if="tiers.length > 0" :label="t('settings.tier')" label-for="set-tier">
+    <SettingRow v-if="tiers.length > 0" :label="t('settings.tier')" :note="pendingTier" label-for="set-tier">
       <ChoiceSelect
         id="set-tier"
         :options="tiers"
@@ -153,7 +187,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
       />
     </SettingRow>
 
-    <SettingRow v-if="speeds.length > 0" :label="t('settings.speed')" label-for="set-speed">
+    <SettingRow v-if="speeds.length > 0" :label="t('settings.speed')" :note="pendingSpeed" label-for="set-speed">
       <ChoiceSelect
         id="set-speed"
         :options="speeds"
@@ -161,6 +195,14 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         :disabled="locked || adminLocked"
         @change="(v) => run(`/speed ${v}`)"
       />
+    </SettingRow>
+
+    <SettingRow :label="t('settings.reviewer')" :help="t('settings.reviewer.help')">
+      <p class="min-w-0 text-sm break-words sm:text-right">{{ reviewer }}</p>
+    </SettingRow>
+
+    <SettingRow :label="t('settings.extended')">
+      <p class="min-w-0 text-sm break-words sm:text-right">{{ extended }}</p>
     </SettingRow>
 
     <Separator class="hidden" />

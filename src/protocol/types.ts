@@ -37,6 +37,33 @@ export interface ServerInfo {
   slashCommands: string[]
 }
 
+/** Settings chosen during a turn that apply on the next one. A key exists only while it waits. */
+export interface PendingSettings {
+  provider?: string
+  model?: string
+  contextWindow?: number
+  /** `unset` clears the slot. */
+  serviceTier?: string
+  speed?: string
+  thinking?: string
+  mode?: string
+  approval?: string
+}
+
+/** An approval reviewer. `thinking`, `serviceTier`, and `speed` are display labels, blank when unset. */
+export interface Reviewer {
+  provider: string
+  model: string
+  thinking: string
+  serviceTier: string
+  speed: string
+}
+
+export interface ExtendedReviewer extends Reviewer {
+  trigger: string
+  includePrimaryReview: boolean
+}
+
 export interface Chrome {
   provider: string
   model: string
@@ -50,6 +77,10 @@ export interface Chrome {
   serviceTier: string
   speed: string
   agentsEnabled: boolean
+  pending: PendingSettings
+  /** Null while that reviewer is off. */
+  reviewer: Reviewer | null
+  extendedApproval: ExtendedReviewer | null
 }
 
 export interface Preferences {
@@ -338,4 +369,19 @@ export interface ToolsReport {
 export interface HelpReport {
   builtIn: SlashCommand[]
   plugins: SlashCommand[]
+}
+
+export interface DocumentBlock {
+  type: string
+  columns: string[]
+  rows: string[][]
+  lines: string[]
+  /** Rows or lines the server left out. */
+  omitted: number
+}
+
+/** What `report.document` carries: a titled document a slash command or plugin wrote. */
+export interface ReportDocument {
+  title: string
+  blocks: DocumentBlock[]
 }

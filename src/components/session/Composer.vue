@@ -74,7 +74,8 @@ async function submit(): Promise<void> {
   text.value = ''
   historyIndex.value = null
   const result = await server.send(value)
-  if (!result && text.value === '') text.value = value
+  // A refused input (the reason arrives as an error notice) keeps its text.
+  if ((!result || !result.accepted) && text.value === '') text.value = value
 }
 
 function element(): HTMLTextAreaElement | null {

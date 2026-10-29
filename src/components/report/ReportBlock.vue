@@ -5,7 +5,8 @@ import MarkdownView from '@/components/render/MarkdownView.vue'
 import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import type { Notice } from '@/session/state'
-import { parseTodos } from '@/protocol/parse'
+import { parseDocument, parseTodos } from '@/protocol/parse'
+import DocumentReportView from './DocumentReportView.vue'
 import HelpReportView from './HelpReportView.vue'
 import StatusReportView from './StatusReportView.vue'
 import ToolsReportView from './ToolsReportView.vue'
@@ -23,12 +24,14 @@ const title = computed(() => {
       return t('report.tools')
     case 'report.todos':
       return t('report.todos')
+    case 'report.document':
+      return parseDocument(data).title || t('report.document')
     default:
       return props.notice.type.replace('report.', '')
   }
 })
 
-const known = computed(() => ['report.help', 'report.status', 'report.tools', 'report.todos'].includes(props.notice.type))
+const known = computed(() => ['report.help', 'report.status', 'report.tools', 'report.todos', 'report.document'].includes(props.notice.type))
 const todos = computed(() => parseTodos(props.notice.data.items))
 </script>
 
@@ -42,6 +45,7 @@ const todos = computed(() => parseTodos(props.notice.data.items))
       <HelpReportView v-if="notice.type === 'report.help'" :data="notice.data" />
       <StatusReportView v-else-if="notice.type === 'report.status'" :data="notice.data" />
       <ToolsReportView v-else-if="notice.type === 'report.tools'" :data="notice.data" />
+      <DocumentReportView v-else-if="notice.type === 'report.document'" :data="notice.data" />
       <ul v-else-if="notice.type === 'report.todos'" class="space-y-1">
         <li v-if="todos.length === 0" class="text-muted-foreground">{{ t('report.none') }}</li>
         <li v-for="todo in todos" :key="todo.id" class="flex gap-2">

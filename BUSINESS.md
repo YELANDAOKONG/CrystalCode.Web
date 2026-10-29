@@ -100,6 +100,10 @@ Session:
 - Run every slash command the server lists. Reports (`report.help`,
   `report.status`, `report.stats`, `report.tools`, `report.todos`) are shown
   to the client that asked.
+- Settings chosen during a turn apply on the next turn. Show the active value
+  and what waits.
+- Show the approval and extended approval reviewers.
+- Show `report.document` results, such as `/skills` and plugin commands.
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
 - Quick prompts: list, fill into the composer, and send.
@@ -174,6 +178,15 @@ These are not part of the product:
 - Account sign-in, user management, and cloud sync.
 - Clipboard image paste through the server. `PasteClipboardImageAsync` reads
   the server's clipboard and the server excludes it; image upload replaces it.
+- Structured catalog queries beyond what the interface already shows
+  (`GET /sessions`, `/models`, `/options`, `PUT /options/{id}`, `/agents`,
+  `/skills`, `/mcp`, `/plugins`, `/tasks`, and task logs). The settings page
+  reads options from the snapshot's command list and changes them through
+  slash commands; the same commands are available in the composer. Revisit
+  when a picker needs the richer data.
+- Status-line gauges and ordering (`statusLineRules`, `statusLineDrop`, theme
+  gauges). The client draws the server's `statusFields` text as received and
+  does not color or reorder it.
 - Writing an export to the server's disk. `/export` is passed through to the
   server as typed, and the download button uses `GET /export`.
 
