@@ -507,4 +507,9 @@ export const zhTw: Record<MessageKey, string> = {
   'choice.search': '搜尋',
   'choice.none': '沒有符合項目。',
   'choice.more': '還有 {count} 項。輸入文字縮小範圍。',
+  'catalog.loading': '載入中',
+  'catalog.mcp.enabled': '啟用 MCP',
+  'catalog.mcp.reload': '重新連線',
+  'catalog.mcp.disable': '停用',
+  'catalog.mcp.hint': '停用後的伺服器會從此清單消失。要重新啟用，請在輸入框使用 /mcp enable。',
 }

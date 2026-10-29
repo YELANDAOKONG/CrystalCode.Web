@@ -507,4 +507,9 @@ export const zhCn: Record<MessageKey, string> = {
   'choice.search': '搜索',
   'choice.none': '没有匹配项。',
   'choice.more': '还有 {count} 项。输入文字缩小范围。',
+  'catalog.loading': '加载中',
+  'catalog.mcp.enabled': '启用 MCP',
+  'catalog.mcp.reload': '重新连接',
+  'catalog.mcp.disable': '停用',
+  'catalog.mcp.hint': '停用后的服务器会从此列表消失。要重新启用，请在输入框使用 /mcp enable。',
 }

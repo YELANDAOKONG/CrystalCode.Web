@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { RefreshCw } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Spinner } from '@/components/ui/spinner'
 import { t } from '@/i18n'
 
 // The frame every catalog tab shares: actions and a refresh button on top,
-// then a skeleton, an empty message, or the content.
+// then a spinner, an empty message, or the content.
 defineProps<{ loading: boolean; failed: boolean; empty: boolean; emptyText: string }>()
 const emit = defineEmits<{ refresh: [] }>()
 </script>
@@ -27,10 +27,9 @@ const emit = defineEmits<{ refresh: [] }>()
       </Button>
     </div>
     <slot name="summary" />
-    <div v-if="empty && loading" class="space-y-3" aria-hidden="true">
-      <Skeleton class="h-12 w-full" />
-      <Skeleton class="h-12 w-full" />
-      <Skeleton class="h-12 w-2/3" />
+    <div v-if="empty && loading" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm" role="status">
+      <Spinner class="size-5 motion-reduce:animate-none" />
+      {{ t('catalog.loading') }}
     </div>
     <p v-else-if="empty" class="text-muted-foreground py-6 text-center text-sm">
       {{ failed ? t('catalog.failed') : emptyText }}

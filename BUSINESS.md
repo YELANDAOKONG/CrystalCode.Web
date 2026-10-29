@@ -183,6 +183,12 @@ These are not part of the product:
 - Account sign-in, user management, and cloud sync.
 - Clipboard image paste through the server. `PasteClipboardImageAsync` reads
   the server's clipboard and the server excludes it; image upload replaces it.
+- Per-server MCP switches that can turn a server back on. `GET /mcp` lists
+  only connected servers and carries no `enabled` field, so a server turned off
+  disappears from it. The catalog offers "turn off" (`/mcp disable`) and the
+  master switch and reconnect. Server requirement: `GET /mcp` should list every
+  configured server with `enabled`, `effective`, and `error`, the way
+  `/mcp list` does.
 - Status-line gauges and ordering (`statusLineRules`, `statusLineDrop`, theme
   gauges). The client draws the server's `statusFields` text as received and
   does not color or reorder it.

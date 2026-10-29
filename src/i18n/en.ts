@@ -506,6 +506,11 @@ export const en = {
   'choice.search': 'Search',
   'choice.none': 'No match.',
   'choice.more': '{count} more. Type to narrow the list.',
+  'catalog.loading': 'Loading',
+  'catalog.mcp.enabled': 'MCP on',
+  'catalog.mcp.reload': 'Reconnect',
+  'catalog.mcp.disable': 'Turn off',
+  'catalog.mcp.hint': 'A server you turn off leaves this list. Turn it back on with /mcp enable in the composer.',
 } as const
 
 export type MessageKey = keyof typeof en

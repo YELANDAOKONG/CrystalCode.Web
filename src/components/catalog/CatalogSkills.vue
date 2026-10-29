@@ -25,12 +25,12 @@ const run = (key: string, command: string) =>
 <template>
   <CatalogPane :loading="loading" :failed="failed" :empty="!data" :empty-text="t('catalog.skills.empty')" @refresh="reload">
     <template #actions>
-      <label class="flex min-h-10 items-center gap-2 text-sm">
+      <label v-if="data" class="flex min-h-10 items-center gap-2 text-sm">
         <Spinner v-if="busy('switch')" class="text-muted-foreground size-4 motion-reduce:animate-none" />
-        <Switch :model-value="data?.enabled ?? false" :disabled="!isAdmin || !data || anyBusy()" :aria-busy="busy('switch') || undefined" @update:model-value="(on) => run('switch', on === true ? '/skills on' : '/skills off')" />
+        <Switch :model-value="data.enabled" :disabled="!isAdmin || anyBusy()" :aria-busy="busy('switch') || undefined" @update:model-value="(on) => run('switch', on === true ? '/skills on' : '/skills off')" />
         {{ t('catalog.skills.enabled') }}
       </label>
-      <Button variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin || !data?.enabled || anyBusy()" :aria-busy="busy('reload') || undefined" @click="run('reload', '/skills reload')">
+      <Button v-if="data" variant="outline" size="sm" class="h-10 md:h-8" :disabled="!isAdmin || !data.enabled || anyBusy()" :aria-busy="busy('reload') || undefined" @click="run('reload', '/skills reload')">
         <Spinner v-if="busy('reload')" class="size-3.5 motion-reduce:animate-none" />
         <RotateCw v-else class="size-3.5" />
         {{ t('catalog.skills.reload') }}
