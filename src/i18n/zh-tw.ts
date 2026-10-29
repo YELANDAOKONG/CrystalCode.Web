@@ -512,4 +512,7 @@ export const zhTw: Record<MessageKey, string> = {
   'catalog.mcp.reload': '重新連線',
   'catalog.mcp.disable': '停用',
   'catalog.mcp.hint': '停用後的伺服器會從此清單消失。要重新啟用，請在輸入框使用 /mcp enable。',
+  'catalog.models.search': '在 {count} 個模型中搜尋',
+  'catalog.models.noMatch': '沒有符合的模型。',
+  'catalog.models.more': '還有 {count} 個。輸入文字縮小範圍。',
 }
