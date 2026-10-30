@@ -104,6 +104,7 @@ export const zhCn: Record<MessageKey, string> = {
   'progress.approval': '等待批准',
   'progress.answer': '等待你的回答',
   'progress.compacting': '正在压缩',
+  'progress.namingTopic': '正在为会话命名',
   'progress.loadingTools': '正在加载工具',
   'progress.loadingPlugins': '正在加载插件',
   'progress.tool.bash': '正在运行命令',

@@ -45,10 +45,20 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
   <header class="flex h-12 shrink-0 items-center gap-1 border-b pr-1 pl-3 md:gap-2 md:pr-3">
     <LogoMark class="mr-2 hidden size-5 shrink-0 sm:block" />
     <div class="min-w-0 flex-1">
-      <div class="truncate font-mono text-xs" :title="model.chrome?.workspace">{{ model.chrome?.workspace }}</div>
-      <div v-if="model.chrome" class="text-muted-foreground truncate text-xs">
-        {{ model.chrome.provider }} / {{ model.chrome.model }} · {{ model.chrome.thinking }}
-      </div>
+      <!-- The topic is the server's text, shown as received and only as text.
+           With a topic the header keeps two lines, so the workspace moves to the tooltip. -->
+      <template v-if="model.chrome?.topic">
+        <div class="truncate text-sm leading-5 font-medium" :title="`${model.chrome.topic}\n${model.chrome.workspace}`">{{ model.chrome.topic }}</div>
+        <div class="text-muted-foreground truncate text-xs leading-4" :title="model.chrome.workspace">
+          {{ model.chrome.provider }} / {{ model.chrome.model }} · {{ model.chrome.thinking }}
+        </div>
+      </template>
+      <template v-else>
+        <div class="truncate font-mono text-xs" :title="model.chrome?.workspace">{{ model.chrome?.workspace }}</div>
+        <div v-if="model.chrome" class="text-muted-foreground truncate text-xs">
+          {{ model.chrome.provider }} / {{ model.chrome.model }} · {{ model.chrome.thinking }}
+        </div>
+      </template>
     </div>
 
     <LanguageMenu />

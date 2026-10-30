@@ -104,6 +104,7 @@ export const zhTw: Record<MessageKey, string> = {
   'progress.approval': '等待核准',
   'progress.answer': '等待你的回答',
   'progress.compacting': '正在壓縮',
+  'progress.namingTopic': '正在為工作階段命名',
   'progress.loadingTools': '正在載入工具',
   'progress.loadingPlugins': '正在載入外掛',
   'progress.tool.bash': '正在執行指令',

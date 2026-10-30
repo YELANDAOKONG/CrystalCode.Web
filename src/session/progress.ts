@@ -3,7 +3,7 @@ import type { Interaction, LiveRound } from '@/protocol/types'
 import { displayToken } from './display-case'
 
 // What the main session is doing right now, as the terminal's progress row
-// shows it. The server reports only four activities; the rest is read from the
+// shows it. The server reports only a few activities; the rest is read from the
 // stream, tool, retry, and review events, exactly as the terminal does.
 
 export type Step =
@@ -15,6 +15,7 @@ export type Step =
   | { kind: 'retrying'; attempt: number; until: number }
   | { kind: 'reviewing'; extended: boolean }
   | { kind: 'compacting' }
+  | { kind: 'naming-topic' }
   | { kind: 'loading-tools' }
   | { kind: 'loading-plugins' }
 
@@ -36,6 +37,8 @@ export function stepForActivity(activity: string): Step | null {
       return { kind: 'loading-plugins' }
     case 'compacting':
       return { kind: 'compacting' }
+    case 'naming_topic':
+      return { kind: 'naming-topic' }
     case 'waiting_for_model':
       return { kind: 'waiting' }
     default:
@@ -43,7 +46,7 @@ export function stepForActivity(activity: string): Step | null {
   }
 }
 
-const ACTIVITY_STEPS = new Set<Step['kind']>(['compacting', 'loading-tools', 'loading-plugins'])
+const ACTIVITY_STEPS = new Set<Step['kind']>(['compacting', 'naming-topic', 'loading-tools', 'loading-plugins'])
 
 /** True for a step that only an `activity` event sets, so the next `idle` ends it. */
 export function isActivityStep(step: Step | null): boolean {
@@ -116,6 +119,8 @@ export function describeProgress(step: Step | null, interactions: Interaction[],
       return plain('progress.writing')
     case 'compacting':
       return plain('progress.compacting')
+    case 'naming-topic':
+      return plain('progress.namingTopic')
     case 'loading-tools':
       return plain('progress.loadingTools')
     case 'loading-plugins':

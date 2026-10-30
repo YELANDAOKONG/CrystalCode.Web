@@ -103,6 +103,7 @@ export const en = {
   'progress.approval': 'Awaiting approval',
   'progress.answer': 'Waiting for your answer',
   'progress.compacting': 'Compacting',
+  'progress.namingTopic': 'Naming the session',
   'progress.loadingTools': 'Loading tools',
   'progress.loadingPlugins': 'Loading plugins',
   'progress.tool.bash': 'Running a command',
