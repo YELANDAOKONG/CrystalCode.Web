@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { ChevronRight } from '@lucide/vue'
 import { server } from '@/app/server'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
@@ -9,9 +10,12 @@ import { childActivity, isChildActive } from '@/session/child-trace'
 import { displayToken } from '@/session/display-case'
 import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
+import { pursueLabel } from './pursue-label'
 
 const model = server.model
 const openChild = ref<string | null>(null)
+const emit = defineEmits<{ openPursue: [] }>()
+const canInspectPursue = computed(() => server.can('GET /pursue') && server.can('GET /pursue/checks'))
 
 function activityText(id: string): string {
   const now = childActivity(model.childTraces.get(id) ?? null)
@@ -32,6 +36,28 @@ function activityText(id: string): string {
   <div class="space-y-6 text-sm">
     <TodoList />
 
+    <section v-if="model.pursue">
+      <h2 class="mb-2 text-sm font-medium">{{ t('panel.pursue') }}</h2>
+      <component
+        :is="canInspectPursue ? 'button' : 'div'"
+        :type="canInspectPursue ? 'button' : undefined"
+        class="flex w-full min-w-0 flex-col gap-3 rounded-md border p-3 text-left"
+        :class="canInspectPursue ? 'hover:bg-accent focus-visible:ring-ring cursor-pointer outline-none focus-visible:ring-2' : ''"
+        :aria-label="canInspectPursue ? t('pursue.open') : undefined"
+        :aria-haspopup="canInspectPursue ? 'dialog' : undefined"
+        @click="canInspectPursue && emit('openPursue')"
+      >
+        <span class="flex w-full items-start gap-2">
+          <span class="min-w-0 flex-1 line-clamp-3 break-words font-medium">{{ model.pursue.objective }}</span>
+          <Badge :variant="model.pursue.status === 'blocked' ? 'destructive' : 'secondary'" class="shrink-0">{{ pursueLabel('status', model.pursue.status) }}</Badge>
+        </span>
+        <span class="text-muted-foreground flex w-full items-center gap-2 text-xs">
+          <span class="min-w-0 flex-1 break-words">{{ pursueLabel('phase', model.pursue.phase) }}</span>
+          <span class="shrink-0 tabular-nums">{{ t('pursue.totalChecks', { count: model.pursue.checkCount }) }}</span>
+          <ChevronRight v-if="canInspectPursue" class="size-3.5 shrink-0" aria-hidden="true" />
+        </span>
+      </component>
+    </section>
 
     <section v-if="model.chrome?.agentsEnabled">
       <h2 class="mb-2 text-sm font-medium">{{ t('panel.children') }}</h2>

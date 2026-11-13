@@ -22,6 +22,9 @@ import type {
   McpReport,
   ModelCatalog,
   PluginsReport,
+  Pursue,
+  PursueCheck,
+  PursueCheckPage,
   SavedSession,
   SkillsReport,
   TaskLog,
@@ -382,6 +385,14 @@ function createServer() {
   const uploadImage = (blob: Blob) => act((c) => c.uploadImage(blob, newRequestId()))
   const loadImage = (number: number) => act((c) => c.image(number))
   const loadChild = (id: string): Promise<ChildSummary | undefined> => act((c) => c.child(id))
+  const readPursue = <T>(task: (c: CrystalClient, signal: AbortSignal) => Promise<T>, signal: AbortSignal) =>
+    act((c) => task(c, run ? AbortSignal.any([run.signal, signal]) : signal))
+  const loadPursue = (signal: AbortSignal): Promise<Pursue | null | undefined> =>
+    readPursue((c, s) => c.pursue(s), signal)
+  const loadPursueChecks = (after: number, signal: AbortSignal): Promise<PursueCheckPage | undefined> =>
+    readPursue((c, s) => c.pursueChecks(after, s), signal)
+  const loadPursueCheck = (id: string, signal: AbortSignal): Promise<PursueCheck | undefined> =>
+    readPursue((c, s) => c.pursueCheck(id, s), signal)
   const loadQuickPrompts = (): Promise<QuickPromptCatalog | undefined> => act((c) => c.quickPrompts())
   const listTokens = (): Promise<IssuedToken[] | undefined> => act((c) => c.listTokens())
   const issueToken = (tokenScope: Scope, label: string | null) => act((c) => c.issueToken(tokenScope, label))
@@ -457,6 +468,9 @@ function createServer() {
     uploadImage,
     loadImage,
     loadChild,
+    loadPursue,
+    loadPursueChecks,
+    loadPursueCheck,
     loadQuickPrompts,
     listTokens,
     issueToken,

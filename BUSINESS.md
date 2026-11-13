@@ -119,9 +119,16 @@ Session:
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
 - Quick prompts: list, fill into the composer, and send.
-- Pursue: the status bar shows the objective's status and check count, and the
-  progress row shows checking the objective or waiting for a task. The objective
-  text is in the status bar's tooltip.
+- Pursue: the side panel shows an objective summary with status, phase, and
+  retained check count above the child agents. The summary is available in the
+  mobile side panel too. When the server advertises the detail routes, selecting
+  the summary opens a sheet showing the
+  objective, phase, reason, next step, identities, and per-run counters. Check
+  history loads oldest first in pages of 50, with a Load more action. Each check
+  expands to its verdict, reason, next step, waited task ids, usage, and cited
+  evidence exactly as returned by the server. The latest check is also available
+  while earlier pages remain unread. The progress row shows checking
+  the objective or waiting for a task. Reconnect and resync reload history.
 - Child Agents: list and inspect. A running child shows its work as it
   happens: reply text, reasoning, tool calls and results, errors, and what it
   is doing now. The server saves a child's archive only when an invocation
@@ -213,9 +220,8 @@ These are not part of the product:
   does not color or reorder it.
 - Writing an export to the server's disk. `/export` is passed through to the
   server as typed, and the download button uses `GET /export`.
-- Pursue checker evidence and the `/pursue` model, thinking, tier, speed,
-  context, and limit settings. They are typed as commands and written by the
-  server; the page shows only the status line.
+- Dedicated controls for `/pursue` model, thinking, tier, speed, context, and
+  limit settings. These commands can still be typed and are handled by the server.
 
 Forbidden:
 

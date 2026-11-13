@@ -271,9 +271,20 @@ The client reports the matching failure; it cannot fix any of them.
   `table`, and `list` blocks (for example `/skills` and plugin commands). Every
   cell is drawn as text; an unknown block type falls back to its lines.
 - Pursue. The snapshot's `pursue` and each `pursue.changed` carry the
-  objective's status, phase, check count, and next step, or null when there is
-  no objective. `session` keeps the latest value; the status bar shows status
-  and check count. `pursue.checked` is not used by the page yet.
+  objective's `id`, `runId`, status, phase, per-run counters, retained
+  `checkCount`, `latestCheck`, and next step, or null when there is no objective.
+  `pursue.checked` also carries a full retained check. `SidePanel` shows an
+  objective summary above the child agents; it opens `PursueSheet` only when
+  the detail routes are advertised. `SessionView` owns the detail sheet, outside
+  the desktop/mobile side panel, and closes the mobile panel when opening it.
+  The footer has no pursue entry. The sheet reads
+  `GET /pursue` and pages `GET /pursue/checks?after=...&limit=50`; each check
+  can be refreshed through `GET /pursue/checks/{id}`. Evidence content is
+  rendered as text, never mapped to parent conversation indexes. Paging uses
+  the server offset, deduplicates by check id, and rejects another objective's
+  response. Snapshot replacement, objective/session changes, and reconnects
+  invalidate the pages. In-flight requests are aborted when the sheet closes
+  or its data source changes, and stale results cannot replace new state.
 - Structured queries. `components/catalog` holds one tab per route
   (`/sessions`, `/models`, `/agents`, `/skills`, `/mcp`, `/plugins`, `/tasks`
   with `/tasks/{id}/logs`). Each loads on open and on the refresh button; the

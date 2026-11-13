@@ -10,6 +10,7 @@ import StatsWindow from '@/components/report/StatsWindow.vue'
 import Composer from './Composer.vue'
 import InteractionDialog from './InteractionDialog.vue'
 import ProgressRow from './ProgressRow.vue'
+import PursueSheet from './PursueSheet.vue'
 import SessionHeader from './SessionHeader.vue'
 import SidePanel from './SidePanel.vue'
 import StatusBar from './StatusBar.vue'
@@ -21,8 +22,14 @@ const { phase, retryIn, waitingState } = server
 const panelOpen = ref(false)
 const settingsOpen = ref(false)
 const catalogOpen = ref(false)
+const pursueOpen = ref(false)
 const wide = useMediaQuery('(min-width: 768px)')
 const current = computed(() => model.interactions[0])
+
+function openPursue(): void {
+  if (!wide.value) panelOpen.value = false
+  pursueOpen.value = true
+}
 
 const banner = computed(() => {
   if (phase.value === 'reconnecting') {
@@ -49,17 +56,18 @@ const banner = computed(() => {
         <Composer />
       </main>
       <aside v-if="panelOpen && wide" class="bg-card w-80 shrink-0 overflow-y-auto border-l p-4">
-        <SidePanel />
+        <SidePanel @open-pursue="openPursue" />
       </aside>
     </div>
     <StatusBar />
+    <PursueSheet v-model:open="pursueOpen" />
     <Sheet v-if="!wide" v-model:open="panelOpen">
       <SheetContent side="bottom" class="max-h-[80dvh] overflow-y-auto rounded-t-xl px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <SheetHeader class="px-0">
           <SheetTitle>{{ t('header.panel') }}</SheetTitle>
           <SheetDescription class="sr-only">{{ t('header.panel') }}</SheetDescription>
         </SheetHeader>
-        <SidePanel />
+        <SidePanel @open-pursue="openPursue" />
       </SheetContent>
     </Sheet>
     <SettingsView v-model:open="settingsOpen" />

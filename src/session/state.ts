@@ -8,6 +8,7 @@ import {
   parseOptions,
   parsePreferences,
   parsePursue,
+  parsePursueCheck,
   parseSide,
   parseStatusFields,
   parseTodos,
@@ -96,6 +97,8 @@ export class SessionModel {
   lastTurn: LastTurn | null = null
   interactions: Interaction[] = []
   pursue: Pursue | null = null
+  /** A new snapshot invalidates paginated detail views, even for the same objective. */
+  snapshotRevision = 0
   notices: Notice[] = []
   /** The `/stats` page. It is a window of its own, not part of the conversation. */
   statsPage: { seq: number; data: Record<string, unknown> } | null = null
@@ -110,6 +113,7 @@ export class SessionModel {
 
   /** Replaces everything with a snapshot. Notices are kept: they are not in a snapshot. */
   loadSnapshot(snapshot: Snapshot): void {
+    this.snapshotRevision += 1
     this.sessionId = snapshot.sessionId
     this.loaded = true
     this.lastSeq = snapshot.lastSeq
@@ -199,6 +203,13 @@ export class SessionModel {
       case 'pursue.changed':
         this.pursue = parsePursue(d.pursue)
         break
+      case 'pursue.checked': {
+        const check = parsePursueCheck(d)
+        if (check.id && this.pursue?.id === check.objectiveId && this.pursue.runId === check.runId) {
+          this.pursue = { ...this.pursue, latestCheck: check }
+        }
+        break
+      }
       case 'side.changed':
         this.side = parseSide(d.side)
         break

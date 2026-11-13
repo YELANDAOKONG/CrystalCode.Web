@@ -280,6 +280,10 @@ export interface Snapshot {
 
 /** The objective the server is working toward, or null when none is set. */
 export interface Pursue {
+  id: string
+  runId: string
+  checkCount: number
+  latestCheck: PursueCheck | null
   objective: string
   status: string
   phase: string
@@ -289,6 +293,28 @@ export interface Pursue {
   continuations: number
   stalls: number
   nextStep: string
+}
+
+export interface PursueCheck {
+  id: string
+  objectiveId: string
+  runId: string
+  index: number
+  checkedUtc: string
+  verdict: string
+  reason: string
+  nextStep: string
+  evidence: number[]
+  evidenceContent: { number: number; kind: string; text: string }[]
+  waitFor: string[]
+  usage: Usage | null
+}
+
+export interface PursueCheckPage {
+  objectiveId: string | null
+  checks: PursueCheck[]
+  nextOffset: number
+  hasMore: boolean
 }
 
 export interface ServerEvent {

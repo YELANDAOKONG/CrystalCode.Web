@@ -13,6 +13,9 @@ import {
   parseModelCatalog,
   parseOptionCatalog,
   parsePlugins,
+  parsePursue,
+  parsePursueCheck,
+  parsePursueCheckPage,
   parseSavedSessions,
   parseSkills,
   parseTaskLog,
@@ -28,6 +31,9 @@ import type {
   ModelCatalog,
   OptionCatalog,
   PluginsReport,
+  Pursue,
+  PursueCheck,
+  PursueCheckPage,
   SavedSession,
   SkillsReport,
   TaskLog,
@@ -110,6 +116,20 @@ export class CrystalClient {
 
   async sessions(all: boolean, signal?: AbortSignal): Promise<SavedSession[]> {
     return parseSavedSessions(await this.json('GET', `/sessions?all=${all ? 'true' : 'false'}`, undefined, signal))
+  }
+
+  async pursue(signal?: AbortSignal): Promise<Pursue | null> {
+    const body = asObject(await this.json('GET', '/pursue', undefined, signal))
+    return parsePursue(body.pursue)
+  }
+
+  async pursueChecks(after: number, signal?: AbortSignal): Promise<PursueCheckPage> {
+    return parsePursueCheckPage(await this.json('GET', `/pursue/checks?after=${after}&limit=50`, undefined, signal))
+  }
+
+  async pursueCheck(id: string, signal?: AbortSignal): Promise<PursueCheck> {
+    const body = asObject(await this.json('GET', `/pursue/checks/${encodeURIComponent(id)}`, undefined, signal))
+    return parsePursueCheck(body.check)
   }
 
   async models(signal?: AbortSignal): Promise<ModelCatalog> {

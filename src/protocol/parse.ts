@@ -9,6 +9,8 @@ import type {
   LiveRound,
   Preferences,
   Pursue,
+  PursueCheck,
+  PursueCheckPage,
   Question,
   QuickPromptCatalog,
   Scope,
@@ -394,6 +396,10 @@ export function parseInteraction(value: unknown): Interaction {
 export function parsePursue(value: unknown): Pursue | null {
   if (!isObject(value)) return null
   return {
+    id: str(value.id),
+    runId: str(value.runId),
+    checkCount: num(value.checkCount, num(value.checks)),
+    latestCheck: isObject(value.latestCheck) ? parsePursueCheck(value.latestCheck) : null,
     objective: str(value.objective),
     status: str(value.status),
     phase: str(value.phase, 'none'),
@@ -403,6 +409,37 @@ export function parsePursue(value: unknown): Pursue | null {
     continuations: num(value.continuations),
     stalls: num(value.stalls),
     nextStep: str(value.nextStep),
+  }
+}
+
+export function parsePursueCheck(value: unknown): PursueCheck {
+  const o = asObject(value)
+  return {
+    id: str(o.id),
+    objectiveId: str(o.objectiveId),
+    runId: str(o.runId),
+    index: num(o.index),
+    checkedUtc: str(o.checkedUtc),
+    verdict: str(o.verdict),
+    reason: str(o.reason),
+    nextStep: str(o.nextStep),
+    evidence: numbers(o.evidence),
+    evidenceContent: arr(o.evidenceContent).map((value) => {
+      const entry = asObject(value)
+      return { number: num(entry.number), kind: str(entry.kind), text: str(entry.text) }
+    }),
+    waitFor: strings(o.waitFor),
+    usage: parseUsage(o.usage),
+  }
+}
+
+export function parsePursueCheckPage(value: unknown): PursueCheckPage {
+  const o = asObject(value)
+  return {
+    objectiveId: optStr(o.objectiveId),
+    checks: arr(o.checks).map(parsePursueCheck),
+    nextOffset: num(o.nextOffset),
+    hasMore: bool(o.hasMore),
   }
 }
 
