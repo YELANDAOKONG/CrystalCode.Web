@@ -47,12 +47,12 @@ const banner = computed(() => {
         <Transcript />
         <ProgressRow />
         <Composer />
-        <StatusBar />
       </main>
       <aside v-if="panelOpen && wide" class="bg-card w-80 shrink-0 overflow-y-auto border-l p-4">
         <SidePanel />
       </aside>
     </div>
+    <StatusBar />
     <Sheet v-if="!wide" v-model:open="panelOpen">
       <SheetContent side="bottom" class="max-h-[80dvh] overflow-y-auto rounded-t-xl px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <SheetHeader class="px-0">

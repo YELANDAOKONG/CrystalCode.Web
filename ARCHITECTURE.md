@@ -86,6 +86,11 @@ been missed, and the next event of a running child starts an incomplete one.
 The sheet shows `GET /children/{id}` first, then the trace, and drops the trace
 once the child stops and the saved archive has been read again.
 
+The child sheet shows its full child session id beneath the title. The session
+status bar spans the page below both the conversation and the side panel, with
+the current session id aligned to the right. Both ids are selectable text and
+wrap on narrow screens.
+
 While the server state is not `ready`, requests that need the session return
 503. The client shows the state and an `awaiting_operator` interaction if one
 is pending, and waits.

@@ -105,6 +105,9 @@ const activityText = computed(() => {
             <span class="font-mono text-xs">{{ summary.agent }}</span>
           </template>
         </SheetDescription>
+        <p v-if="childId" class="text-muted-foreground text-xs">
+          {{ t('session.id') }}: <span class="select-text break-all font-mono">{{ childId }}</span>
+        </p>
       </SheetHeader>
 
       <div class="relative min-h-0 flex-1">

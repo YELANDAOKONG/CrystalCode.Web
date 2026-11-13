@@ -192,6 +192,7 @@ export const zhTw: Record<MessageKey, string> = {
   'panel.side.cancel': '取消',
   'panel.side.clear': '清除',
   'status.turn': '上一輪：{reason}',
+  'session.id': '工作階段 ID',
   'status.queued': '排隊 {count}',
   'status.context.window': '上下文視窗 {window}',
   'report.help': '指令',

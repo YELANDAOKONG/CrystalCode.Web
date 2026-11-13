@@ -192,6 +192,7 @@ export const zhCn: Record<MessageKey, string> = {
   'panel.side.cancel': '取消',
   'panel.side.clear': '清除',
   'status.turn': '上一轮：{reason}',
+  'session.id': '会话 ID',
   'status.queued': '排队 {count}',
   'status.context.window': '上下文窗口 {window}',
   'report.help': '命令',

@@ -191,6 +191,7 @@ export const en = {
   'panel.side.cancel': 'Cancel',
   'panel.side.clear': 'Clear',
   'status.turn': 'Last turn: {reason}',
+  'session.id': 'Session ID',
   'status.queued': 'Queued {count}',
   'status.context.window': 'Context window {window}',
   'report.help': 'Commands',

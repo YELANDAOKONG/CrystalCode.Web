@@ -51,5 +51,8 @@ const lastTurn = computed(() => (model.lastTurn ? displayToken(model.lastTurn.re
     </template>
     <span v-if="waiting">{{ t('status.pending', { value: waiting }) }}</span>
     <span v-if="model.lastTurn">{{ t('status.turn', { reason: lastTurn }) }}</span>
+    <span v-if="model.sessionId" class="ml-auto max-w-full text-right">
+      {{ t('session.id') }}: <span class="select-text break-all font-mono">{{ model.sessionId }}</span>
+    </span>
   </footer>
 </template>
