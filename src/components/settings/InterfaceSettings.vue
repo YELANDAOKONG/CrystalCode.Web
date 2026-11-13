@@ -3,12 +3,14 @@ import { t } from '@/i18n'
 import { useLocale, type Locale } from '@/i18n'
 import { useTheme, type ThemeSetting } from '@/theme/theme'
 import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
+import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/header-title'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 
 const { locale, setLocale, locales } = useLocale()
 const { theme, setTheme } = useTheme()
 const { titleSetting, setTitleSetting } = useTitleSetting()
+const { headerTitle, setHeaderTitle } = useHeaderTitleSetting()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = (): { value: string; label: string; help: string }[] => [
@@ -36,6 +38,17 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
         ]"
         :model-value="titleSetting"
         @change="(v) => setTitleSetting(v as TitleSetting)"
+      />
+    </SettingRow>
+    <SettingRow :label="t('settings.headerTitle')" :help="t('settings.headerTitle.help')" label-for="set-header">
+      <ChoiceSelect
+        id="set-header"
+        :options="[
+          { value: 'topic', label: t('settings.headerTitle.topic'), help: '' },
+          { value: 'workspace', label: t('settings.headerTitle.workspace'), help: '' },
+        ]"
+        :model-value="headerTitle"
+        @change="(v) => setHeaderTitle(v as HeaderTitleSetting)"
       />
     </SettingRow>
   </div>

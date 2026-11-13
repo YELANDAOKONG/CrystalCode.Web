@@ -13,12 +13,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useHeaderTitleSetting } from '@/composables/header-title'
 import { t } from '@/i18n'
 
 defineProps<{ panelOpen: boolean }>()
 const emit = defineEmits<{ togglePanel: []; openSettings: []; openCatalog: [] }>()
 
 const model = server.model
+const { headerTitle } = useHeaderTitleSetting()
 
 // The catalog needs at least one of the query routes the server lists.
 const hasCatalog = computed(() =>
@@ -47,7 +49,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     <div class="min-w-0 flex-1">
       <!-- The topic is the server's text, shown as received and only as text.
            With a topic the header keeps two lines, so the workspace moves to the tooltip. -->
-      <template v-if="model.chrome?.topic">
+      <template v-if="model.chrome?.topic && headerTitle === 'topic'">
         <div class="truncate text-sm leading-5 font-medium" :title="`${model.chrome.topic}\n${model.chrome.workspace}`">{{ model.chrome.topic }}</div>
         <div class="text-muted-foreground truncate text-xs leading-4" :title="model.chrome.workspace">
           {{ model.chrome.provider }} / {{ model.chrome.model }} · {{ model.chrome.thinking }}

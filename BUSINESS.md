@@ -155,6 +155,9 @@ Interface:
   applicable. The connection page uses a localized connection title. Interface
   settings can keep the title fixed as Crystal Code instead; this preference
   is stored only in the browser, without storing the topic.
+- The page header's first line shows the session topic, or the workspace path
+  when the session is unnamed. Interface settings can show the workspace path
+  instead. The choice is stored only in the browser.
 
 Model output is untrusted. It is rendered as Markdown with code highlighting
 (markdown-it and shiki, approved by the owner) and never as raw HTML.
