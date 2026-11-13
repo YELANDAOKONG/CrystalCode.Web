@@ -16,6 +16,7 @@ import {
   parsePursue,
   parsePursueCheck,
   parsePursueCheckPage,
+  parsePursueConfiguration,
   parseSavedSessions,
   parseSkills,
   parseTaskLog,
@@ -34,6 +35,8 @@ import type {
   Pursue,
   PursueCheck,
   PursueCheckPage,
+  PursueConfiguration,
+  PursueLimitName,
   SavedSession,
   SkillsReport,
   TaskLog,
@@ -130,6 +133,14 @@ export class CrystalClient {
   async pursueCheck(id: string, signal?: AbortSignal): Promise<PursueCheck> {
     const body = asObject(await this.json('GET', `/pursue/checks/${encodeURIComponent(id)}`, undefined, signal))
     return parsePursueCheck(body.check)
+  }
+
+  async pursueConfiguration(signal?: AbortSignal): Promise<PursueConfiguration> {
+    return parsePursueConfiguration(await this.json('GET', '/pursue/configuration', undefined, signal))
+  }
+
+  async setPursueLimit(name: PursueLimitName, value: number | null, requestId: string, signal?: AbortSignal): Promise<PursueConfiguration> {
+    return parsePursueConfiguration(await this.json('PUT', `/pursue/limits/${encodeURIComponent(name)}`, { value, clientRequestId: requestId }, signal))
   }
 
   async models(signal?: AbortSignal): Promise<ModelCatalog> {

@@ -317,6 +317,30 @@ export interface PursueCheckPage {
   hasMore: boolean
 }
 
+export interface PursueModelConfiguration {
+  provider: string | null
+  model: string | null
+  thinking: string
+  tier: string | null
+  speed: string | null
+  context: number | null
+}
+
+export interface PursueConfiguration {
+  model: PursueModelConfiguration & { usesSessionModel: boolean }
+  compaction: PursueModelConfiguration & { usesSessionSetting: boolean }
+  limits: {
+    continuations: number | null
+    stalls: number | null
+    modelCalls: number | null
+    toolCalls: number | null
+    durationSeconds: number | null
+    waitSeconds: number | null
+  }
+}
+
+export type PursueLimitName = 'continuations' | 'stalls' | 'model-calls' | 'tool-calls' | 'duration' | 'wait'
+
 export interface ServerEvent {
   seq: number
   type: string

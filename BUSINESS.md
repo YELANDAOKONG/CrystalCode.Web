@@ -100,8 +100,8 @@ Session:
 - Run every slash command the server lists. Reports (`report.help`,
   `report.status`, `report.stats`, `report.tools`, `report.todos`) are shown
   to the client that asked.
-- Settings chosen during a turn apply on the next turn. Show the active value
-  and what waits.
+- Settings that the server defers during a turn show the active value and what
+  waits. Pursue configuration changes are refused while a turn or compaction runs.
 - Show the approval and extended approval reviewers.
 - A catalog dialog for the structured queries: saved sessions (resume), models
   (switch), Agents, skills (switch, rescan), MCP servers, plugins, and
@@ -129,6 +129,15 @@ Session:
   evidence exactly as returned by the server. The latest check is also available
   while earlier pages remain unread. The progress row shows checking
   the objective or waiting for a task. Reconnect and resync reload history.
+- Pursue configuration in session settings, even without an objective: checker
+  and checker compaction models with server-provided tuning choices, plus
+  continuations, stalls, model calls, tool calls, duration, and task-wait limits.
+  Times are in seconds. Each limit has an explicit Save action; all but stalls
+  can be unlimited. Admin scope is required to edit, and controls are disabled
+  during a turn or compaction. Observe and operate scopes can inspect values.
+  Opening settings, reconnecting, model option updates, and Refresh read the
+  configuration; limit writes return the current configuration. Failed saves
+  preserve the edited input.
 - Child Agents: list and inspect. A running child shows its work as it
   happens: reply text, reasoning, tool calls and results, errors, and what it
   is doing now. The server saves a child's archive only when an invocation
@@ -220,8 +229,6 @@ These are not part of the product:
   does not color or reorder it.
 - Writing an export to the server's disk. `/export` is passed through to the
   server as typed, and the download button uses `GET /export`.
-- Dedicated controls for `/pursue` model, thinking, tier, speed, context, and
-  limit settings. These commands can still be typed and are handled by the server.
 
 Forbidden:
 

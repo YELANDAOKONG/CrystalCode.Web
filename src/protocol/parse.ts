@@ -11,6 +11,8 @@ import type {
   Pursue,
   PursueCheck,
   PursueCheckPage,
+  PursueConfiguration,
+  PursueModelConfiguration,
   Question,
   QuickPromptCatalog,
   Scope,
@@ -440,6 +442,35 @@ export function parsePursueCheckPage(value: unknown): PursueCheckPage {
     checks: arr(o.checks).map(parsePursueCheck),
     nextOffset: num(o.nextOffset),
     hasMore: bool(o.hasMore),
+  }
+}
+
+function parsePursueModel(value: unknown): PursueModelConfiguration {
+  const o = asObject(value)
+  return {
+    provider: optStr(o.provider),
+    model: optStr(o.model),
+    thinking: str(o.thinking),
+    tier: optStr(o.tier),
+    speed: optStr(o.speed),
+    context: optNum(o.context),
+  }
+}
+
+export function parsePursueConfiguration(value: unknown): PursueConfiguration {
+  const o = asObject(asObject(value).configuration)
+  const limits = asObject(o.limits)
+  return {
+    model: { ...parsePursueModel(o.model), usesSessionModel: bool(asObject(o.model).usesSessionModel) },
+    compaction: { ...parsePursueModel(o.compaction), usesSessionSetting: bool(asObject(o.compaction).usesSessionSetting) },
+    limits: {
+      continuations: optNum(limits.continuations),
+      stalls: optNum(limits.stalls),
+      modelCalls: optNum(limits.modelCalls),
+      toolCalls: optNum(limits.toolCalls),
+      durationSeconds: optNum(limits.durationSeconds),
+      waitSeconds: optNum(limits.waitSeconds),
+    },
   }
 }
 

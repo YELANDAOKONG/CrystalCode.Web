@@ -25,6 +25,8 @@ import type {
   Pursue,
   PursueCheck,
   PursueCheckPage,
+  PursueConfiguration,
+  PursueLimitName,
   SavedSession,
   SkillsReport,
   TaskLog,
@@ -393,6 +395,10 @@ function createServer() {
     readPursue((c, s) => c.pursueChecks(after, s), signal)
   const loadPursueCheck = (id: string, signal: AbortSignal): Promise<PursueCheck | undefined> =>
     readPursue((c, s) => c.pursueCheck(id, s), signal)
+  const loadPursueConfiguration = (signal: AbortSignal): Promise<PursueConfiguration | undefined> =>
+    readPursue((c, s) => c.pursueConfiguration(s), signal)
+  const setPursueLimit = (name: PursueLimitName, value: number | null, signal: AbortSignal): Promise<PursueConfiguration | undefined> =>
+    readPursue((c, s) => c.setPursueLimit(name, value, newRequestId(), s), signal)
   const loadQuickPrompts = (): Promise<QuickPromptCatalog | undefined> => act((c) => c.quickPrompts())
   const listTokens = (): Promise<IssuedToken[] | undefined> => act((c) => c.listTokens())
   const issueToken = (tokenScope: Scope, label: string | null) => act((c) => c.issueToken(tokenScope, label))
@@ -471,6 +477,8 @@ function createServer() {
     loadPursue,
     loadPursueChecks,
     loadPursueCheck,
+    loadPursueConfiguration,
+    setPursueLimit,
     loadQuickPrompts,
     listTokens,
     issueToken,

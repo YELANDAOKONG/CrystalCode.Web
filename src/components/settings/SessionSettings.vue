@@ -20,6 +20,7 @@ import { formatWindow } from '@/session/usage-text'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SideModelSettings from './SideModelSettings.vue'
 import SettingRow from './SettingRow.vue'
+import PursueSettings from './PursueSettings.vue'
 
 const model = server.model
 const { canOperate, isAdmin } = server
@@ -280,6 +281,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
       <SideModelSettings slot="video" />
     </template>
 
+    <PursueSettings />
     <Separator class="hidden" />
   </div>
 </template>

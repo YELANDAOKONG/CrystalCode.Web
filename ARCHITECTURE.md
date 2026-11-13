@@ -285,6 +285,20 @@ The client reports the matching failure; it cannot fix any of them.
   response. Snapshot replacement, objective/session changes, and reconnects
   invalidate the pages. In-flight requests are aborted when the sheet closes
   or its data source changes, and stale results cannot replace new state.
+- Pursue settings. `PursueSettings` reads `GET /pursue/configuration` without
+  requiring an objective. `SideModelSettings` renders `pursue_*` and
+  `pursue_compaction_*` options and writes through `PUT /options/{id}`. The
+  `session` choice inherits the session model for the checker and session
+  compaction settings for its compaction model; runtime resolution stays on
+  the server. `PursueLimitSetting` validates integer input and sends each
+  explicit Save to `PUT /pursue/limits/{name}` with an integer or null. Names
+  are `continuations`, `stalls`, `model-calls`, `tool-calls`, `duration`, and
+  `wait`; the last two use seconds, and stalls cannot be unlimited. The
+  response replaces the configuration. There is no limit-change event, so
+  opening, Refresh, and reconnect read it again; model option changes trigger
+  a read too. Reads and writes are cancelled on unmount or source changes.
+  Route availability controls visibility; admin scope, connection, and busy
+  state control edits. Server validation remains authoritative.
 - Structured queries. `components/catalog` holds one tab per route
   (`/sessions`, `/models`, `/agents`, `/skills`, `/mcp`, `/plugins`, `/tasks`
   with `/tasks/{id}/logs`). Each loads on open and on the refresh button; the

@@ -16,7 +16,8 @@ import SettingRow from './SettingRow.vue'
 // and speed only while that model is on and offers a choice. A change goes
 // through `PUT /options/{id}`, which runs the terminal's own command.
 const props = defineProps<{
-  slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video'
+  slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video' | 'pursue' | 'pursue_compaction'
+  disabled?: boolean
   /** The feature this model belongs to is off. The choices stay editable, since they are saved for later. */
   dimmed?: boolean
 }>()
@@ -34,6 +35,8 @@ const MODEL_ID = {
   image: 'image_model',
   audio: 'audio_model',
   video: 'video_model',
+  pursue: 'pursue_model',
+  pursue_compaction: 'pursue_compaction_model',
 } as const
 const ids = computed(() => ({
   model: MODEL_ID[props.slot],
@@ -64,7 +67,9 @@ function choices(option: SessionOption | undefined, models = false): Option[] {
       value: value.value,
       // Off and unset are the page's own words; every other name is the server's.
       label: special
-        ? t(value.value === 'session' ? 'settings.off.session' : (OFF_LABEL[props.slot] ?? 'settings.reviewer.off'))
+        ? t(value.value === 'session'
+          ? props.slot === 'pursue_compaction' ? 'settings.pursue.compaction.inherit' : 'settings.off.session'
+          : (OFF_LABEL[props.slot] ?? 'settings.reviewer.off'))
         : value.value === 'unset'
           ? t('settings.option.none')
           : value.name,
@@ -80,11 +85,13 @@ const tier = computed(() => find(ids.value.tier))
 const speed = computed(() => find(ids.value.speed))
 const context = computed(() => find(ids.value.context))
 
-const locked = computed(() => !canOperate.value || !isAdmin.value)
+const locked = computed(() => !canOperate.value || !isAdmin.value || props.disabled || server.phase.value !== 'live')
 // The engine refuses a change to the compaction model, or to any model's tier
 // or speed, while a turn runs.
 const turnBusy = computed(() => model.turnActive)
-const modelLocked = computed(() => locked.value || (props.slot === 'compaction' && turnBusy.value))
+const pursueSlot = computed(() => props.slot === 'pursue' || props.slot === 'pursue_compaction')
+const busyLocked = computed(() => props.slot === 'compaction' || pursueSlot.value)
+const modelLocked = computed(() => locked.value || (busyLocked.value && turnBusy.value) || (pursueSlot.value && model.activity === 'compacting'))
 const slotLocked = computed(() => locked.value || turnBusy.value)
 
 const { busy, run: track } = useBusy()
@@ -100,11 +107,13 @@ const TITLES = {
   image: ['settings.image', 'settings.image.help'],
   audio: ['settings.audio', 'settings.audio.help'],
   video: ['settings.video', 'settings.video.help'],
+  pursue: ['settings.pursue.model', 'settings.pursue.model.help'],
+  pursue_compaction: ['settings.pursue.compaction', 'settings.pursue.compaction.help'],
 } as const satisfies Record<string, readonly [MessageKey, MessageKey]>
 const title = computed(() => t(TITLES[props.slot][0]))
 const help = computed(() => t(TITLES[props.slot][1]))
 const note = computed(() =>
-  locked.value && canOperate.value ? t('settings.adminOnly') : turnBusy.value && props.slot === 'compaction' ? t('settings.reviewer.busy') : undefined,
+  !isAdmin.value && canOperate.value ? t('settings.adminOnly') : turnBusy.value && busyLocked.value ? t('settings.reviewer.busy') : undefined,
 )
 const id = (name: string) => `${ids.value.model}-${name}`
 
@@ -124,7 +133,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
 
     <div v-if="thinking || tier || speed || context || extended" class="border-l-2 pl-4">
       <SettingRow v-if="thinking" :label="t('settings.thinking')" :label-for="id('thinking')">
-        <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="slot === 'compaction' ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
+        <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="busyLocked ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
       </SettingRow>
       <SettingRow v-if="tier" :label="t('settings.tier')" :note="turnBusy ? t('settings.reviewer.busy') : undefined" :label-for="id('tier')">
         <ChoiceSelect :id="id('tier')" :options="choices(tier)" :model-value="tier.current" :disabled="slotLocked" :loading="busy(tier.id)" @change="(v) => set(tier, v)" />
