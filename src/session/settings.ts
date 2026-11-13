@@ -35,7 +35,7 @@ export function toOptions(commands: SlashCommand[]): Option[] {
 }
 
 // `/approval` mixes the five modes with sub-commands for the reviewer model.
-const APPROVAL_SUBCOMMANDS = new Set(['model', 'thinking', 'tier', 'speed', 'extended'])
+const APPROVAL_SUBCOMMANDS = new Set(['model', 'thinking', 'tier', 'speed', 'context', 'extended'])
 
 export function approvalModes(commands: SlashCommand[]): Option[] {
   return toOptions(findArguments(commands, 'approval').filter((c) => !APPROVAL_SUBCOMMANDS.has(c.name)))
