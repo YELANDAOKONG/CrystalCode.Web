@@ -119,6 +119,9 @@ Session:
 - Side questions (`/btw`) with cancel and clear.
 - Upload images and view session and tool images.
 - Quick prompts: list, fill into the composer, and send.
+- Pursue: the status bar shows the objective's status and check count, and the
+  progress row shows checking the objective or waiting for a task. The objective
+  text is in the status bar's tooltip.
 - Child Agents: list and inspect. A running child shows its work as it
   happens: reply text, reasoning, tool calls and results, errors, and what it
   is doing now. The server saves a child's archive only when an invocation
@@ -207,6 +210,9 @@ These are not part of the product:
   does not color or reorder it.
 - Writing an export to the server's disk. `/export` is passed through to the
   server as typed, and the download button uses `GET /export`.
+- Pursue checker evidence and the `/pursue` model, thinking, tier, speed,
+  context, and limit settings. They are typed as commands and written by the
+  server; the page shows only the status line.
 
 Forbidden:
 

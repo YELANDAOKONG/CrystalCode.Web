@@ -7,6 +7,7 @@ import {
   parseItems,
   parseOptions,
   parsePreferences,
+  parsePursue,
   parseSide,
   parseStatusFields,
   parseTodos,
@@ -21,6 +22,7 @@ import type {
   LastTurn,
   LiveRound,
   Preferences,
+  Pursue,
   ServerEvent,
   SessionOption,
   Side,
@@ -93,6 +95,7 @@ export class SessionModel {
   children: ChildSummary[] = []
   lastTurn: LastTurn | null = null
   interactions: Interaction[] = []
+  pursue: Pursue | null = null
   notices: Notice[] = []
   /** The `/stats` page. It is a window of its own, not part of the conversation. */
   statsPage: { seq: number; data: Record<string, unknown> } | null = null
@@ -133,6 +136,7 @@ export class SessionModel {
     this.childTraces = new Map()
     this.childRounds = new Map()
     this.lastTurn = snapshot.lastTurn
+    this.pursue = snapshot.pursue
     this.interactions = snapshot.interactions
     this.loadLive(snapshot.live)
   }
@@ -191,6 +195,9 @@ export class SessionModel {
         break
       case 'todos.changed':
         this.todos = parseTodos(d.items)
+        break
+      case 'pursue.changed':
+        this.pursue = parsePursue(d.pursue)
         break
       case 'side.changed':
         this.side = parseSide(d.side)

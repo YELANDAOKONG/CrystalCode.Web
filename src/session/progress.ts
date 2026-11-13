@@ -18,6 +18,8 @@ export type Step =
   | { kind: 'naming-topic' }
   | { kind: 'loading-tools' }
   | { kind: 'loading-plugins' }
+  | { kind: 'checking-objective' }
+  | { kind: 'waiting-task' }
 
 export interface Progress {
   /** Changes when the wording changes, so the elapsed timer can start over. */
@@ -41,12 +43,23 @@ export function stepForActivity(activity: string): Step | null {
       return { kind: 'naming-topic' }
     case 'waiting_for_model':
       return { kind: 'waiting' }
+    case 'checking_objective':
+      return { kind: 'checking-objective' }
+    case 'waiting_for_task':
+      return { kind: 'waiting-task' }
     default:
       return null
   }
 }
 
-const ACTIVITY_STEPS = new Set<Step['kind']>(['compacting', 'naming-topic', 'loading-tools', 'loading-plugins'])
+const ACTIVITY_STEPS = new Set<Step['kind']>([
+  'compacting',
+  'naming-topic',
+  'loading-tools',
+  'loading-plugins',
+  'checking-objective',
+  'waiting-task',
+])
 
 /** True for a step that only an `activity` event sets, so the next `idle` ends it. */
 export function isActivityStep(step: Step | null): boolean {
@@ -125,6 +138,10 @@ export function describeProgress(step: Step | null, interactions: Interaction[],
       return plain('progress.loadingTools')
     case 'loading-plugins':
       return plain('progress.loadingPlugins')
+    case 'checking-objective':
+      return plain('progress.checkingObjective')
+    case 'waiting-task':
+      return plain('progress.waitingTask')
     case 'reviewing':
       return plain(step.extended ? 'progress.extended' : 'progress.reviewing')
     case 'calling':

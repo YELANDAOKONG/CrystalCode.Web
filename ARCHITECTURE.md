@@ -253,7 +253,8 @@ The client reports the matching failure; it cannot fix any of them.
   `tools.results` returns to Waiting, `retry.scheduled` counts down, and
   `approval.reviewing` is Reviewing. A pending approval or question wins. The
   elapsed time restarts whenever the wording changes. `SessionModel.step`
-  holds the step; `session/progress.ts` turns it into text.
+  holds the step; `session/progress.ts` turns it into text. `checking_objective`
+  and `waiting_for_task` are activity steps too, and the next `idle` ends them.
 - Compaction summaries are in the snapshot. Every summary is a `system`
   message in `conversation` (heading `## Earlier context`), whatever the
   summary display setting says, so a refresh keeps it. The live
@@ -269,6 +270,10 @@ The client reports the matching failure; it cannot fix any of them.
 - `report.document` carries a titled document with `paragraph`, `keyValues`,
   `table`, and `list` blocks (for example `/skills` and plugin commands). Every
   cell is drawn as text; an unknown block type falls back to its lines.
+- Pursue. The snapshot's `pursue` and each `pursue.changed` carry the
+  objective's status, phase, check count, and next step, or null when there is
+  no objective. `session` keeps the latest value; the status bar shows status
+  and check count. `pursue.checked` is not used by the page yet.
 - Structured queries. `components/catalog` holds one tab per route
   (`/sessions`, `/models`, `/agents`, `/skills`, `/mcp`, `/plugins`, `/tasks`
   with `/tasks/{id}/logs`). Each loads on open and on the refresh button; the

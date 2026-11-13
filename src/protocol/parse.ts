@@ -8,6 +8,7 @@ import type {
   Interaction,
   LiveRound,
   Preferences,
+  Pursue,
   Question,
   QuickPromptCatalog,
   Scope,
@@ -390,6 +391,21 @@ export function parseInteraction(value: unknown): Interaction {
   }
 }
 
+export function parsePursue(value: unknown): Pursue | null {
+  if (!isObject(value)) return null
+  return {
+    objective: str(value.objective),
+    status: str(value.status),
+    phase: str(value.phase, 'none'),
+    reasonCode: str(value.reasonCode),
+    reason: str(value.reason),
+    checks: num(value.checks),
+    continuations: num(value.continuations),
+    stalls: num(value.stalls),
+    nextStep: str(value.nextStep),
+  }
+}
+
 export function parseSnapshot(value: unknown): Snapshot {
   const o = asObject(value)
   return {
@@ -413,6 +429,7 @@ export function parseSnapshot(value: unknown): Snapshot {
     estimatedContextTokens: optNum(o.estimatedContextTokens),
     side: parseSide(o.side),
     children: arr(o.children).map(parseChild),
+    pursue: parsePursue(o.pursue),
     lastTurn: isObject(o.lastTurn)
       ? { reason: str(o.lastTurn.reason), modelCalls: num(o.lastTurn.modelCalls), toolCalls: num(o.lastTurn.toolCalls) }
       : null,

@@ -275,6 +275,20 @@ export interface Snapshot {
   children: ChildSummary[]
   lastTurn: LastTurn | null
   interactions: Interaction[]
+  pursue: Pursue | null
+}
+
+/** The objective the server is working toward, or null when none is set. */
+export interface Pursue {
+  objective: string
+  status: string
+  phase: string
+  reasonCode: string
+  reason: string
+  checks: number
+  continuations: number
+  stalls: number
+  nextStep: string
 }
 
 export interface ServerEvent {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { server } from '@/app/server'
-import { t } from '@/i18n'
+import { t, type MessageKey } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { pendingText } from '@/session/pending-text'
 import { contextTenths, formatContextUsed, formatCount, formatWindow } from '@/session/usage-text'
@@ -31,6 +31,20 @@ const waiting = computed(() => (model.chrome ? pendingText(model.chrome.pending)
 
 // The terminal capitalises the stop reason like any other token.
 const lastTurn = computed(() => (model.lastTurn ? displayToken(model.lastTurn.reason) : ''))
+
+// The status words are the server's fixed tokens. An unknown one is shown as sent.
+const PURSUE_STATUS: Record<string, MessageKey> = {
+  active: 'pursue.status.active',
+  paused: 'pursue.status.paused',
+  blocked: 'pursue.status.blocked',
+  complete: 'pursue.status.complete',
+}
+const pursueText = computed(() => {
+  const pursue = model.pursue
+  if (!pursue) return ''
+  const key = PURSUE_STATUS[pursue.status]
+  return t('status.pursue', { status: key ? t(key) : displayToken(pursue.status), checks: pursue.checks })
+})
 </script>
 
 <template>
@@ -50,6 +64,7 @@ const lastTurn = computed(() => (model.lastTurn ? displayToken(model.lastTurn.re
       <span v-if="model.queue.length">{{ t('status.queued', { count: model.queue.length }) }}</span>
     </template>
     <span v-if="waiting">{{ t('status.pending', { value: waiting }) }}</span>
+    <span v-if="model.pursue" class="max-w-full truncate" :title="model.pursue.objective">{{ pursueText }}</span>
     <span v-if="model.lastTurn">{{ t('status.turn', { reason: lastTurn }) }}</span>
     <span v-if="model.sessionId" class="ml-auto max-w-full text-right">
       {{ t('session.id') }}: <span class="select-text break-all font-mono">{{ model.sessionId }}</span>
