@@ -2,11 +2,13 @@
 import { t } from '@/i18n'
 import { useLocale, type Locale } from '@/i18n'
 import { useTheme, type ThemeSetting } from '@/theme/theme'
+import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 
 const { locale, setLocale, locales } = useLocale()
 const { theme, setTheme } = useTheme()
+const { titleSetting, setTitleSetting } = useTitleSetting()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = (): { value: string; label: string; help: string }[] => [
@@ -24,6 +26,17 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
     </SettingRow>
     <SettingRow :label="t('settings.theme')" label-for="set-theme">
       <ChoiceSelect id="set-theme" :options="themeOptions()" :model-value="theme" @change="(v) => setTheme(v as ThemeSetting)" />
+    </SettingRow>
+    <SettingRow :label="t('settings.pageTitle')" :help="t('settings.title.help')" label-for="set-title">
+      <ChoiceSelect
+        id="set-title"
+        :options="[
+          { value: 'session', label: t('settings.title.session'), help: '' },
+          { value: 'fixed', label: t('settings.title.fixed'), help: '' },
+        ]"
+        :model-value="titleSetting"
+        @change="(v) => setTitleSetting(v as TitleSetting)"
+      />
     </SettingRow>
   </div>
 </template>

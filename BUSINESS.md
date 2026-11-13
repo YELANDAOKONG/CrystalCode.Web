@@ -140,6 +140,11 @@ Interface:
   the cool ivory, blue-gray, and ice palette, light, dark, and auto themes,
   the crystal mark. Planned; the current stylesheet is still the starter.
 - Responsive on desktop, tablet, and phone.
+- Browser tab titles default to the server-provided session topic followed by
+  Crystal Code, with attention, reconnecting, or disconnected prefixes when
+  applicable. The connection page uses a localized connection title. Interface
+  settings can keep the title fixed as Crystal Code instead; this preference
+  is stored only in the browser, without storing the topic.
 
 Model output is untrusted. It is rendered as Markdown with code highlighting
 (markdown-it and shiki, approved by the owner) and never as raw HTML.
