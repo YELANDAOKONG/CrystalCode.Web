@@ -142,9 +142,12 @@ Interface:
 - Responsive on desktop, tablet, and phone.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
-  preview, followed by Crystal Code. The displayed session text is capped at
-  80 characters so a long prompt does not take over the browser tab. Empty
-  conversations use Crystal Code.
+  preview, followed by Crystal Code. For browser titles only, control characters,
+  bidi formatting controls, zero-width spaces, soft hyphens, and word joiners
+  are removed. Script joiners and variation selectors are preserved. The
+  displayed session text is capped at 80 grapheme clusters, including an ellipsis
+  when truncated. An empty sanitized topic falls back to the first message;
+  empty sanitized messages and empty conversations use Crystal Code.
   Titles include attention, reconnecting, or disconnected prefixes when
   applicable. The connection page uses a localized connection title. Interface
   settings can keep the title fixed as Crystal Code instead; this preference

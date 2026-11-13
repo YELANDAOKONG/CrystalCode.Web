@@ -11,14 +11,27 @@ const showSession = computed(() => ['live', 'reconnecting', 'closed'].includes(s
 const { titleSetting } = useTitleSetting()
 
 const TITLE_TEXT_LIMIT = 80
+const titleSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
 function titleText(value: string): string {
-  const text = value.trim().replace(/\s+/g, ' ')
-  const characters = Array.from(text)
-  return characters.length > TITLE_TEXT_LIMIT ? `${characters.slice(0, TITLE_TEXT_LIMIT - 1).join('')}…` : text
+  // Preserve word boundaries before removing controls. Keep joiners and variation
+  // selectors: they are needed by scripts and combined emoji.
+  const text = value
+    .replace(/\s+/g, ' ')
+    .replace(/[\p{Cc}\p{Cs}\u00ad\u061c\u200b\u200e\u200f\u202a-\u202e\u2060-\u206f\ufeff]/gu, '')
+    .trim()
+  const characters: string[] = []
+  for (const { segment } of titleSegmenter.segment(text)) {
+    characters.push(segment)
+    if (characters.length > TITLE_TEXT_LIMIT) {
+      return `${characters.slice(0, TITLE_TEXT_LIMIT - 1).join('')}…`
+    }
+  }
+  return text
 }
 
 const sessionTitle = computed(() => {
-  if (server.model.chrome?.topic) return titleText(server.model.chrome.topic)
+  const topic = titleText(server.model.chrome?.topic ?? '')
+  if (topic) return topic
   const first = server.model.conversation.find((item) => item.kind === 'message' && item.role === 'user')
   return first?.kind === 'message' ? titleText(first.text) : ''
 })
