@@ -18,9 +18,6 @@ import CatalogPane from './CatalogPane.vue'
 const { isAdmin } = server
 const { data, loading, failed, reload } = useQuery(() => server.loadModels())
 
-// The catalog can hold over a thousand models. Mounting every row froze the
-// dialog, so the list shows a bounded slice and the search narrows it.
-const SHOWN = 60
 const query = ref('')
 
 const matches = computed(() => {
@@ -34,18 +31,19 @@ const matches = computed(() => {
   })
 })
 
-// The model in use stays on top, so it is never lost behind the limit.
-const visible = computed(() => {
+// Keep the model in use at the top of its provider's entries.
+const ordered = computed(() => {
   const current = matches.value.filter((entry) => entry.current)
   const rest = matches.value.filter((entry) => !entry.current)
-  return [...current, ...rest].slice(0, SHOWN)
+  return [...current, ...rest]
 })
-const hidden = computed(() => matches.value.length - visible.value.length)
 
 const groups = computed(() => {
   const byProvider = new Map<string, ModelEntry[]>()
-  for (const entry of visible.value) {
-    byProvider.set(entry.provider, [...(byProvider.get(entry.provider) ?? []), entry])
+  for (const entry of ordered.value) {
+    const entries = byProvider.get(entry.provider)
+    if (entries) entries.push(entry)
+    else byProvider.set(entry.provider, [entry])
   }
 
   return [...byProvider]
@@ -114,6 +112,5 @@ async function use(entry: ModelEntry): Promise<void> {
       </ul>
     </section>
     <p v-if="matches.length === 0" class="text-muted-foreground py-6 text-center text-sm">{{ t('catalog.models.noMatch') }}</p>
-    <p v-else-if="hidden > 0" class="text-muted-foreground text-center text-xs">{{ t('catalog.models.more', { count: hidden }) }}</p>
   </CatalogPane>
 </template>

@@ -8,8 +8,8 @@ import type { Option } from '@/session/settings'
 
 // A choice with hundreds of entries, such as every model in the catalog. A
 // Select mounts every entry even while closed, which froze the page for
-// seconds. This one mounts nothing until it opens, shows a bounded slice of the
-// matches, and narrows them as the operator types.
+// seconds. This one mounts nothing until it opens and lets the operator search
+// or scroll through every matching option.
 const props = defineProps<{
   id: string
   options: Option[]
@@ -18,8 +18,6 @@ const props = defineProps<{
   loading?: boolean
 }>()
 const emit = defineEmits<{ change: [value: string] }>()
-
-const SHOWN = 80
 
 const open = ref(false)
 const query = ref('')
@@ -30,7 +28,7 @@ const label = computed(() => selected.value?.label ?? props.modelValue ?? '')
 // The provider goes on its own line, so a long model name keeps its room.
 const provider = computed(() => selected.value?.group ?? '')
 
-// Group headings and entries in one flat list, so the slice below counts rows.
+// Group headings and entries in one flat list.
 type Row = { kind: 'group'; name: string } | { kind: 'item'; option: Option }
 const matches = computed(() => {
   const needle = query.value.trim().toLowerCase()
@@ -40,7 +38,7 @@ const matches = computed(() => {
 const rows = computed<Row[]>(() => {
   const result: Row[] = []
   let group: string | null = null
-  for (const option of matches.value.slice(0, SHOWN)) {
+  for (const option of matches.value) {
     const name = option.group ?? null
     if (name !== group && name) result.push({ kind: 'group', name })
     group = name
@@ -49,7 +47,6 @@ const rows = computed<Row[]>(() => {
 
   return result
 })
-const hidden = computed(() => Math.max(0, matches.value.length - SHOWN))
 
 function pick(option: Option): void {
   open.value = false
@@ -112,7 +109,6 @@ watch(open, (now) => {
           </li>
         </template>
         <li v-if="matches.length === 0" class="text-muted-foreground px-2 py-6 text-center text-sm">{{ t('choice.none') }}</li>
-        <li v-else-if="hidden > 0" class="text-muted-foreground px-2 py-2 text-center text-xs">{{ t('choice.more', { count: hidden }) }}</li>
       </ul>
     </PopoverContent>
   </Popover>
