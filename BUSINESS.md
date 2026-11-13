@@ -140,8 +140,12 @@ Interface:
   the cool ivory, blue-gray, and ice palette, light, dark, and auto themes,
   the crystal mark. Planned; the current stylesheet is still the starter.
 - Responsive on desktop, tablet, and phone.
-- Browser tab titles default to the server-provided session topic followed by
-  Crystal Code, with attention, reconnecting, or disconnected prefixes when
+- Browser tab titles default to the server-provided session topic, falling back
+  to the first user message with whitespace collapsed as in the saved-session
+  preview, followed by Crystal Code. The displayed session text is capped at
+  80 characters so a long prompt does not take over the browser tab. Empty
+  conversations use Crystal Code.
+  Titles include attention, reconnecting, or disconnected prefixes when
   applicable. The connection page uses a localized connection title. Interface
   settings can keep the title fixed as Crystal Code instead; this preference
   is stored only in the browser, without storing the topic.
