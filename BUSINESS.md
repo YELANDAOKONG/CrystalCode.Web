@@ -179,7 +179,10 @@ Interface:
   is stored only in the browser, without storing the topic.
 - The page header's first line shows the session topic, or the workspace path
   when the session is unnamed. Interface settings can show the workspace path
-  instead. The choice is stored only in the browser.
+  instead. The choice is stored only in the browser. `/clear`, `/new`, and
+  `/fork` arrive with an empty topic, so the header returns to the workspace
+  path. The tab title drops the old topic and uses the first message of what
+  is on screen, or Crystal Code when the conversation is empty.
 
 Model output is untrusted. It is rendered as Markdown with code highlighting
 (markdown-it and shiki, approved by the owner) and never as raw HTML.

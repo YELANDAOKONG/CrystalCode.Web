@@ -87,6 +87,8 @@ function createServer() {
   let run: AbortController | null = null
   let problemId = 0
   let refreshing = false
+  /** A cleared or replayed event arrived while a snapshot refresh was running. */
+  let refreshAgain = false
   const clientId = newClientId()
 
   const scope = computed<Scope>(() => info.value?.scope ?? 'observe')
@@ -320,12 +322,23 @@ function createServer() {
   }
 
   // Redraws from a snapshot after /clear, /resume, or /fork, so chrome, todos,
-  // and usage match what the engine holds.
+  // and usage match what the engine holds. Those commands publish chrome.changed
+  // first. A snapshot taken earlier still carries the previous topic, so it is
+  // kept only when it covers the events already applied.
   async function refreshSnapshot(c: CrystalClient, signal: AbortSignal): Promise<void> {
-    if (refreshing) return
+    if (refreshing) {
+      refreshAgain = true
+      return
+    }
     refreshing = true
     try {
-      model.loadSnapshot(await c.snapshot(signal))
+      do {
+        refreshAgain = false
+        const snapshot = await c.snapshot(signal)
+        if (signal.aborted) return
+        if (snapshot.lastSeq < model.lastSeq) continue
+        model.loadSnapshot(snapshot)
+      } while (refreshAgain && !signal.aborted)
     } catch (error) {
       if (!isAbort(error)) report(error)
     } finally {

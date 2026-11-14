@@ -76,8 +76,12 @@ binding.
 7. On a dropped stream, `connection` reconnects with `Last-Event-ID`. A
    `resync` event or an expired cursor means: fetch a new snapshot and
    restart from its `lastSeq`.
-8. On `conversation.cleared`, `conversation.replayed`, or a changed
-   `sessionId`, `session` redraws from the snapshot.
+8. On `conversation.cleared` or `conversation.replayed`, `session` redraws
+   from the snapshot. `/clear`, `/resume`, and `/fork` publish `chrome.changed`
+   first, with the new session id and topic. `/clear` (`/new`) and `/fork`
+   send an empty topic. The page applies that chrome as the event arrives.
+   A snapshot is loaded only when its `lastSeq` covers the events already
+   applied, so an earlier snapshot leaves the current topic in place.
 
 A child's events arrive with `source` and are never applied to the parent
 conversation. `session` folds them into a per-child trace with the same round
@@ -337,6 +341,12 @@ The client reports the matching failure; it cannot fix any of them.
   keyed per control). Ordinary requests time out after 30 seconds and report a
   network failure; the event stream has no limit. `server.pendingActions`
   counts requests in flight for anything that needs a global signal.
+- Session topic. `chrome.topic` in `session.started`, `chrome.changed`, and
+  the snapshot is the session topic, or empty. `/clear`, `/resume`, and
+  `/fork` publish `chrome.changed` before `conversation.cleared` or
+  `conversation.replayed`. `/clear` and `/fork` start with an empty topic.
+  The header and the browser title both read this field. A later naming run
+  sends another `chrome.changed`.
 - The chrome's `reviewer` and `extendedApproval` are `null` while off. The
   settings page shows them read-only.
 - The toaster (`vue-sonner`) ships its own stylesheet and does not inject it.
