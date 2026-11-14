@@ -175,6 +175,9 @@ Interface:
 - Responsive on desktop, tablet, and phone.
 - Remember whether the desktop side panel is open as a browser preference.
   The mobile side panel opens separately and is not restored on refresh.
+- Interface settings can expand the conversation, progress row, and composer
+  to the available width. The default is a centered, limited-width layout; the
+  preference is stored in the browser.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
   preview, followed by Crystal Code. For browser titles only, control characters,

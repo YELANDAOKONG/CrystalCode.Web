@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { useStickToBottom } from '@/composables/stick-to-bottom'
+import { useConversationWidth } from '@/composables/conversation-width'
 import { t } from '@/i18n'
 import { compactionSummary, toBlocks } from '@/session/blocks'
 import { retryLine } from '@/session/progress'
@@ -15,6 +16,7 @@ import SummaryCard from './SummaryCard.vue'
 import ToolBlock from './ToolBlock.vue'
 
 const model = server.model
+const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
 const retry = computed(() => {
@@ -33,6 +35,7 @@ const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
   live.value?.toolCalls.length,
   live.value?.retries,
   model.notices.length,
+  fullWidth.value,
 ])
 
 const roleLabel = (role: string) =>
@@ -48,7 +51,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
        size, which stretches the column and traps the scroll position. -->
   <div class="relative min-h-0 flex-1 overflow-hidden">
     <div :ref="bind" class="absolute inset-0 overflow-y-auto [overflow-anchor:none]" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
-      <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
+      <div class="mx-auto flex flex-col gap-4 px-4 py-6" :class="fullWidth ? '' : 'max-w-3xl'">
         <p v-if="!model.loaded" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
           <Spinner />
           {{ t('session.loading') }}

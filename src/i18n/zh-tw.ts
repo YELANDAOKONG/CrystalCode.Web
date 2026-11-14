@@ -452,6 +452,8 @@ export const zhTw: Record<MessageKey, string> = {
   'title.reconnecting': '正在重新連線',
   'title.closed': '已中斷連線',
   'settings.interface.help': '這些只作用於此瀏覽器。',
+  'settings.conversationWidth': '對話鋪滿寬度',
+  'settings.conversationWidth.help': '讓訊息和輸入框使用可用的頁面寬度。',
   'settings.server.connected': '已連線到',
   'settings.server.workspace': '工作區',
   'settings.server.disconnect': '中斷與此伺服器的連線',

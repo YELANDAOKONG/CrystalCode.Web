@@ -451,6 +451,8 @@ export const en = {
   'title.reconnecting': 'Reconnecting',
   'title.closed': 'Disconnected',
   'settings.interface.help': 'These apply to this browser only.',
+  'settings.conversationWidth': 'Full-width conversation',
+  'settings.conversationWidth.help': 'Use the available width for messages and the composer.',
   'settings.server.connected': 'Connected to',
   'settings.server.workspace': 'Workspace',
   'settings.server.disconnect': 'Disconnect from this server',

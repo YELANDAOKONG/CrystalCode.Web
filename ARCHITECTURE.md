@@ -98,6 +98,9 @@ wrap on narrow screens.
 The desktop side panel's open state is a browser preference. The mobile sheet
 has separate transient state, so opening or dismissing it does not change the
 desktop preference.
+The conversation width is another browser preference. It controls the width
+of the transcript, progress row, and composer together, within the space left
+by the side panel. The default keeps their centered maximum width.
 
 While the server state is not `ready`, requests that need the session return
 503. The client shows the state and an `awaiting_operator` interaction if one

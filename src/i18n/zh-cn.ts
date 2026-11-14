@@ -452,6 +452,8 @@ export const zhCn: Record<MessageKey, string> = {
   'title.reconnecting': '正在重连',
   'title.closed': '已断开',
   'settings.interface.help': '这些只作用于此浏览器。',
+  'settings.conversationWidth': '对话铺满宽度',
+  'settings.conversationWidth.help': '让消息和输入框使用可用的页面宽度。',
   'settings.server.connected': '已连接到',
   'settings.server.workspace': '工作区',
   'settings.server.disconnect': '断开与此服务端的连接',

@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
+import { useConversationWidth } from '@/composables/conversation-width'
 import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import FullscreenComposer from './FullscreenComposer.vue'
 import QuickPromptPicker from './QuickPromptPicker.vue'
 
 const model = server.model
+const { fullWidth } = useConversationWidth()
 const { canOperate, isAdmin } = server
 
 const text = ref('')
@@ -348,7 +350,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 
 <template>
   <div class="bg-background shrink-0 px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" @dragover.prevent @drop="onDrop">
-    <div class="relative mx-auto max-w-3xl">
+    <div class="relative mx-auto" :class="fullWidth ? '' : 'max-w-3xl'">
       <ul
         v-if="suggestions.length"
         role="listbox"
