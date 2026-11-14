@@ -440,7 +440,7 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.title.fixed': '一律顯示 Crystal Code',
   'settings.headerTitle': '頁首標題',
   'settings.headerTitle.help': '頁面頂部顯示工作階段主題，或一律顯示工作區路徑。',
-  'settings.headerTitle.topic': '工作階段主題，未命名時顯示工作區',
+  'settings.headerTitle.topic': '工作階段主題（未命名時顯示工作區）',
   'settings.headerTitle.workspace': '工作區路徑',
   'title.connect': '連線至伺服器',
   'title.attention': '需要確認',

@@ -439,7 +439,7 @@ export const en = {
   'settings.title.fixed': 'Always Crystal Code',
   'settings.headerTitle': 'Header title',
   'settings.headerTitle.help': 'Show the session topic at the top of the page, or always the workspace path.',
-  'settings.headerTitle.topic': 'Session topic, or workspace when unnamed',
+  'settings.headerTitle.topic': 'Session topic (workspace when unnamed)',
   'settings.headerTitle.workspace': 'Workspace path',
   'title.connect': 'Connect to a server',
   'title.attention': 'Needs attention',
