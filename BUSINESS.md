@@ -94,8 +94,8 @@ Session:
 - Reconnect by event sequence number. Redraw on `resync`, `conversation.cleared`,
   and `conversation.replayed`.
 - Send prompts, slash commands, and follow-ups through `POST /input`. Release
-  the queue with empty text. Interrupt, recall, and switch Plan, Work, and
-  custom modes.
+  the queue with empty text. Interrupt, recall, and switch modes. The composer
+  and session settings list Work and Plan first, followed by custom modes.
 - Toggle verbose targets and report draft changes, as the terminal does.
 - Run every slash command the server lists. Reports (`report.help`,
   `report.status`, `report.stats`, `report.tools`, `report.todos`) are shown

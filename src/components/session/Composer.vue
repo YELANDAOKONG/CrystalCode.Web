@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
-import { approvalModes, currentByLabel, findArguments, toOptions, type Option } from '@/session/settings'
+import { approvalModes, currentByLabel, findArguments, modeChoices, toOptions } from '@/session/settings'
 import { sizeState } from '@/session/draft-size'
 import { aliasesOf, completedText, createPicker, isExact } from '@/session/slash'
 import ComposerChip from './ComposerChip.vue'
@@ -216,9 +216,7 @@ const mode = computed(() => modeLabel(model.chrome?.mode ?? ''))
 
 // The choices come from the server's own command list, so a custom mode or a
 // model with its own thinking gears shows exactly what the terminal offers.
-const modeOptions = computed<Option[]>(() =>
-  toOptions(findArguments(model.commands, 'mode')).map((option) => ({ ...option, label: modeLabel(option.value) })),
-)
+const modeOptions = computed(() => modeChoices(model.commands))
 const approvalOptions = computed(() => approvalModes(model.commands))
 const thinkingOptions = computed(() => toOptions(findArguments(model.commands, 'thinking')))
 const approvalValue = computed(() => (model.chrome?.approval ? displayToken(model.chrome.approval) : ''))

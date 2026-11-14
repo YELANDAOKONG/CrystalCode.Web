@@ -1,5 +1,6 @@
 import type { Chrome, SlashCommand } from '@/protocol/types'
 import { displayToken } from './display-case'
+import { modeLabel } from './mode'
 
 // The settings page changes the session by sending the same slash commands the
 // terminal accepts. The values it offers come from the server's own command
@@ -32,6 +33,16 @@ export function toOptions(commands: SlashCommand[]): Option[] {
     label: displayToken(command.name),
     help: command.help,
   }))
+}
+
+export function modeChoices(commands: SlashCommand[]): Option[] {
+  const modes = findArguments(commands, 'mode')
+  const builtIn = ['work', 'plan']
+  const ordered = [
+    ...builtIn.flatMap((name) => modes.filter((mode) => mode.name === name)),
+    ...modes.filter((mode) => !builtIn.includes(mode.name)),
+  ]
+  return ordered.map((mode) => ({ value: mode.name, label: modeLabel(mode.name), help: mode.help }))
 }
 
 // `/approval` mixes the five modes with sub-commands for the reviewer model.

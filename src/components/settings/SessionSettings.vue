@@ -13,6 +13,7 @@ import {
   currentByLabel,
   currentWindowOption,
   findArguments,
+  modeChoices,
   toOptions,
   type Option,
 } from '@/session/settings'
@@ -34,9 +35,7 @@ const locked = computed(() => !canOperate.value)
 // trust, so the server asks for admin. Mode is an ordinary operate command.
 const adminLocked = computed(() => !isAdmin.value)
 
-const modes = computed<Option[]>(() =>
-  toOptions(findArguments(commands.value, 'mode')).map((option) => ({ ...option, label: modeLabel(option.value) })),
-)
+const modes = computed(() => modeChoices(commands.value))
 const approvals = computed(() => approvalModes(commands.value))
 const thinking = computed(() => toOptions(findArguments(commands.value, 'thinking')))
 const tiers = computed(() => toOptions(findArguments(commands.value, 'tier')))

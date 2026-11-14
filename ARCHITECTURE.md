@@ -260,6 +260,9 @@ The client reports the matching failure; it cannot fix any of them.
   summary display setting says, so a refresh keeps it. The live
   `compaction.finished` event carries `summary` and `shown`; the client draws
   the summary from the `note` the server still sends when the setting shows it.
+- The composer and session settings share the mode choices from the server's
+  `/mode` arguments. Work and Plan appear first when offered, in that order.
+  Custom modes follow in server order.
 - Next-turn settings. A mode, approval, thinking, model, context, tier, or
   speed change made while a turn or compaction runs is recorded and applied on
   the next turn. `POST /input` answers `accepted: false` for a refused input
