@@ -95,6 +95,9 @@ The child sheet shows its full child session id beneath the title. The session
 status bar spans the page below both the conversation and the side panel, with
 the current session id aligned to the right. Both ids are selectable text and
 wrap on narrow screens.
+The desktop side panel's open state is a browser preference. The mobile sheet
+has separate transient state, so opening or dismissing it does not change the
+desktop preference.
 
 While the server state is not `ready`, requests that need the session return
 503. The client shows the state and an `awaiting_operator` interaction if one

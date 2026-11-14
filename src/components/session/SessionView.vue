@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
+import { loadPreference, savePreference } from '@/connection/storage'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { t } from '@/i18n'
 import CatalogView from '@/components/catalog/CatalogView.vue'
@@ -19,11 +20,23 @@ import Transcript from './Transcript.vue'
 const model = server.model
 const { phase, retryIn, waitingState } = server
 
-const panelOpen = ref(false)
+const desktopPanelOpen = ref(loadPreference('desktop-panel') === 'open')
+const mobilePanelOpen = ref(false)
 const settingsOpen = ref(false)
 const catalogOpen = ref(false)
 const pursueOpen = ref(false)
 const wide = useMediaQuery('(min-width: 768px)')
+const panelOpen = computed({
+  get: () => (wide.value ? desktopPanelOpen.value : mobilePanelOpen.value),
+  set: (open: boolean) => {
+    if (wide.value) {
+      desktopPanelOpen.value = open
+      savePreference('desktop-panel', open ? 'open' : 'closed')
+    } else {
+      mobilePanelOpen.value = open
+    }
+  },
+})
 const current = computed(() => model.interactions[0])
 
 function openPursue(): void {

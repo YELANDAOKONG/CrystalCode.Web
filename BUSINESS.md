@@ -170,6 +170,8 @@ Interface:
   the cool ivory, blue-gray, and ice palette, light, dark, and auto themes,
   the crystal mark. Planned; the current stylesheet is still the starter.
 - Responsive on desktop, tablet, and phone.
+- Remember whether the desktop side panel is open as a browser preference.
+  The mobile side panel opens separately and is not restored on refresh.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
   preview, followed by Crystal Code. For browser titles only, control characters,
