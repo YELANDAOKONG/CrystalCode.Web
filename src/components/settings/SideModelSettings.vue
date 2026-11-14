@@ -138,18 +138,25 @@ const run = (key: string, command: string) => void track(key, () => server.send(
 </script>
 
 <template>
-  <div v-if="modelOption">
-    <SettingRow v-if="enabledOption" :label="switchTitle" :help="enabledOption.current === 'off' ? t('settings.model.disabled.help') : undefined" :note="modelOption.current === 'unset' ? t('settings.model.selectFirst') : undefined" :label-for="id('enabled')">
-      <div class="flex items-center gap-2 sm:justify-end">
-        <Spinner v-if="busy(enabledOption.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
-        <Switch :id="id('enabled')" :model-value="enabledOption.current === 'on'" :aria-busy="busy(enabledOption.id) || undefined" :disabled="locked || busy(enabledOption.id) || (enabledOption.current === 'off' && modelOption.current === 'unset')" @update:model-value="(on) => set(enabledOption, on === true)" />
+  <section v-if="modelOption" :aria-labelledby="enabledOption ? id('heading') : undefined" :class="enabledOption ? 'py-4' : ''">
+    <div v-if="enabledOption" class="flex items-start justify-between gap-4">
+      <div class="min-w-0">
+        <h3 :id="id('heading')" class="text-sm font-semibold">{{ switchTitle }}</h3>
+        <p class="text-muted-foreground mt-1 text-xs leading-snug">{{ help }}</p>
+        <p v-if="modelOption.current === 'unset'" class="text-muted-foreground mt-1 text-xs leading-snug">{{ t('settings.model.selectFirst') }}</p>
+        <p v-else-if="enabledOption.current === 'off'" class="text-muted-foreground mt-1 text-xs leading-snug">{{ t('settings.model.disabled.help') }}</p>
       </div>
-    </SettingRow>
-    <SettingRow :label="title" :help="help" :note="note" :label-for="id('model')">
+      <div class="flex shrink-0 items-center gap-2">
+        <Spinner v-if="busy(enabledOption.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+        <Switch :id="id('enabled')" :aria-label="switchTitle" :model-value="enabledOption.current === 'on'" :aria-busy="busy(enabledOption.id) || undefined" :disabled="locked || busy(enabledOption.id) || (enabledOption.current === 'off' && modelOption.current === 'unset')" @update:model-value="(on) => set(enabledOption, on === true)" />
+      </div>
+    </div>
+    <div :class="enabledOption ? 'bg-muted/40 mt-3 rounded-md px-3 sm:px-4' : ''">
+    <SettingRow :label="enabledOption ? t('settings.model') : title" :help="enabledOption ? undefined : help" :note="note" :label-for="id('model')">
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>
 
-    <div v-if="thinking || tier || speed || context || extended" class="border-l-2 pl-4">
+    <div v-if="thinking || tier || speed || context || extended" :class="enabledOption ? 'border-t' : 'border-l-2 pl-4'">
       <SettingRow v-if="thinking" :label="t('settings.thinking')" :label-for="id('thinking')">
         <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="busyLocked ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
       </SettingRow>
@@ -179,5 +186,6 @@ const run = (key: string, command: string) => void track(key, () => server.send(
         </SettingRow>
       </template>
     </div>
-  </div>
+    </div>
+  </section>
 </template>
