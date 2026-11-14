@@ -263,6 +263,15 @@ The client reports the matching failure; it cannot fix any of them.
   summary display setting says, so a refresh keeps it. The live
   `compaction.finished` event carries `summary` and `shown`; the client draws
   the summary from the `note` the server still sends when the setting shows it.
+- Follow-up queue. `POST /input` returns when the text has been accepted, not
+  when the turn ends. Another `POST /input` while a turn or compaction is
+  running is queued. Empty text releases the queue. The snapshot and
+  `queue.changed` list every waiting item, oldest first. `prompt-history.loaded`
+  is sent once, at session start, so prompts submitted later are remembered
+  only in the page. `TryRetractQueued` is excluded from the server wire, so
+  the client cannot put one queued follow-up back into the composer. Ctrl+C
+  with a non-empty queue and an empty composer does nothing: an interrupt
+  would send the queue instead of returning the newest item.
 - The composer and session settings share the mode choices from the server's
   `/mode` arguments. Work and Plan appear first when offered, in that order.
   Custom modes follow in server order.

@@ -11,7 +11,7 @@ const open = defineModel<boolean>('open', { required: true })
 const text = defineModel<string>('text', { required: true })
 
 const props = defineProps<{ busy: boolean; blocked: boolean }>()
-const emit = defineEmits<{ send: [] }>()
+const emit = defineEmits<{ send: []; cancel: [] }>()
 
 const area = ref<InstanceType<typeof Textarea> | null>(null)
 const composing = ref(false)
@@ -35,6 +35,14 @@ watch(open, async (isOpen) => {
 
 function onKeydown(event: KeyboardEvent): void {
   if (composing.value || event.isComposing) return
+  const area = event.target as HTMLTextAreaElement
+  // A selection still copies. An empty selection follows the composer's Ctrl+C.
+  if (event.ctrlKey && !event.metaKey && !event.altKey && event.code === 'KeyC' && area.selectionStart === area.selectionEnd) {
+    event.preventDefault()
+    emit('cancel')
+    return
+  }
+
   // Enter writes a new line here, so the send shortcut needs a modifier.
   if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
     event.preventDefault()
@@ -92,7 +100,7 @@ const chars = computed(() => new Intl.NumberFormat().format([...text.value].leng
         <Button variant="ghost" class="h-10 sm:h-9" :disabled="text === '' || blocked" @click="text = ''">{{ t('full.discard') }}</Button>
         <Button class="h-10 sm:h-9" :disabled="!canSend" @click="send">
           <ArrowUp class="size-4" />
-          {{ busy ? t('composer.queued', { count: 1 }) : t('full.send') }}
+          {{ busy ? t('composer.queue.add') : t('full.send') }}
         </Button>
       </footer>
     </DialogContent>

@@ -93,9 +93,15 @@ Session:
   activity.
 - Reconnect by event sequence number. Redraw on `resync`, `conversation.cleared`,
   and `conversation.replayed`.
-- Send prompts, slash commands, and follow-ups through `POST /input`. Release
-  the queue with empty text. Interrupt, recall, and switch modes. The composer
-  and session settings list Work and Plan first, followed by custom modes.
+- Send prompts, slash commands, and follow-ups through `POST /input`. Several
+  follow-ups can wait, and the composer lists each one. Empty text releases
+  the queue. Up and Down at the edge of the box walk prompt history, including
+  prompts sent on this page. Ctrl+C with no selection clears the box when
+  idle, recalls the turn's message before the model has shown output, and
+  otherwise interrupts. A selection still copies. Popping one queued follow-up
+  back needs a server endpoint the wire does not have. Interrupt, recall, and
+  switch modes. The composer and session settings list Work and Plan first,
+  followed by custom modes.
 - Toggle verbose targets and report draft changes, as the terminal does.
 - Run every slash command the server lists. Reports (`report.help`,
   `report.status`, `report.stats`, `report.tools`, `report.todos`) are shown
@@ -292,8 +298,10 @@ received and is not translated. Interface text contains no emoji.
 - Whether one page may hold several server connections at once. Recommended
   default: one active connection per tab.
 - How the terminal shortcuts (Tab and Shift+Tab mode cycle, F6 quick prompts,
-  F7 child picker, Ctrl+O and Ctrl+G verbose, Ctrl+C recall) map to the
-  browser, where several are reserved by the browser.
+  F7 child picker, Ctrl+O and Ctrl+G verbose) map to the browser, where several
+  are reserved by the browser. Ctrl+C in the composer is mapped: a selection
+  copies; otherwise it clears, recalls, or interrupts. It does not exit the
+  server, and it cannot pop one queued follow-up until the server exposes that.
 - The scheme to assume when the operator types `host:port` with no scheme.
   Recommended default: `https://`, with the scheme shown and editable, because
   the hosted page is HTTPS and an `http://` guess would be blocked.

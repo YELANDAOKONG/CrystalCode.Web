@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
-import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Undo2, Zap } from '@lucide/vue'
+import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -11,6 +11,7 @@ import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import { approvalModes, currentByLabel, findArguments, modeChoices, toOptions } from '@/session/settings'
 import { sizeState } from '@/session/draft-size'
+import { promptHistory, rememberPrompt } from '@/session/prompt-history'
 import { aliasesOf, completedText, createPicker, isExact } from '@/session/slash'
 import ComposerChip from './ComposerChip.vue'
 import FullscreenComposer from './FullscreenComposer.vue'
@@ -26,15 +27,21 @@ const composing = ref(false)
 const fullOpen = ref(false)
 const choice = ref(0)
 const historyIndex = ref<number | null>(null)
+const savedDraft = ref('')
+const remembered = ref<string[]>([])
+// True while the box is being filled from history, so that fill is not an edit.
+let fromHistory = false
 
-const busy = computed(() => model.turnActive)
+const prompts = computed(() => promptHistory(model.promptHistory, remembered.value))
+const busy = computed(() => model.turnActive || model.activity === 'compacting')
 const blocked = computed(() => !canOperate.value)
 
 // --- slash command suggestions ------------------------------------------
 
 // Commands, their aliases, and their arguments, three levels deep, from the
 // server's own list. A picker is only offered while the draft is one line.
-const picker = computed(() => createPicker(text.value, model.commands))
+// A recalled slash command stays text until it is edited, as in the terminal.
+const picker = computed(() => (historyIndex.value === null ? createPicker(text.value, model.commands) : null))
 const suggestions = computed(() => picker.value?.matches ?? [])
 const options = useTemplateRef<HTMLLIElement[]>('options')
 
@@ -68,21 +75,32 @@ const needsCompletion = () => {
 // --- sending --------------------------------------------------------------
 
 const { busy: acting, run: track } = useBusy()
-const sending = computed(() => acting('send'))
-const recall = () => void track('recall', () => server.recall())
+const awaiting = ref(false)
+const sending = computed(() => awaiting.value && !busy.value)
 const stop = () => void track('stop', () => server.interrupt())
+let latestSend = 0
 
 async function submit(): Promise<void> {
   const value = text.value
-  if (blocked.value || value.trim() === '' || sizeState(value) === 'over') return
-  // The server answers only after it has handled the text (hooks, a slash
-  // command, starting the turn), so clearing on the answer left the draft
-  // frozen in the box. Clear now and put the text back if the request fails.
+  if (blocked.value || sizeState(value) === 'over') return
+  // Empty text does not enqueue. While something is queued it interrupts, so
+  // the queue is sent now. The same key starts a prompt when the box has text.
+  if (value.trim() === '') {
+    if (busy.value && model.queue.length > 0) void server.send('')
+    return
+  }
+
+  // Do not wait on this request. The server accepts a follow-up while an
+  // earlier POST /input is still open, and a lock here dropped that follow-up.
   text.value = ''
   historyIndex.value = null
-  const result = await track('send', () => server.send(value))
+  remembered.value = rememberPrompt(remembered.value, value)
+  const ticket = ++latestSend
+  if (!busy.value) awaiting.value = true
+  const result = await server.send(value)
+  if (ticket === latestSend) awaiting.value = false
   // A refused input (the reason arrives as an error notice) keeps its text.
-  if ((!result || !result.accepted) && text.value === '') text.value = value
+  if (ticket === latestSend && (!result || !result.accepted) && text.value === '') text.value = value
 }
 
 function element(): HTMLTextAreaElement | null {
@@ -90,9 +108,63 @@ function element(): HTMLTextAreaElement | null {
   return root instanceof HTMLTextAreaElement ? root : (root?.querySelector('textarea') ?? null)
 }
 
+function showHistory(index: number | null, value: string, cursor: 'start' | 'end'): void {
+  // The text watch is not synchronous. Leave the flag set until it runs, or a
+  // history fill is treated as an edit and the walk stops.
+  fromHistory = true
+  historyIndex.value = index
+  if (text.value === value) fromHistory = false
+  else text.value = value
+  void nextTick(() => {
+    const target = element()
+    const at = cursor === 'start' ? 0 : target?.value.length ?? value.length
+    target?.setSelectionRange(at, at)
+  })
+}
+
+function onFirstLine(area: HTMLTextAreaElement): boolean {
+  return !area.value.slice(0, area.selectionStart).includes('\n')
+}
+
+function onLastLine(area: HTMLTextAreaElement): boolean {
+  return !area.value.slice(area.selectionEnd).includes('\n')
+}
+
+// Ctrl+C matches the terminal where the server allows it. A selection still
+// copies. One queued item cannot be popped: the wire has no retract.
+function onCancel(): void {
+  if (blocked.value) return
+  const empty = text.value.length === 0
+  if (empty && model.queue.length > 0) return
+  if (empty && busy.value) {
+    void recallOrStop()
+    return
+  }
+
+  if (busy.value) {
+    void server.interrupt()
+    return
+  }
+
+  if (!empty) showHistory(null, '', 'start')
+}
+
+async function recallOrStop(): Promise<void> {
+  const recalled = await server.recall()
+  if (recalled) return
+  if (text.value.length === 0 && model.queue.length === 0 && busy.value) void server.interrupt()
+}
+
 function onKeydown(event: KeyboardEvent): void {
   if (composing.value || event.isComposing) return
   const area = event.target as HTMLTextAreaElement
+
+  if (event.ctrlKey && !event.metaKey && !event.altKey && event.code === 'KeyC') {
+    if (area.selectionStart !== area.selectionEnd) return
+    event.preventDefault()
+    onCancel()
+    return
+  }
 
   if (suggestions.value.length > 0) {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -115,24 +187,19 @@ function onKeydown(event: KeyboardEvent): void {
     return
   }
 
-  // Walk the prompt history from the first or last line, as a terminal would.
-  if (event.key === 'ArrowUp' && area.selectionStart === 0 && area.selectionEnd === 0) {
-    const history = model.promptHistory
-    if (history.length === 0) return
-    const next = historyIndex.value === null ? history.length - 1 : Math.max(0, historyIndex.value - 1)
+  // Up on the first line and Down on the last line walk history. The cursor
+  // does not have to be at column 0; that is how the terminal moves.
+  const plainArrow = !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey
+  if (plainArrow && event.key === 'ArrowUp' && onFirstLine(area) && prompts.value.length > 0) {
     event.preventDefault()
-    historyIndex.value = next
-    text.value = history[next] ?? ''
-  } else if (event.key === 'ArrowDown' && historyIndex.value !== null && area.selectionStart === text.value.length) {
+    if (historyIndex.value === null) savedDraft.value = text.value
+    const next = historyIndex.value === null ? prompts.value.length - 1 : Math.max(0, historyIndex.value - 1)
+    showHistory(next, prompts.value[next] ?? '', 'start')
+  } else if (plainArrow && event.key === 'ArrowDown' && historyIndex.value !== null && onLastLine(area)) {
     event.preventDefault()
     const next = historyIndex.value + 1
-    if (next >= model.promptHistory.length) {
-      historyIndex.value = null
-      text.value = ''
-    } else {
-      historyIndex.value = next
-      text.value = model.promptHistory[next] ?? ''
-    }
+    if (next >= prompts.value.length) showHistory(null, savedDraft.value, 'end')
+    else showHistory(next, prompts.value[next] ?? '', 'end')
   } else if (event.key === 'Escape' && busy.value) {
     void server.interrupt()
   }
@@ -142,9 +209,29 @@ function onKeydown(event: KeyboardEvent): void {
 
 let draftTimer: ReturnType<typeof setTimeout> | undefined
 watch(text, (value) => {
+  if (fromHistory) {
+    fromHistory = false
+  } else if (historyIndex.value !== null) {
+    historyIndex.value = null
+    savedDraft.value = value
+  }
+
   clearTimeout(draftTimer)
   draftTimer = setTimeout(() => void server.syncDraft(value), 400)
 })
+
+watch(busy, (active) => {
+  if (active) awaiting.value = false
+})
+
+// A new session has its own saved history. Prompts remembered here belong to the previous one.
+watch(
+  () => model.sessionId,
+  () => {
+    remembered.value = []
+    historyIndex.value = null
+  },
+)
 
 watch(
   () => model.recalledDraft,
@@ -260,11 +347,22 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         :busy="busy"
         :blocked="blocked"
         @send="submit"
+        @cancel="onCancel"
       />
 
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
       <div class="bg-card focus-within:ring-ring rounded-xl border focus-within:ring-2">
+        <div v-if="model.queue.length" class="border-b px-3 py-2">
+          <p class="text-muted-foreground mb-1 text-xs font-medium">{{ t('composer.queued', { count: model.queue.length }) }}</p>
+          <ol class="max-h-36 space-y-1 overflow-y-auto" :aria-label="t('composer.queued', { count: model.queue.length })">
+            <li v-for="(item, index) in model.queue" :key="index" class="flex gap-2 text-sm">
+              <span class="text-muted-foreground w-5 shrink-0 font-mono text-xs tabular-nums">{{ index + 1 }}.</span>
+              <span class="line-clamp-3 min-w-0 flex-1 break-words" :title="item">{{ item }}</span>
+            </li>
+          </ol>
+          <p class="text-muted-foreground mt-1 text-xs">{{ t('composer.queue.release') }}</p>
+        </div>
         <Textarea
           ref="field"
           v-model="text"
@@ -351,24 +449,19 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 
           <span class="flex-1" />
 
-          <Button
-            v-if="model.queue.length"
-            variant="ghost"
-            size="sm"
-            :disabled="blocked"
-            :title="t('composer.recall')"
-            @click="recall"
-          >
-            <Spinner v-if="acting('recall')" class="size-4 motion-reduce:animate-none" />
-            <Undo2 v-else class="size-4" />
-            {{ t('composer.queued', { count: model.queue.length }) }}
-          </Button>
           <Button v-if="busy" variant="outline" size="sm" :disabled="blocked || acting('stop')" @click="stop">
             <Spinner v-if="acting('stop')" class="size-3.5 motion-reduce:animate-none" />
             <Square v-else class="size-3.5" />
             {{ t('composer.stop') }}
           </Button>
-          <Button size="icon" class="size-10 md:size-8" :disabled="blocked || text.trim() === ''" :aria-busy="sending || undefined" :aria-label="t('composer.send')" @click="submit">
+          <Button
+            size="icon"
+            class="size-10 md:size-8"
+            :disabled="blocked || (text.trim() === '' && !(busy && model.queue.length)) || sizeState(text) === 'over'"
+            :aria-busy="sending || undefined"
+            :aria-label="text.trim() === '' ? t('composer.queue.release') : t('composer.send')"
+            @click="submit"
+          >
             <Spinner v-if="sending" class="size-4 motion-reduce:animate-none" />
             <ArrowUp v-else class="size-4" />
           </Button>
