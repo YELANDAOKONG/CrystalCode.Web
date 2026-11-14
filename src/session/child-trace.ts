@@ -25,6 +25,7 @@ export type ChildActivity =
   | { kind: 'tool'; name: string }
   | { kind: 'writing' }
   | { kind: 'thinking' }
+  | { kind: 'retrying'; count: number; message: string }
   | { kind: 'waiting' }
 
 export function isChildActive(status: string): boolean {
@@ -50,6 +51,7 @@ export function childActivity(trace: ChildTrace | null): ChildActivity {
     if (call) return { kind: 'tool', name: call.name }
     if (live?.text) return { kind: 'writing' }
     if (live?.reasoning) return { kind: 'thinking' }
+    if (live && live.retries > 0) return { kind: 'retrying', count: live.retries, message: live.retryMessage }
   }
 
   return { kind: 'waiting' }

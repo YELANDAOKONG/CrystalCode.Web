@@ -46,9 +46,9 @@ const elapsed = computed(() => formatElapsed(now.value - since.value))
 <template>
   <!-- Only the text is a live region. The timer sits outside it so a screen
        reader is not told the time every second. -->
-  <div v-if="progress" class="text-muted-foreground mx-auto flex w-full max-w-3xl items-center gap-2 px-4 pb-1 text-sm md:px-5">
-    <Loader2 class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
-    <span role="status" aria-live="polite">{{ text }}</span>
+  <div v-if="progress" class="text-muted-foreground mx-auto flex w-full max-w-3xl items-start gap-2 px-4 pb-1 text-sm md:px-5">
+    <Loader2 class="mt-0.5 size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+    <span role="status" aria-live="polite" class="min-w-0 break-words">{{ text }}</span>
     <span class="font-mono text-xs" :title="t('progress.elapsed')">{{ elapsed }}</span>
   </div>
 </template>

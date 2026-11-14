@@ -18,6 +18,7 @@ export class RoundAssembler {
   private reasoning = ''
   private calls = new Map<number, RoundCall>()
   private retries = 0
+  private retryMessage = ''
   private open = false
 
   /** True once the round holds any text, reasoning, or tool call. */
@@ -34,15 +35,17 @@ export class RoundAssembler {
     this.reasoning = ''
     this.calls = new Map()
     this.retries = 0
+    this.retryMessage = ''
     this.open = open
   }
 
-  /** A retry drops what streamed so far and counts the attempt. */
-  retry(): void {
+  /** A retry drops what streamed so far, counts the attempt, and keeps its reason. */
+  retry(message: string): void {
     this.text = ''
     this.reasoning = ''
     this.calls = new Map()
     this.retries += 1
+    this.retryMessage = message
     this.open = true
   }
 
@@ -52,6 +55,7 @@ export class RoundAssembler {
     this.text = live?.text ?? ''
     this.reasoning = live?.reasoning ?? ''
     this.retries = live?.retries ?? 0
+    this.retryMessage = live?.retryMessage ?? ''
     this.open = live !== null
     // Keep the calls in item order so later argument deltas extend them.
     live?.toolCalls.forEach((call, index) => {
@@ -87,7 +91,13 @@ export class RoundAssembler {
 
   live(): LiveRound | null {
     return this.open
-      ? { text: this.text, reasoning: this.reasoning, toolCalls: this.toolCalls(), retries: this.retries }
+      ? {
+          text: this.text,
+          reasoning: this.reasoning,
+          toolCalls: this.toolCalls(),
+          retries: this.retries,
+          retryMessage: this.retryMessage,
+        }
       : null
   }
 

@@ -13,6 +13,7 @@ import { displayToken } from '@/session/display-case'
 import type { ChildSummary } from '@/protocol/types'
 import { toBlocks } from '@/session/blocks'
 import { childActivity, isChildActive } from '@/session/child-trace'
+import { retryLine } from '@/session/progress'
 import ToolBlock from './ToolBlock.vue'
 
 const childId = defineModel<string | null>('childId', { required: true })
@@ -64,6 +65,10 @@ const showTrace = computed(() => trace.value !== null && (running.value || !chil
 const archiveBlocks = computed(() => toBlocks(child.value?.archive ?? []))
 const traceBlocks = computed(() => (showTrace.value && trace.value ? toBlocks(trace.value.items) : []))
 const live = computed(() => (showTrace.value ? (trace.value?.live ?? null) : null))
+const retry = computed(() => {
+  const current = live.value
+  return current && current.retries > 0 ? retryLine(current.retries, current.retryMessage) : null
+})
 const hasContent = computed(
   () => archiveBlocks.value.length > 0 || traceBlocks.value.length > 0 || live.value !== null,
 )
@@ -74,6 +79,7 @@ const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
   live.value?.text.length,
   live.value?.reasoning.length,
   live.value?.toolCalls.length,
+  live.value?.retries,
 ])
 
 const roleKey = (role: string) => (role === 'user' ? 'session.role.user' : 'session.role.assistant')
@@ -88,6 +94,10 @@ const activityText = computed(() => {
       return t('child.activity.writing')
     case 'thinking':
       return t('child.activity.thinking')
+    case 'retrying': {
+      const line = retryLine(now.count, now.message)
+      return t(line.key, line.params)
+    }
     default:
       return t('child.activity.waiting')
   }
@@ -173,7 +183,7 @@ const activityText = computed(() => {
                 <MarkdownView :source="live.text" streaming />
               </section>
               <ToolBlock v-for="call in live.toolCalls" :key="call.callId" :call="call" :result="null" running />
-              <p v-if="live.retries > 0" class="text-muted-foreground text-sm">{{ t('session.retrying', { count: live.retries }) }}</p>
+              <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
             </template>
 
             <div v-if="trace?.errors.length" role="alert" class="border-destructive/40 text-destructive space-y-1 rounded-lg border px-3 py-2 text-sm">

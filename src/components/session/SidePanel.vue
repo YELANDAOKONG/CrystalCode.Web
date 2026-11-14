@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { t } from '@/i18n'
 import { childActivity, isChildActive } from '@/session/child-trace'
+import { retryLine } from '@/session/progress'
 import { displayToken } from '@/session/display-case'
 import ChildSessionSheet from './ChildSessionSheet.vue'
 import TodoList from './TodoList.vue'
@@ -26,6 +27,10 @@ function activityText(id: string): string {
       return t('child.activity.writing')
     case 'thinking':
       return t('child.activity.thinking')
+    case 'retrying': {
+      const line = retryLine(now.count, now.message)
+      return t(line.key, line.params)
+    }
     default:
       return t('child.activity.waiting')
   }

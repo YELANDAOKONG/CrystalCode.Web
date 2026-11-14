@@ -8,6 +8,7 @@ import MarkdownView from '@/components/render/MarkdownView.vue'
 import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { t } from '@/i18n'
 import { compactionSummary, toBlocks } from '@/session/blocks'
+import { retryLine } from '@/session/progress'
 import ReportBlock from '@/components/report/ReportBlock.vue'
 import ServerImage from './ServerImage.vue'
 import SummaryCard from './SummaryCard.vue'
@@ -16,6 +17,10 @@ import ToolBlock from './ToolBlock.vue'
 const model = server.model
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
+const retry = computed(() => {
+  const current = live.value
+  return current && current.retries > 0 ? retryLine(current.retries, current.retryMessage) : null
+})
 const pending = computed(() => model.notices.filter((notice) => notice.at === null))
 const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
 
@@ -26,6 +31,7 @@ const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
   live.value?.text.length,
   live.value?.reasoning.length,
   live.value?.toolCalls.length,
+  live.value?.retries,
   model.notices.length,
 ])
 
@@ -104,7 +110,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
             <MarkdownView :source="live.text" streaming />
           </section>
           <ToolBlock v-for="call in live.toolCalls" :key="call.callId" :call="call" :result="null" running />
-          <p v-if="live.retries > 0" class="text-muted-foreground text-sm">{{ t('session.retrying', { count: live.retries }) }}</p>
+          <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
         </template>
 
         <template v-for="notice in pending" :key="notice.seq">

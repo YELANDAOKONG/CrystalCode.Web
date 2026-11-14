@@ -12,7 +12,7 @@ export type Step =
   | { kind: 'writing' }
   | { kind: 'calling'; name: string }
   | { kind: 'running'; name: string }
-  | { kind: 'retrying'; attempt: number; until: number }
+  | { kind: 'retrying'; attempt: number; until: number; message: string }
   | { kind: 'reviewing'; extended: boolean }
   | { kind: 'compacting' }
   | { kind: 'naming-topic' }
@@ -114,6 +114,13 @@ const TOOL_PHRASES: Record<string, MessageKey> = {
 
 const plain = (key: MessageKey): Progress => ({ id: key, key, params: {}, countdown: null })
 
+/** The live-round retry line. A snapshot has a count and an empty message. */
+export function retryLine(count: number, message: string): { key: MessageKey; params: Record<string, string | number> } {
+  const reason = message.trim()
+  if (reason.length === 0) return { key: 'session.retrying', params: { count } }
+  return { key: 'session.retrying.reason', params: { count, reason } }
+}
+
 /**
  * The line to show, or null when nothing is happening. A question waiting for
  * this client's answer wins over the step, as in the terminal.
@@ -146,8 +153,15 @@ export function describeProgress(step: Step | null, interactions: Interaction[],
       return plain(step.extended ? 'progress.extended' : 'progress.reviewing')
     case 'calling':
       return { id: `calling:${step.name}`, key: 'progress.calling', params: { name: displayToken(step.name) }, countdown: null }
-    case 'retrying':
-      return { id: `retrying:${step.attempt}`, key: 'progress.retrying', params: { attempt: step.attempt }, countdown: Math.max(0, step.until - now) }
+    case 'retrying': {
+      const reason = step.message.replace(/\s+/g, ' ').trim()
+      return {
+        id: `retrying:${step.attempt}`,
+        key: reason.length > 0 ? 'progress.retrying.reason' : 'progress.retrying',
+        params: { attempt: step.attempt, reason },
+        countdown: Math.max(0, step.until - now),
+      }
+    }
     case 'running': {
       const phrase = TOOL_PHRASES[step.name.toLowerCase()]
       if (phrase) return plain(phrase)

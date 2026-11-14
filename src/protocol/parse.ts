@@ -242,6 +242,7 @@ export function parseLive(value: unknown): LiveRound | null {
     reasoning: str(value.reasoning),
     toolCalls: arr(value.toolCalls).map(parseToolCall),
     retries: num(value.retries),
+    retryMessage: '',
   }
 }
 

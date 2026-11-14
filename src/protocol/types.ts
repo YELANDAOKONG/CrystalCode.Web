@@ -136,6 +136,11 @@ export interface LiveRound {
   reasoning: string
   toolCalls: ToolCall[]
   retries: number
+  /**
+   * `message` from the latest `retry.scheduled` in this round.
+   * Empty after a snapshot: `live` carries the retry count only.
+   */
+  retryMessage: string
 }
 
 export interface Todo {

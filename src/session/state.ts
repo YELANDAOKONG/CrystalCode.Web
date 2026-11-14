@@ -254,9 +254,14 @@ export class SessionModel {
         this.resetRound(this.turnActive)
         break
       case 'retry.scheduled':
-        this.round.retry()
+        this.round.retry(str(d.message))
         this.refreshLive()
-        this.setStep({ kind: 'retrying', attempt: num(d.attempt), until: Date.now() + num(d.delayMilliseconds) })
+        this.setStep({
+          kind: 'retrying',
+          attempt: num(d.attempt),
+          until: Date.now() + num(d.delayMilliseconds),
+          message: str(d.message),
+        })
         break
       case 'tools.called': {
         const calls = arr(d.calls).map(parseToolCall)
@@ -409,7 +414,7 @@ export class SessionModel {
         if (round.apply(event.type, d)) next = { ...trace, live: round.live() }
         break
       case 'retry.scheduled':
-        round.retry()
+        round.retry(str(d.message))
         next = { ...trace, live: round.live() }
         break
       case 'round.closed':
