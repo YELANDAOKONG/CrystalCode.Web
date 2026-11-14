@@ -12,14 +12,12 @@ import SettingRow from './SettingRow.vue'
 
 // A model the session uses for a side job: the approval reviewer, the extended
 // reviewer, or the compaction summarizer. Every choice comes from
-// `GET /options`, where the server lists the model, and its thinking, tier,
-// and speed only while that model is on and offers a choice. A change goes
+// `GET /options`, where the server lists the stored model and its available
+// tuning even while the feature is off. A change goes
 // through `PUT /options/{id}`, which runs the terminal's own command.
 const props = defineProps<{
-  slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video' | 'pursue' | 'pursue_compaction'
+  slot: 'approval' | 'extended' | 'compaction' | 'topic' | 'image' | 'audio' | 'video' | 'document' | 'pursue' | 'pursue_compaction'
   disabled?: boolean
-  /** The feature this model belongs to is off. The choices stay editable, since they are saved for later. */
-  dimmed?: boolean
 }>()
 
 const model = server.model
@@ -29,17 +27,18 @@ const { canOperate, isAdmin } = server
 // `_context`. Only the model option's own id differs.
 const MODEL_ID = {
   approval: 'approval_model',
-  extended: 'extended_approval',
+  extended: 'extended_model',
   compaction: 'compaction_model',
   topic: 'topic_model',
   image: 'image_model',
   audio: 'audio_model',
   video: 'video_model',
+  document: 'document_model',
   pursue: 'pursue_model',
   pursue_compaction: 'pursue_compaction_model',
 } as const
 const ids = computed(() => ({
-  model: MODEL_ID[props.slot],
+  model: props.slot === 'extended' && !model.options.some((entry) => entry.id === 'extended_model') ? 'extended_approval' : MODEL_ID[props.slot],
   thinking: `${props.slot}_thinking`,
   tier: `${props.slot}_tier`,
   speed: `${props.slot}_speed`,
@@ -61,7 +60,7 @@ const OFF_LABEL: Record<string, MessageKey> = {
 }
 
 function choices(option: SessionOption | undefined, models = false): Option[] {
-  return (option?.values ?? []).map((value) => {
+  return (option?.values ?? []).filter((value) => value.value !== 'unset' || option?.current === 'unset').map((value) => {
     const special = models && (value.value === 'off' || value.value === 'session')
     return {
       value: value.value,
@@ -80,6 +79,14 @@ function choices(option: SessionOption | undefined, models = false): Option[] {
 }
 
 const modelOption = computed(() => find(ids.value.model))
+const SWITCH_ID: Partial<Record<typeof props.slot, string>> = {
+  approval: 'approval_model_enabled', extended: 'extended_approval', compaction: 'compaction_model_enabled',
+  topic: 'topic', image: 'image_model_enabled', audio: 'audio_model_enabled', video: 'video_model_enabled', document: 'document_model_enabled',
+}
+const enabledOption = computed(() => {
+  const option = find(SWITCH_ID[props.slot] ?? '')
+  return option?.switch ? option : undefined
+})
 const thinking = computed(() => find(ids.value.thinking))
 const tier = computed(() => find(ids.value.tier))
 const speed = computed(() => find(ids.value.speed))
@@ -95,8 +102,8 @@ const modelLocked = computed(() => locked.value || (busyLocked.value && turnBusy
 const slotLocked = computed(() => locked.value || turnBusy.value)
 
 const { busy, run: track } = useBusy()
-const set = (option: SessionOption | undefined, value: string) => {
-  if (option) void track(option.id, () => server.setOption(option.id, value))
+const set = (option: SessionOption | undefined, value: string | boolean) => {
+  if (option && value !== 'unset') void track(option.id, () => server.setOption(option.id, value))
 }
 
 const TITLES = {
@@ -107,11 +114,16 @@ const TITLES = {
   image: ['settings.image', 'settings.image.help'],
   audio: ['settings.audio', 'settings.audio.help'],
   video: ['settings.video', 'settings.video.help'],
+  document: ['settings.document', 'settings.document.help'],
   pursue: ['settings.pursue.model', 'settings.pursue.model.help'],
   pursue_compaction: ['settings.pursue.compaction', 'settings.pursue.compaction.help'],
 } as const satisfies Record<string, readonly [MessageKey, MessageKey]>
 const title = computed(() => t(TITLES[props.slot][0]))
 const help = computed(() => t(TITLES[props.slot][1]))
+const switchTitle = computed(() => t(({
+  approval: 'settings.enable.approval', extended: 'settings.enable.extended', compaction: 'settings.enable.compaction',
+  topic: 'settings.opt.topic', image: 'settings.enable.image', audio: 'settings.enable.audio', video: 'settings.enable.video', document: 'settings.enable.document',
+} as Partial<Record<typeof props.slot, MessageKey>>)[props.slot] ?? 'settings.opt.topic'))
 const note = computed(() =>
   !isAdmin.value && canOperate.value ? t('settings.adminOnly') : turnBusy.value && busyLocked.value ? t('settings.reviewer.busy') : undefined,
 )
@@ -126,7 +138,13 @@ const run = (key: string, command: string) => void track(key, () => server.send(
 </script>
 
 <template>
-  <div v-if="modelOption" :class="dimmed ? 'opacity-60' : ''">
+  <div v-if="modelOption">
+    <SettingRow v-if="enabledOption" :label="switchTitle" :help="enabledOption.current === 'off' ? t('settings.model.disabled.help') : undefined" :note="modelOption.current === 'unset' ? t('settings.model.selectFirst') : undefined" :label-for="id('enabled')">
+      <div class="flex items-center gap-2 sm:justify-end">
+        <Spinner v-if="busy(enabledOption.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+        <Switch :id="id('enabled')" :model-value="enabledOption.current === 'on'" :aria-busy="busy(enabledOption.id) || undefined" :disabled="locked || busy(enabledOption.id) || (enabledOption.current === 'off' && modelOption.current === 'unset')" @update:model-value="(on) => set(enabledOption, on === true)" />
+      </div>
+    </SettingRow>
     <SettingRow :label="title" :help="help" :note="note" :label-for="id('model')">
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>

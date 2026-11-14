@@ -316,6 +316,11 @@ The client reports the matching failure; it cannot fix any of them.
   response. Snapshot replacement, objective/session changes, and reconnects
   invalidate the pages. In-flight requests are aborted when the sheet closes
   or its data source changes, and stale results cannot replace new state.
+- Dedicated model settings group each advertised enable switch with its model
+  picker and server-provided tuning. Switches and pickers use their separate
+  `PUT /options/{id}` values. A disabled model remains editable; `unset` is a
+  display state, and enabling waits until a model has been selected. Older
+  servers can still expose extended approval as a single picker.
 - Pursue settings. `PursueSettings` reads `GET /pursue/configuration` without
   requiring an objective. `SideModelSettings` renders `pursue_*` and
   `pursue_compaction_*` options and writes through `PUT /options/{id}`. The

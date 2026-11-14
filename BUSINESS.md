@@ -123,8 +123,11 @@ Session:
   configured server. A disabled server stays in `GET /mcp`, so it can be turned
   back on. A session server (supplied by a front end), an invalid definition,
   and a replaced one show no switch.
-- Resource description models (image, audio, video), the topic model and its
-  switch, and the session topic, as session options in settings. The topic is
+- Resource description models (image, audio, video, document), the topic model and its
+  switch, and the session topic, as session options in settings. Dedicated
+  model switches sit beside their model pickers; a stored model and its available
+  tuning can be edited while disabled. A model must be selected before enabling
+  a dedicated model. The topic is
   the title of a saved session in the catalog.
 - Show `report.document` results, such as `/skills` and plugin commands.
 - Side questions (`/btw`) with cancel and clear.
