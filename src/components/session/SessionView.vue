@@ -46,16 +46,18 @@ const banner = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-dvh flex-col">
+  <!-- The page itself does not scroll. The transcript does. A content-sized
+       child here would stretch the column past the viewport. -->
+  <div class="flex h-dvh flex-col overflow-hidden">
     <SessionHeader :panel-open="panelOpen" @toggle-panel="panelOpen = !panelOpen" @open-settings="settingsOpen = true" @open-catalog="catalogOpen = true" />
-    <p v-if="banner" role="status" class="bg-muted text-muted-foreground border-b px-4 py-1.5 text-sm">{{ banner }}</p>
+    <p v-if="banner" role="status" class="bg-muted text-muted-foreground shrink-0 border-b px-4 py-1.5 text-sm">{{ banner }}</p>
     <div class="flex min-h-0 flex-1">
-      <main class="flex min-w-0 flex-1 flex-col">
+      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <Transcript />
         <ProgressRow />
         <Composer />
       </main>
-      <aside v-if="panelOpen && wide" class="bg-card w-80 shrink-0 overflow-y-auto border-l p-4">
+      <aside v-if="panelOpen && wide" class="bg-card w-80 min-h-0 shrink-0 overflow-y-auto border-l p-4">
         <SidePanel @open-pursue="openPursue" />
       </aside>
     </div>

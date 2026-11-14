@@ -44,11 +44,15 @@ const elapsed = computed(() => formatElapsed(now.value - since.value))
 </script>
 
 <template>
-  <!-- Only the text is a live region. The timer sits outside it so a screen
+  <!-- One line, and it must not grow. A wrapping status is a flex item in the
+       session column; its content height would take the transcript's space,
+       leave a sliver of the conversation, and make scrolling jump. The full
+       line is in the tooltip. A long retry reason also stays on the live round.
+       Only the text is a live region. The timer sits outside it so a screen
        reader is not told the time every second. -->
-  <div v-if="progress" class="text-muted-foreground mx-auto flex w-full max-w-3xl items-start gap-2 px-4 pb-1 text-sm md:px-5">
-    <Loader2 class="mt-0.5 size-3.5 shrink-0 animate-spin" aria-hidden="true" />
-    <span role="status" aria-live="polite" class="min-w-0 break-words">{{ text }}</span>
-    <span class="font-mono text-xs" :title="t('progress.elapsed')">{{ elapsed }}</span>
+  <div v-if="progress" class="text-muted-foreground mx-auto flex w-full max-w-3xl shrink-0 items-center gap-2 overflow-hidden px-4 pb-1 text-sm md:px-5">
+    <Loader2 class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+    <span role="status" aria-live="polite" class="min-w-0 flex-1 truncate" :title="text">{{ text }}</span>
+    <span class="shrink-0 font-mono text-xs tabular-nums" :title="t('progress.elapsed')">{{ elapsed }}</span>
   </div>
 </template>

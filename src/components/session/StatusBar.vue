@@ -34,7 +34,7 @@ const lastTurn = computed(() => (model.lastTurn ? displayToken(model.lastTurn.re
 </script>
 
 <template>
-  <footer class="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 border-t px-4 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] text-xs">
+  <footer class="text-muted-foreground flex shrink-0 flex-wrap gap-x-4 gap-y-1 border-t px-4 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] text-xs">
     <template v-if="model.statusFields.length">
       <span v-for="field in model.statusFields" :key="field.name">{{ field.text }}</span>
     </template>

@@ -257,7 +257,8 @@ The client reports the matching failure; it cannot fix any of them.
   `tools.results` returns to Waiting, `retry.scheduled` counts down and puts
   that event's `message` on the row and on the live round, and
   `approval.reviewing` is Reviewing. A pending approval or question wins. The
-  elapsed time restarts whenever the wording changes. `SessionModel.step`
+  row is one line and does not grow the column; a long reason stays in full
+  on the live round. The elapsed time restarts whenever the wording changes. `SessionModel.step`
   holds the step; `session/progress.ts` turns it into text. `checking_objective`
   and `waiting_for_task` are activity steps too, and the next `idle` ends them.
   A snapshot's `live` has the retry count and no message, so a refresh during

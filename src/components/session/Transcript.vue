@@ -43,8 +43,11 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
 </script>
 
 <template>
-  <div class="relative min-h-0 flex-1">
-    <div :ref="bind" class="h-full overflow-y-auto" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
+  <!-- The scroller is pinned to this slot. A percentage height resolves
+       against the content once a sibling such as the progress row changes
+       size, which stretches the column and traps the scroll position. -->
+  <div class="relative min-h-0 flex-1 overflow-hidden">
+    <div :ref="bind" class="absolute inset-0 overflow-y-auto [overflow-anchor:none]" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
       <div class="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
         <p v-if="!model.loaded" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
           <Spinner />
