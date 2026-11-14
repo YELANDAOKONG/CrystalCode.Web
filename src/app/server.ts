@@ -336,7 +336,10 @@ function createServer() {
         refreshAgain = false
         const snapshot = await c.snapshot(signal)
         if (signal.aborted) return
-        if (snapshot.lastSeq < model.lastSeq) continue
+        if (snapshot.lastSeq < model.lastSeq) {
+          refreshAgain = true
+          continue
+        }
         model.loadSnapshot(snapshot)
       } while (refreshAgain && !signal.aborted)
     } catch (error) {
@@ -380,6 +383,7 @@ function createServer() {
   const send = (text: string) => act((c) => c.input(text, newRequestId()))
   const interrupt = () => act((c) => c.interrupt())
   const recall = () => act((c) => c.recall())
+  const retractQueue = () => act((c) => c.retractQueue())
   const setMode = (action: 'cycle' | 'toggle-plan' | 'set', name?: string) =>
     act((c) => c.setMode(action, name, newRequestId()))
   const setVerbose = (targetName: string, enabled: boolean) =>
@@ -478,6 +482,7 @@ function createServer() {
     send,
     interrupt,
     recall,
+    retractQueue,
     setMode,
     setVerbose,
     sendQuickPrompt,

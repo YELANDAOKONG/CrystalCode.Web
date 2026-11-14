@@ -131,6 +131,8 @@ export const zhCn: Record<MessageKey, string> = {
   'composer.placeholder.busy': 'Crystal Code 正在处理。你的消息会进入队列。',
   'composer.readonly': '此令牌只能观察。发送需要 operate 权限。',
   'composer.send': '发送',
+  'composer.recovered': '待恢复的草稿',
+  'composer.restore': '恢复',
   'composer.stop': '停止',
   'composer.queued': '{count} 条排队',
   'composer.queue.release': '输入框为空时按 Enter，立即发送这些消息。',

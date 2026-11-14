@@ -81,7 +81,8 @@ binding.
    first, with the new session id and topic. `/clear` (`/new`) and `/fork`
    send an empty topic. The page applies that chrome as the event arrives.
    A snapshot is loaded only when its `lastSeq` covers the events already
-   applied, so an earlier snapshot leaves the current topic in place.
+   applied, so an earlier snapshot leaves the current topic in place and is
+   retried until a current snapshot can be applied.
 
 A child's events arrive with `source` and are never applied to the parent
 conversation. `session` folds them into a per-child trace with the same round
@@ -271,12 +272,19 @@ The client reports the matching failure; it cannot fix any of them.
 - Follow-up queue. `POST /input` returns when the text has been accepted, not
   when the turn ends. Another `POST /input` while a turn or compaction is
   running is queued. Empty text releases the queue. The snapshot and
-  `queue.changed` list every waiting item, oldest first. `prompt-history.loaded`
+  `queue.changed` list every waiting item, oldest first. Deferred `/clear`,
+  `/resume`, and `/fork` stay at the front of that list. `prompt-history.loaded`
   is sent once, at session start, so prompts submitted later are remembered
-  only in the page. `TryRetractQueued` is excluded from the server wire, so
-  the client cannot put one queued follow-up back into the composer. Ctrl+C
-  with a non-empty queue and an empty composer does nothing: an interrupt
-  would send the queue instead of returning the newest item.
+  only in the page. `POST /queue/retract` returns the newest follow-up, raw
+  text with trusted image markers kept. It does not interrupt, and a deferred
+  `/clear`, `/resume`, or `/fork` stays queued. `queue.changed` then goes to
+  every client. Ctrl+C in an empty composer calls it when `GET /info` lists
+  the route, and puts that text in the box. When the route is absent, that
+  key does nothing while the queue is non-empty, because an interrupt sends
+  the queue. A retract in flight ignores repeated Ctrl+C; with a non-empty
+  draft and a remaining queue, Ctrl+C leaves both alone. A retract that returns
+  after the operator starts typing is kept as a recoverable draft. Failed
+  concurrent submissions are likewise retained individually until restored.
 - The composer and session settings share the mode choices from the server's
   `/mode` arguments. Work and Plan appear first when offered, in that order.
   Custom modes follow in server order.

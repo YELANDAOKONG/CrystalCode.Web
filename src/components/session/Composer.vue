@@ -29,6 +29,8 @@ const choice = ref(0)
 const historyIndex = ref<number | null>(null)
 const savedDraft = ref('')
 const remembered = ref<string[]>([])
+const recovered = ref<{ id: number; text: string }[]>([])
+let recoveryId = 0
 // True while the box is being filled from history, so that fill is not an edit.
 let fromHistory = false
 
@@ -100,7 +102,21 @@ async function submit(): Promise<void> {
   const result = await server.send(value)
   if (ticket === latestSend) awaiting.value = false
   // A refused input (the reason arrives as an error notice) keeps its text.
-  if (ticket === latestSend && (!result || !result.accepted) && text.value === '') text.value = value
+  if (!result || !result.accepted) keepDraft(value)
+}
+
+function keepDraft(value: string): void {
+  if (text.value === '') text.value = value
+  else recovered.value.push({ id: ++recoveryId, text: value })
+}
+
+function restoreDraft(id: number): void {
+  if (text.value !== '') return
+  const draft = recovered.value.find((item) => item.id === id)
+  if (!draft) return
+  recovered.value = recovered.value.filter((item) => item.id !== id)
+  showHistory(null, draft.text, 'end')
+  void nextTick(() => element()?.focus())
 }
 
 function element(): HTMLTextAreaElement | null {
@@ -131,11 +147,26 @@ function onLastLine(area: HTMLTextAreaElement): boolean {
 }
 
 // Ctrl+C matches the terminal where the server allows it. A selection still
-// copies. One queued item cannot be popped: the wire has no retract.
-function onCancel(): void {
-  if (blocked.value) return
+// copies. An empty box takes the newest follow-up back before it recalls or
+// interrupts. A deferred /clear, /resume, or /fork stays queued.
+async function onCancel(): Promise<void> {
+  if (blocked.value || acting('retract')) return
+  if (text.value.length === 0 && model.queue.length > 0) {
+    // Interrupt would send the queue. Without retract, leave it alone.
+    if (!server.can('POST /queue/retract')) return
+    const popped = await track('retract', () => server.retractQueue())
+    if (!popped) return
+    if (popped.retracted && popped.text !== null) {
+      if (text.value === '') showHistory(null, popped.text, 'end')
+      else recovered.value.push({ id: ++recoveryId, text: popped.text })
+      if (!fullOpen.value) void nextTick(() => element()?.focus())
+      return
+    }
+  }
+
   const empty = text.value.length === 0
-  if (empty && model.queue.length > 0) return
+  // A second press after a retract must not interrupt and release the rest.
+  if (!empty && model.queue.length > 0) return
   if (empty && busy.value) {
     void recallOrStop()
     return
@@ -152,7 +183,9 @@ function onCancel(): void {
 async function recallOrStop(): Promise<void> {
   const recalled = await server.recall()
   if (recalled) return
-  if (text.value.length === 0 && model.queue.length === 0 && busy.value) void server.interrupt()
+  // Follow-up text is already gone. A deferred /clear, /resume, or /fork may
+  // still be listed, and stopping the turn is what lets it run.
+  if (text.value.length === 0 && busy.value) void server.interrupt()
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -162,7 +195,7 @@ function onKeydown(event: KeyboardEvent): void {
   if (event.ctrlKey && !event.metaKey && !event.altKey && event.code === 'KeyC') {
     if (area.selectionStart !== area.selectionEnd) return
     event.preventDefault()
-    onCancel()
+    void onCancel()
     return
   }
 
@@ -353,6 +386,15 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
       <div class="bg-card focus-within:ring-ring rounded-xl border focus-within:ring-2">
+        <div v-if="recovered.length" class="border-b px-3 py-2" role="status">
+          <p class="text-muted-foreground mb-1 text-xs font-medium">{{ t('composer.recovered') }}</p>
+          <ul class="max-h-36 space-y-1 overflow-y-auto">
+            <li v-for="item in recovered" :key="item.id" class="flex items-center gap-2 text-sm">
+              <span class="min-w-0 flex-1 truncate" :title="item.text">{{ item.text }}</span>
+              <Button variant="outline" size="sm" :disabled="text !== '' || blocked" @click="restoreDraft(item.id)">{{ t('composer.restore') }}</Button>
+            </li>
+          </ul>
+        </div>
         <div v-if="model.queue.length" class="border-b px-3 py-2">
           <p class="text-muted-foreground mb-1 text-xs font-medium">{{ t('composer.queued', { count: model.queue.length }) }}</p>
           <ol class="max-h-36 space-y-1 overflow-y-auto" :aria-label="t('composer.queued', { count: model.queue.length })">

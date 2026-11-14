@@ -131,6 +131,8 @@ export const zhTw: Record<MessageKey, string> = {
   'composer.placeholder.busy': 'Crystal Code 正在處理。你的訊息會進入佇列。',
   'composer.readonly': '此權杖只能觀察。傳送需要 operate 權限。',
   'composer.send': '傳送',
+  'composer.recovered': '待還原的草稿',
+  'composer.restore': '還原',
   'composer.stop': '停止',
   'composer.queued': '{count} 則排隊',
   'composer.queue.release': '輸入框空白時按 Enter，立即傳送這些訊息。',

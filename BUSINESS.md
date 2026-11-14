@@ -97,10 +97,15 @@ Session:
   follow-ups can wait, and the composer lists each one. Empty text releases
   the queue. Up and Down at the edge of the box walk prompt history, including
   prompts sent on this page. Ctrl+C with no selection clears the box when
-  idle, recalls the turn's message before the model has shown output, and
-  otherwise interrupts. A selection still copies. Popping one queued follow-up
-  back needs a server endpoint the wire does not have. Interrupt, recall, and
-  switch modes. The composer and session settings list Work and Plan first,
+  idle, takes the newest queued follow-up back into the box when the server
+  lists `POST /queue/retract`, recalls the turn's message before the model
+  has shown output, and otherwise interrupts. A selection still copies. A
+  deferred `/clear`, `/resume`, or `/fork` stays queued. On a server without
+  that route, Ctrl+C does nothing while a follow-up is queued. Repeated Ctrl+C
+  cannot interrupt and release the remaining queue while a draft is in the
+  box. Failed submissions and retracted text that cannot fit in the box stay
+  available as separate drafts to restore. Interrupt,
+  recall, and switch modes. The composer and session settings list Work and Plan first,
   followed by custom modes.
 - Toggle verbose targets and report draft changes, as the terminal does.
 - Run every slash command the server lists. Reports (`report.help`,
@@ -303,8 +308,9 @@ received and is not translated. Interface text contains no emoji.
 - How the terminal shortcuts (Tab and Shift+Tab mode cycle, F6 quick prompts,
   F7 child picker, Ctrl+O and Ctrl+G verbose) map to the browser, where several
   are reserved by the browser. Ctrl+C in the composer is mapped: a selection
-  copies; otherwise it clears, recalls, or interrupts. It does not exit the
-  server, and it cannot pop one queued follow-up until the server exposes that.
+  copies; otherwise it clears, takes back the newest queued follow-up, recalls,
+  or interrupts. It does not exit the server. A server that does not list
+  `POST /queue/retract` still cannot pop one queued follow-up.
 - The scheme to assume when the operator types `host:port` with no scheme.
   Recommended default: `https://`, with the scheme shown and editable, because
   the hosted page is HTTPS and an `http://` guess would be blocked.

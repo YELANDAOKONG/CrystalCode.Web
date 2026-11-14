@@ -246,6 +246,12 @@ export class CrystalClient {
     return bool(asObject(await this.json('POST', '/recall', {}, signal)).recalled)
   }
 
+  /** The newest queued follow-up, or null when the queue has none. Does not interrupt. */
+  async retractQueue(signal?: AbortSignal): Promise<{ retracted: boolean; text: string | null }> {
+    const body = asObject(await this.json('POST', '/queue/retract', {}, signal))
+    return { retracted: bool(body.retracted), text: optStr(body.text) }
+  }
+
   async setMode(
     action: 'cycle' | 'toggle-plan' | 'set',
     name: string | undefined,

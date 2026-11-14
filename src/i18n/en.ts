@@ -130,6 +130,8 @@ export const en = {
   'composer.placeholder.busy': 'Crystal Code is working. Your message waits in the queue.',
   'composer.readonly': 'This token can only observe. Sending needs the operate scope.',
   'composer.send': 'Send',
+  'composer.recovered': 'Drafts to restore',
+  'composer.restore': 'Restore',
   'composer.stop': 'Stop',
   'composer.queued': '{count} queued',
   'composer.queue.release': 'Enter in an empty box sends these now.',
