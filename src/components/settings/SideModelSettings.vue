@@ -155,7 +155,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
     </div>
     <div :class="enabledOption ? 'bg-muted/40 mt-3 rounded-md px-3 sm:px-4' : ''">
     <SettingRow :label="enabledOption ? t('settings.model') : title" :help="enabledOption ? undefined : help" :note="note" :label-for="id('model')">
-      <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
+      <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" searchable :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>
 
     <div v-if="thinking || tier || speed || context || extended" :class="enabledOption ? 'border-t' : 'border-l-2 pl-4'">

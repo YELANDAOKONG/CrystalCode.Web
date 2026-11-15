@@ -13,6 +13,8 @@ const props = defineProps<{
   /** A change is on its way. The control keeps its value, shows a spinner, and ignores input. */
   loading?: boolean
   placeholder?: string
+  /** Offer the search box even for a short list, such as a model choice. */
+  searchable?: boolean
 }>()
 const emit = defineEmits<{ change: [value: string] }>()
 
@@ -23,7 +25,7 @@ const value = computed(() => props.modelValue)
 // A Select mounts every entry even while closed, so a catalog with hundreds of
 // models froze the page. Long lists use a control that mounts on demand.
 const LONG = 40
-const long = computed(() => props.options.length > LONG)
+const long = computed(() => props.searchable || props.options.length > LONG)
 
 // Entries without a group come first, then one labelled group per provider.
 const groups = computed(() => {
