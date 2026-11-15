@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
+import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -21,6 +22,13 @@ const TABS = [
   ['interface', 'settings.tab.interface'],
   ['server', 'settings.tab.server'],
 ] as const
+// Where a tab's choices live, so the operator knows what a change reaches.
+const SCOPE = {
+  session: 'settings.scope.server',
+  display: 'settings.scope.server',
+  interface: 'settings.scope.browser',
+} as const
+const scope = computed(() => SCOPE[tab.value as keyof typeof SCOPE])
 const saved = loadPreference('settings-tab')
 const tab = ref(TABS.some(([id]) => id === saved) ? (saved as string) : 'session')
 const list = ref<{ $el: HTMLElement } | null>(null)
@@ -83,6 +91,7 @@ watch(saving, (now, before) => {
           </TabsList>
         </div>
         <div class="min-h-0 min-w-0 flex-1 overflow-y-auto py-1 pr-2 pb-[max(1rem,env(safe-area-inset-bottom))]" :class="wide ? '' : 'py-4 pr-1'">
+          <Badge v-if="scope" variant="outline" class="text-muted-foreground mb-2">{{ t(scope) }}</Badge>
           <TabsContent value="session" class="mt-0"><SessionSettings /></TabsContent>
           <TabsContent value="display" class="mt-0"><DisplaySettings /></TabsContent>
           <TabsContent value="interface" class="mt-0"><InterfaceSettings /></TabsContent>

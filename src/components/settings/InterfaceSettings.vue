@@ -25,7 +25,6 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
 
 <template>
   <div class="divide-y">
-    <p class="text-muted-foreground pb-3 text-xs">{{ t('settings.interface.help') }}</p>
     <SettingRow :label="t('settings.language')" label-for="set-language">
       <ChoiceSelect id="set-language" :options="localeOptions" :model-value="locale" @change="(v) => setLocale(v as Locale)" />
     </SettingRow>
