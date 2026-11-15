@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { t, type MessageKey } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
@@ -30,7 +31,7 @@ const CHOICE_LABELS: Record<string, MessageKey> = {
   deny: 'interaction.approval.deny',
 }
 
-const needsAdmin = computed(() => props.interaction.kind === 'trust')
+const needsAdmin = computed(() => props.interaction.kind === 'trust' || props.interaction.kind === 'login')
 const allowed = computed(() => canOperate.value && (!needsAdmin.value || isAdmin.value))
 const disabled = computed(() => busy.value || !allowed.value)
 
@@ -59,6 +60,8 @@ const title = computed<MessageKey>(() => {
       return 'interaction.session.title'
     case 'choose_child':
       return 'interaction.child.title'
+    case 'login':
+      return 'interaction.login.title'
     default:
       return 'interaction.pending'
   }
@@ -70,6 +73,16 @@ const question = computed(() => (props.interaction.kind === 'question' ? (props.
 const trust = computed(() => (props.interaction.kind === 'trust' ? (props.interaction as Extract<Interaction, { kind: 'trust' }>) : null))
 const sessions = computed(() => (props.interaction.kind === 'choose_session' ? (props.interaction as Extract<Interaction, { kind: 'choose_session' }>) : null))
 const children = computed(() => (props.interaction.kind === 'choose_child' ? (props.interaction as Extract<Interaction, { kind: 'choose_child' }>) : null))
+const login = computed(() => (props.interaction.kind === 'login' ? (props.interaction as Extract<Interaction, { kind: 'login' }>) : null))
+const loginAddress = ref('')
+const loginLink = computed(() => {
+  try {
+    const url = new URL(login.value?.link ?? '')
+    return (url.protocol === 'https:' || url.protocol === 'http:') && !url.username && !url.password ? url.href : null
+  } catch {
+    return null
+  }
+})
 </script>
 
 <template>
@@ -180,6 +193,22 @@ const children = computed(() => (props.interaction.kind === 'choose_child' ? (pr
         <div class="flex justify-end">
           <Button variant="ghost" :disabled="disabled" @click="answer({ childId: null })">{{ t('interaction.decline') }}</Button>
         </div>
+      </div>
+
+      <div v-else-if="login" class="space-y-3 text-sm">
+        <p class="font-medium break-words">{{ login.provider }}</p>
+        <p v-for="(step, index) in login.steps" :key="index" class="whitespace-pre-wrap break-words">{{ step }}</p>
+        <a v-if="loginLink && allowed" :href="loginLink" target="_blank" rel="noopener noreferrer" class="text-primary block break-all underline underline-offset-4">{{ login.linkLabel || loginLink }}</a>
+        <p v-else-if="login.link && !loginLink" class="text-destructive">{{ t('interaction.login.invalidLink') }}</p>
+        <p class="text-muted-foreground">{{ t('interaction.login.hint') }}</p>
+        <form class="space-y-3" @submit.prevent="answer({ address: loginAddress.trim() })">
+          <label for="login-address" class="block whitespace-pre-wrap">{{ login.prompt || t('interaction.login.address') }}</label>
+          <Input id="login-address" v-model="loginAddress" type="url" autocomplete="off" :disabled="disabled" />
+          <div class="flex justify-end gap-2">
+            <Button type="button" variant="outline" :disabled="disabled" @click="answer({ cancelled: true })">{{ t('common.cancel') }}</Button>
+            <Button type="submit" :disabled="disabled || !loginAddress.trim()">{{ t('interaction.login.submit') }}</Button>
+          </div>
+        </form>
       </div>
 
       <p v-else class="text-sm">{{ t('interaction.unknown', { kind: interaction.kind }) }}</p>

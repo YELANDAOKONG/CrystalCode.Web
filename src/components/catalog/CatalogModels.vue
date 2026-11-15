@@ -100,7 +100,7 @@ async function use(entry: ModelEntry): Promise<void> {
             <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
               <span class="break-all">{{ entry.model }}</span>
               <Badge v-if="entry.current">{{ t('catalog.models.current') }}</Badge>
-              <Badge v-if="!entry.credentialReady" variant="outline" class="text-warn border-warn-line">{{ t('catalog.models.noCredential') }}</Badge>
+              <Badge v-if="!entry.credentialReady" variant="outline" class="text-warn border-warn-line">{{ t(entry.type === 'authentication' ? 'catalog.models.notSignedIn' : 'catalog.models.noCredential') }}</Badge>
             </p>
             <p class="text-muted-foreground mt-0.5 text-xs">{{ entry.protocol }}<template v-if="traits(entry)"> · {{ traits(entry) }}</template></p>
           </div>

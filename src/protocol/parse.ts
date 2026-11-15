@@ -391,6 +391,8 @@ export function parseInteraction(value: unknown): Interaction {
       }
     case 'choose_child':
       return { ...base, kind: 'choose_child', children: arr(p.children).map(parseChild) }
+    case 'login':
+      return { ...base, kind: 'login', provider: str(p.provider), steps: strings(p.steps), linkLabel: optStr(p.linkLabel), link: optStr(p.link), prompt: str(p.prompt) }
     default:
       return { ...base, kind: str(o.kind, 'unknown') }
   }
@@ -681,6 +683,7 @@ export function parseModelCatalog(data: unknown): ModelCatalog {
         provider: str(m.provider),
         model: str(m.model),
         protocol: str(m.protocol),
+        type: str(m.type),
         current: bool(m.current),
         credentialReady: bool(m.credentialReady),
         contextWindows: arr(m.contextWindows).filter((w): w is number => typeof w === 'number'),

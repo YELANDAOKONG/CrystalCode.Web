@@ -151,7 +151,7 @@ change. Start the server with the options in `../CrystalCode/docs/server.md`
 and cover the cases that apply:
 
 - loopback, with the generated token and with `--auth none`;
-- a LAN address with `--listen 0.0.0.0:<port>` and `--allow-host <lan-address>`;
+- a LAN IP address with `--listen 0.0.0.0:<port>`;
 - the page served from a different origin than the server, with that origin
   in `--allow-origin`, and a missing `--allow-origin` and `--allow-host` to
   confirm the checklist names both flags and the page origin;

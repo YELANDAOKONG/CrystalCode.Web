@@ -194,6 +194,15 @@ export class SessionModel {
         else if (isActivityStep(this.step)) this.setStep(this.turnActive ? { kind: 'waiting' } : null)
         break
       }
+      case 'loading.progressed': {
+        const category = str(d.kind)
+        const name = str(d.name)
+        if (name && (this.activity === 'loading_tools' || this.activity === 'loading_plugins') &&
+          (category === 'tool_set' || category === 'plugin' || category === 'mcp_server')) {
+          this.setStep({ kind: 'loading-item', category, name })
+        }
+        break
+      }
       case 'queue.changed':
         this.queue = arr(d.items).filter((e): e is string => typeof e === 'string')
         break

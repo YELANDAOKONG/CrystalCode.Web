@@ -253,6 +253,7 @@ export type InteractionPayload =
   | { kind: 'trust'; workspace: string; trustRoot: string; coversRepository: boolean }
   | { kind: 'choose_session'; currentId: string | null; listWorkspace: boolean; sessions: SessionSummary[] }
   | { kind: 'choose_child'; children: ChildSummary[] }
+  | { kind: 'login'; provider: string; steps: string[]; linkLabel: string | null; link: string | null; prompt: string }
   | { kind: string }
 
 export type Interaction = { id: string; target: string | null } & InteractionPayload
@@ -481,6 +482,7 @@ export interface ModelEntry {
   provider: string
   model: string
   protocol: string
+  type: string
   current: boolean
   credentialReady: boolean
   contextWindows: number[]

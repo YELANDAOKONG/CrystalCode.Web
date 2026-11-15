@@ -43,15 +43,15 @@ does not start, install, or manage one.
 | Server | A running `crystal server` process. One server hosts one active session. |
 | Client | One browser page of this project, identified to the server by `X-Crystal-Client`. |
 | Scope | `observe`, `operate`, or `admin`. Granted to a token by the server. |
-| Interaction | A question the server needs an operator to answer: `approval`, `question`, `trust`, `choose_session`, `choose_child`. |
+| Interaction | A question the server needs an operator to answer: `approval`, `question`, `trust`, `choose_session`, `choose_child`, or `login`. |
 | Snapshot | The state returned by `GET /snapshot`. Authoritative for redraw. |
 
 ## Current product
 
-Current: a Vue 3 + TypeScript + Vite + Tailwind 4 scaffold. `src/App.vue`
-renders the starter `HelloWorld` component. There is no connection code, no
-protocol code, and no test framework. `pnpm build` passes. Nothing in the
-Planned list below exists.
+Current: a Vue 3 + TypeScript + Vite + Tailwind 4 client with connection,
+protocol, session, and interface implementations. There is no test framework.
+The planned capabilities below are the acceptance target, not a claim that
+every item has been verified against the current server.
 
 ## Planned product (first release)
 
@@ -159,7 +159,10 @@ Session:
   that opens mid-run misses the earlier steps and says so; they appear when
   the child finishes.
 - Export the conversation as Markdown or JSON through `GET /export`.
-- Answer all five interaction kinds. An approval shows the call, its
+- Answer all six interaction kinds. For account login, an admin can open the
+  server-provided HTTP(S) link by explicit click, submit the final browser
+  address, or cancel. The address contains a one-time code and is not stored
+  or logged. An approval shows the call, its
   classification, the primary and extended review verdicts, and only the
   choices the server offers.
 - Admin features when the token has the scope: issue and revoke tokens, and
@@ -257,9 +260,10 @@ Forbidden:
 - Putting a long-lived token in a URL.
 - Rendering model output, server text, or tool output as HTML.
 - Fetching remote images named in model Markdown automatically.
-- Any request to a host other than the server the operator entered and the
-  site that served the page. This includes web fonts, analytics, and icon
-  CDNs.
+- Automatic requests to a host other than the server the operator entered and
+  the site that served the page. This includes web fonts, analytics, and icon
+  CDNs. A user-initiated navigation to a server-provided sign-in link is the
+  sole exception.
 - Connecting, or filling an address or token, from the page URL.
 - Changing `../CrystalCode` from this repository.
 

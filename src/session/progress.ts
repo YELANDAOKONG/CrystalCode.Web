@@ -18,6 +18,7 @@ export type Step =
   | { kind: 'naming-topic' }
   | { kind: 'loading-tools' }
   | { kind: 'loading-plugins' }
+  | { kind: 'loading-item'; category: 'tool_set' | 'plugin' | 'mcp_server'; name: string }
   | { kind: 'checking-objective' }
   | { kind: 'waiting-task' }
 
@@ -57,6 +58,7 @@ const ACTIVITY_STEPS = new Set<Step['kind']>([
   'naming-topic',
   'loading-tools',
   'loading-plugins',
+  'loading-item',
   'checking-objective',
   'waiting-task',
 ])
@@ -81,6 +83,7 @@ export function stepFromSnapshot(activity: string, turnActive: boolean, live: Li
 export function sameStep(a: Step | null, b: Step | null): boolean {
   if (a === null || b === null) return a === b
   if (a.kind !== b.kind) return false
+  if (a.kind === 'loading-item' && b.kind === 'loading-item') return a.category === b.category && a.name === b.name
   if ((a.kind === 'calling' || a.kind === 'running') && (b.kind === 'calling' || b.kind === 'running')) {
     return a.name === b.name
   }
@@ -145,6 +148,10 @@ export function describeProgress(step: Step | null, interactions: Interaction[],
       return plain('progress.loadingTools')
     case 'loading-plugins':
       return plain('progress.loadingPlugins')
+    case 'loading-item': {
+      const key = step.category === 'tool_set' ? 'progress.loadingToolSet' : step.category === 'plugin' ? 'progress.loadingPlugin' : 'progress.loadingMcp'
+      return { id: `${step.category}:${step.name}`, key, params: { name: step.name }, countdown: null }
+    }
     case 'checking-objective':
       return plain('progress.checkingObjective')
     case 'waiting-task':

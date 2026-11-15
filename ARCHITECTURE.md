@@ -1,8 +1,7 @@
 # Architecture
 
-Describes the intended structure of Crystal Code Web. Today only the
-scaffold exists (see [BUSINESS.md](BUSINESS.md)); everything below is Planned
-unless marked Current. Product scope is in `BUSINESS.md`.
+Describes the structure and constraints of Crystal Code Web. Product scope is
+in [BUSINESS.md](BUSINESS.md).
 
 ## Position
 
@@ -14,7 +13,8 @@ works when the same build is served from another static host.
 It talks to one `crystal server` at a time over HTTP and server-sent events.
 There is no server-side code in this repository, no proxy, and no shared
 process with the server. Every request goes from the operator's browser
-straight to the address the operator entered.
+straight to the address the operator entered. An operator may also explicitly
+open a server-provided sign-in link in a separate browser tab.
 
 The wire contract belongs to `../CrystalCode` (`docs/server.md`). The client
 adapts to the server and never the reverse.
@@ -207,6 +207,10 @@ The deployment must not weaken this:
   confirmed. A link, a query parameter, or a fragment never pre-fills and
   connects. Otherwise a crafted link could send a token to an attacker's
   server.
+- A login interaction may expose a server-provided HTTP(S) sign-in link only
+  for an explicit admin click, in a separate tab without a referrer or opener.
+  The callback address contains a one-time code and stays in the dialog until
+  submitted to the selected server or dismissed; it is not stored or logged.
 - Because any operator-chosen server can return arbitrary content, every
   server-supplied string is untrusted (see Invariants).
 
@@ -231,11 +235,10 @@ The client reports the matching failure; it cannot fix any of them.
   combined checklist, including the exact `--allow-origin` flag with the
   page's `window.location.origin`, and does not claim one cause. A readable
   421 is reported on its own: the server needs that address in `--allow-host`.
-- The `Host` header must name `localhost`, `127.0.0.1`, `::1`, a
-  specific (non-wildcard) listen address, or an `--allow-host` value
-  (`CrystalServer.cs`). Otherwise 421. A server on `0.0.0.0` reached by a LAN
-  address or a public name, or through a reverse proxy that keeps the original
-  Host, needs that name in `--allow-host`.
+- The `Host` header must name `localhost`, an IP literal, or an `--allow-host`
+  value (`AccessGuard.cs`). Otherwise 421. A server reached by a DNS name,
+  including through a reverse proxy that preserves Host, needs that name in
+  `--allow-host`. A LAN IP literal does not.
 - Preflight allows only these request headers: `Authorization`,
   `Content-Type`, `X-Crystal-Client`, `Last-Event-ID`. Allowed methods: GET,
   POST, PUT, DELETE, OPTIONS. The client sends no other custom header.
@@ -258,8 +261,10 @@ The client reports the matching failure; it cannot fix any of them.
   matter for older browsers; not verified.
 - `--allow-origin` and `--allow-host` also live in `config.json` under
   `server` (`allowOrigins`, `allowHosts`). The client may show either form.
-- Progress. `activity.changed` reports only `loading_tools`,
-  `loading_plugins`, `compacting`, `waiting_for_model`, and `idle`. The
+- Progress. `activity.changed` reports loading, compaction, topic naming,
+  model waiting, pursue, and idle activities. `loading.progressed` names the
+  tool set, plugin, or MCP server being loaded; a snapshot retains only the
+  activity, so the name is unavailable after refresh until another event. The
   progress row reads everything else from events the way the terminal does
   (`SessionRenderer`, `ProgressText`): `stream.reasoning` is Thinking,
   `stream.text` is Writing, `stream.tool-call` is Calling, `tools.called` and
