@@ -141,7 +141,6 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
 
 <template>
   <div class="divide-y">
-    <p v-if="locked" class="text-muted-foreground pb-3 text-sm">{{ t('settings.readonly') }}</p>
     <h3 class="text-muted-foreground pb-1 text-xs font-medium tracking-wide uppercase">{{ t('settings.group.session') }}</h3>
 
     <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" :note="pendingMode" label-for="set-mode">

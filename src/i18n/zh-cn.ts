@@ -641,6 +641,7 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.document.help': '仅作配置，暂不描述文档。',
   'settings.model.disabled.help': '关闭时仍可编辑已保存的模型及其设置。',
   'settings.model.selectFirst': '请先选择模型，再启用。',
+  'settings.saving': '正在保存…',
   'settings.group.session': '会话',
   'settings.group.side': '辅助模型',
   'settings.tuning.show': '显示调节项',

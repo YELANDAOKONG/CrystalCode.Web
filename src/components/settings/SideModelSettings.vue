@@ -156,7 +156,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
         <Switch :id="id('enabled')" :aria-label="switchTitle" :model-value="enabledOption.current === 'on'" :aria-busy="busy(enabledOption.id) || undefined" :disabled="locked || busy(enabledOption.id) || (enabledOption.current === 'off' && modelOption.current === 'unset')" @update:model-value="(on) => set(enabledOption, on === true)" />
       </div>
     </div>
-    <div :class="enabledOption ? 'bg-muted/40 mt-3 rounded-md px-3 sm:px-4' : ''">
+    <div :class="enabledOption ? 'mt-2 border-l-2 pl-4' : ''">
     <SettingRow :label="enabledOption ? t('settings.model') : title" :help="enabledOption ? undefined : help" :note="note" :label-for="id('model')">
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" searchable :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>
@@ -172,7 +172,7 @@ const run = (key: string, command: string) => void track(key, () => server.send(
       <ChevronDown class="size-4 transition-transform motion-reduce:transition-none" :class="tuningOpen ? 'rotate-180' : ''" aria-hidden="true" />
       {{ tuningOpen ? t('settings.tuning.hide') : t('settings.tuning.show') }}
     </button>
-    <div v-if="thinking || tier || speed || context || extended" v-show="tuningOpen" :id="id('tuning')" :class="enabledOption ? 'border-t' : 'border-l-2 pl-4'">
+    <div v-if="thinking || tier || speed || context || extended" v-show="tuningOpen" :id="id('tuning')" class="border-l-2 pl-4">
       <SettingRow v-if="thinking" :label="t('settings.thinking')" :label-for="id('thinking')">
         <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="busyLocked ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
       </SettingRow>

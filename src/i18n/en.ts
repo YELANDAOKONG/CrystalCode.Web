@@ -640,6 +640,7 @@ export const en = {
   'settings.document.help': 'Configuration only. Documents are not described yet.',
   'settings.model.disabled.help': 'The saved model and its settings can be edited while this is off.',
   'settings.model.selectFirst': 'Select a model before enabling.',
+  'settings.saving': 'Saving…',
   'settings.group.session': 'Session',
   'settings.group.side': 'Side models',
   'settings.tuning.show': 'Show tuning',

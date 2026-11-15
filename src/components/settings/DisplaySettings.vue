@@ -32,8 +32,6 @@ const setTokens = (on: boolean | 'indeterminate') => void server.send(`/tokens $
 
 <template>
   <div v-if="preferences" class="space-y-6">
-    <p v-if="!canOperate" class="text-muted-foreground text-sm">{{ t('settings.readonly') }}</p>
-
     <section aria-labelledby="verbose-heading">
       <h3 id="verbose-heading" class="text-sm font-medium">{{ t('settings.verbose') }}</h3>
       <p class="text-muted-foreground mt-0.5 mb-2 text-xs">{{ t('settings.verbose.help') }}</p>

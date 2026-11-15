@@ -105,7 +105,7 @@ watch(open, (now) => {
       >
         <span class="min-w-0 flex-1">
           <span v-if="provider" class="text-muted-foreground block truncate text-xs leading-4">{{ provider }}</span>
-          <span class="block leading-5 break-all">{{ label }}</span>
+          <span class="block leading-5 break-words">{{ label }}</span>
         </span>
         <Spinner v-if="loading" class="text-muted-foreground size-4 shrink-0 motion-reduce:animate-none" />
         <ChevronDown v-else class="size-4 shrink-0 opacity-50" />
@@ -144,7 +144,7 @@ watch(open, (now) => {
             @click="pick(row.option)"
             @mousemove="active = row.index"
           >
-            <span class="min-w-0 flex-1 break-all">{{ row.option.label }}</span>
+            <span class="min-w-0 flex-1 break-words">{{ row.option.label }}</span>
             <Check v-if="row.option.value === modelValue" class="size-4 shrink-0" aria-hidden="true" />
           </li>
         </template>
