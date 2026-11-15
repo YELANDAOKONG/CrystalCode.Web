@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { server } from '@/app/server'
-import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
@@ -143,6 +142,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
 <template>
   <div class="divide-y">
     <p v-if="locked" class="text-muted-foreground pb-3 text-sm">{{ t('settings.readonly') }}</p>
+    <h3 class="text-muted-foreground pb-1 text-xs font-medium tracking-wide uppercase">{{ t('settings.group.session') }}</h3>
 
     <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" :note="pendingMode" label-for="set-mode">
       <ChoiceSelect id="set-mode" :options="modes" :model-value="currentMode" :disabled="locked" :loading="busy('mode')" @change="setMode" />
@@ -266,6 +266,7 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
         </div>
       </SettingRow>
 
+      <h3 class="text-muted-foreground pt-4 pb-1 text-xs font-medium tracking-wide uppercase">{{ t('settings.group.side') }}</h3>
       <SideModelSettings slot="approval" />
       <SideModelSettings slot="extended" />
       <SideModelSettings slot="compaction" />
@@ -278,6 +279,5 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
     </template>
 
     <PursueSettings />
-    <Separator class="hidden" />
   </div>
 </template>

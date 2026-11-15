@@ -641,6 +641,10 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.document.help': '僅作設定，暫不描述文件。',
   'settings.model.disabled.help': '關閉時仍可編輯已儲存的模型及其設定。',
   'settings.model.selectFirst': '請先選擇模型，再啟用。',
+  'settings.group.session': '工作階段',
+  'settings.group.side': '輔助模型',
+  'settings.tuning.show': '顯示調整項',
+  'settings.tuning.hide': '隱藏調整項',
   'settings.compaction.help': '壓縮較早輪次時撰寫摘要。關閉後使用工作階段模型。',
   'settings.topic.help': '為工作階段命名的模型。即使命名已關閉，這些選擇也會儲存。',
 }

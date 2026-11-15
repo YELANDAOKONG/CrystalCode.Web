@@ -641,6 +641,10 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.document.help': '仅作配置，暂不描述文档。',
   'settings.model.disabled.help': '关闭时仍可编辑已保存的模型及其设置。',
   'settings.model.selectFirst': '请先选择模型，再启用。',
+  'settings.group.session': '会话',
+  'settings.group.side': '辅助模型',
+  'settings.tuning.show': '显示调节项',
+  'settings.tuning.hide': '隐藏调节项',
   'settings.compaction.help': '压缩较早轮次时撰写摘要。关闭后使用会话模型。',
   'settings.topic.help': '为会话命名的模型。即使命名已关闭，这些选择也会保存。',
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { ChevronDown } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
@@ -130,6 +131,8 @@ const note = computed(() =>
   !isAdmin.value && canOperate.value ? t('settings.adminOnly') : turnBusy.value && busyLocked.value ? t('settings.reviewer.busy') : undefined,
 )
 const id = (name: string) => `${ids.value.model}-${name}`
+// Thinking, tier, speed, and context stay folded until asked for.
+const tuningOpen = ref(false)
 
 // The extended reviewer also has a trigger level and a switch for showing it
 // the first verdict. The server offers them only as commands.
@@ -158,7 +161,18 @@ const run = (key: string, command: string) => void track(key, () => server.send(
       <ChoiceSelect :id="id('model')" :options="choices(modelOption, true)" searchable :model-value="modelOption.current" :disabled="modelLocked" :loading="busy(modelOption.id)" @change="(v) => set(modelOption, v)" />
     </SettingRow>
 
-    <div v-if="thinking || tier || speed || context || extended" :class="enabledOption ? 'border-t' : 'border-l-2 pl-4'">
+    <button
+      v-if="thinking || tier || speed || context || extended"
+      type="button"
+      class="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 mb-2 flex min-h-9 items-center gap-1 rounded-md text-xs outline-none focus-visible:ring-3"
+      :aria-expanded="tuningOpen"
+      :aria-controls="id('tuning')"
+      @click="tuningOpen = !tuningOpen"
+    >
+      <ChevronDown class="size-4 transition-transform motion-reduce:transition-none" :class="tuningOpen ? 'rotate-180' : ''" aria-hidden="true" />
+      {{ tuningOpen ? t('settings.tuning.hide') : t('settings.tuning.show') }}
+    </button>
+    <div v-if="thinking || tier || speed || context || extended" v-show="tuningOpen" :id="id('tuning')" :class="enabledOption ? 'border-t' : 'border-l-2 pl-4'">
       <SettingRow v-if="thinking" :label="t('settings.thinking')" :label-for="id('thinking')">
         <ChoiceSelect :id="id('thinking')" :options="choices(thinking)" :model-value="thinking.current" :disabled="busyLocked ? slotLocked : locked" :loading="busy(thinking.id)" @change="(v) => set(thinking, v)" />
       </SettingRow>

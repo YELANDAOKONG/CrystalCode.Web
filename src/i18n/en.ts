@@ -640,6 +640,10 @@ export const en = {
   'settings.document.help': 'Configuration only. Documents are not described yet.',
   'settings.model.disabled.help': 'The saved model and its settings can be edited while this is off.',
   'settings.model.selectFirst': 'Select a model before enabling.',
+  'settings.group.session': 'Session',
+  'settings.group.side': 'Side models',
+  'settings.tuning.show': 'Show tuning',
+  'settings.tuning.hide': 'Hide tuning',
   'settings.compaction.help': 'Writes the summary when older turns are compacted. When disabled, the session model is used.',
   'settings.topic.help': 'The model that names the session. These choices are saved even while naming is off.',
 } as const
