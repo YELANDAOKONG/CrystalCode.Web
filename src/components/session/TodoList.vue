@@ -29,7 +29,7 @@ function label(status: string): string {
       <li
         v-for="todo in model.todos"
         :key="todo.id"
-        class="flex items-start gap-2.5 rounded-md px-2 py-1.5 text-sm leading-snug"
+        class="relative flex items-start gap-2.5 rounded-md px-2 py-1.5 text-sm leading-snug"
         :class="todo.status === 'in_progress' ? 'bg-accent' : ''"
       >
         <CircleCheck v-if="todo.status === 'completed'" class="text-ok mt-px size-4 shrink-0" aria-hidden="true" />
