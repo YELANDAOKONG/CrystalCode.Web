@@ -38,8 +38,14 @@ const adminLocked = computed(() => !isAdmin.value)
 const modes = computed(() => modeChoices(commands.value))
 const approvals = computed(() => approvalModes(commands.value))
 const thinking = computed(() => toOptions(findArguments(commands.value, 'thinking')))
-const tiers = computed(() => toOptions(findArguments(commands.value, 'tier')))
-const speeds = computed(() => toOptions(findArguments(commands.value, 'speed')))
+// The server lists `unset` first for a model that has tiers or speeds, and
+// accepts it to clear the slot. The page words it the way side models do.
+const slotOptions = (name: string): Option[] =>
+  toOptions(findArguments(commands.value, name)).map((option) =>
+    option.value === 'unset' ? { ...option, label: t('settings.option.none') } : option,
+  )
+const tiers = computed(() => slotOptions('tier'))
+const speeds = computed(() => slotOptions('speed'))
 const windowOptions = computed(() => findArguments(commands.value, 'context'))
 const windows = computed<Option[]>(() =>
   windowOptions.value.map((option) => ({ value: option.name, label: option.name.toUpperCase(), help: option.help })),
@@ -66,8 +72,11 @@ const currentModel = computed(() => {
   return current ? modelOptions.value.find((option) => option.value === `${current.provider} ${current.model}`)?.value : undefined
 })
 const currentThinking = computed(() => currentByLabel(thinking.value, chrome.value?.thinking.replace(/^Think\s+/i, '') ?? ''))
-const currentTier = computed(() => currentByLabel(tiers.value, chrome.value?.serviceTier.replace(/^Tier\s+/i, '') ?? ''))
-const currentSpeed = computed(() => currentByLabel(speeds.value, chrome.value?.speed.replace(/^Speed\s+/i, '') ?? ''))
+// The status bar shows a blank label for an unset slot.
+const currentSlot = (options: Option[], shown: string | undefined, prefix: RegExp): string | undefined =>
+  shown === undefined ? undefined : shown === '' ? 'unset' : currentByLabel(options, shown.replace(prefix, ''))
+const currentTier = computed(() => currentSlot(tiers.value, chrome.value?.serviceTier, /^Tier\s+/i))
+const currentSpeed = computed(() => currentSlot(speeds.value, chrome.value?.speed, /^Speed\s+/i))
 const currentWindow = computed(() => currentWindowOption(windowOptions.value, chrome.value))
 
 // The engine reports the outcome as a note or an error in the conversation, and

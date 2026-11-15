@@ -59,8 +59,10 @@ const OFF_LABEL: Record<string, MessageKey> = {
   video: 'settings.off.resource',
 }
 
+// A value with no command cannot be chosen. The server lists it only while it
+// is the current value, so keep it visible but never offer it as a change.
 function choices(option: SessionOption | undefined, models = false): Option[] {
-  return (option?.values ?? []).filter((value) => value.value !== 'unset' || option?.current === 'unset').map((value) => {
+  return (option?.values ?? []).filter((value) => value.command !== '' || value.value === option?.current).map((value) => {
     const special = models && (value.value === 'off' || value.value === 'session')
     return {
       value: value.value,
@@ -103,7 +105,7 @@ const slotLocked = computed(() => locked.value || turnBusy.value)
 
 const { busy, run: track } = useBusy()
 const set = (option: SessionOption | undefined, value: string | boolean) => {
-  if (option && value !== 'unset') void track(option.id, () => server.setOption(option.id, value))
+  if (option) void track(option.id, () => server.setOption(option.id, value))
 }
 
 const TITLES = {

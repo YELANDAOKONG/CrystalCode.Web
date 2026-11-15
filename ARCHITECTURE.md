@@ -261,6 +261,11 @@ The client reports the matching failure; it cannot fix any of them.
   matter for older browsers; not verified.
 - `--allow-origin` and `--allow-host` also live in `config.json` under
   `server` (`allowOrigins`, `allowHosts`). The client may show either form.
+- Service tier and speed list `unset` first, and `/tier unset` or
+  `PUT /options/{id}` with `unset` clears the slot. `unset` is reserved and is
+  never a catalog token. A value with no command (an unconfigured model, or a
+  stored model that left the catalog) appears only while current and is never
+  offered as a change.
 - Progress. `activity.changed` reports loading, compaction, topic naming,
   model waiting, pursue, and idle activities. `loading.progressed` names the
   tool set, plugin, or MCP server being loaded; a snapshot retains only the
