@@ -293,6 +293,39 @@ html:lang(zh-TW) {
     margin-top: 0;
   }
 
+  /* A streaming reply ends in a blinking bar, so a pause in the text still reads
+     as the model working. The reduced-motion rule above stops the blink. */
+  .md-streaming > :last-child:not(pre):not(table):not(hr)::after {
+    content: '';
+    display: inline-block;
+    width: 0.5em;
+    height: 1.1em;
+    margin-left: 0.15em;
+    vertical-align: text-bottom;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0.55;
+    animation: md-caret 1s steps(1) infinite;
+  }
+
+  @keyframes md-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* A block that arrives after the page has loaded eases in. History does not. */
+  .block-enter {
+    animation: block-enter 0.22s ease-out;
+  }
+
+  @keyframes block-enter {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
   .md > :last-child {
     margin-bottom: 0;
   }

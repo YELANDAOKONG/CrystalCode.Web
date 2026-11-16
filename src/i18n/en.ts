@@ -89,6 +89,7 @@ export const en = {
   'session.image.failed': 'Image {number} could not be loaded.',
   'session.image.remote': 'Open remote image',
   'session.jump': 'Jump to latest',
+  'session.jump.new': 'New activity below',
   'session.notice.error': 'Error',
   'session.transcript': 'Conversation',
   'progress.waiting': 'Waiting for the model',

@@ -90,6 +90,7 @@ export const zhCn: Record<MessageKey, string> = {
   'session.image.failed': '无法加载图片 {number}。',
   'session.image.remote': '打开远程图片',
   'session.jump': '回到最新',
+  'session.jump.new': '下方有新内容',
   'session.notice.error': '错误',
   'session.transcript': '对话',
   'progress.waiting': '正在等待模型',

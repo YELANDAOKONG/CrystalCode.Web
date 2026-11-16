@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ArrowDown, CircleAlert } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
@@ -41,7 +41,7 @@ const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
 
 // Stick to the bottom only while the reader is already there. Once they scroll
 // up, streaming text must not pull them back down.
-const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
+const { bind, pinned, unseen, onScroll, toBottom } = useStickToBottom(() => [
   blocks.value.length,
   live.value?.text.length,
   live.value?.reasoning.length,
@@ -54,6 +54,18 @@ const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
 // Thinking before the newest thinking block folds, unless the reader opened it.
 const lastReasoningKey = computed(() => [...blocks.value].reverse().find((b) => b.kind === 'reasoning')?.key ?? null)
 const foldedReasoning = (key: string) => foldThinking.value && (!!live.value?.reasoning || key !== lastReasoningKey.value)
+
+// Blocks that were there when the page finished loading do not animate.
+const settled = ref(false)
+watch(
+  () => model.loaded,
+  (loaded) => {
+    if (loaded) requestAnimationFrame(() => (settled.value = true))
+    else settled.value = false
+  },
+  { immediate: true },
+)
+const enter = computed(() => (settled.value ? 'block-enter' : ''))
 
 const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !live.value && model.notices.length === 0)
 
@@ -75,7 +87,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
           <p class="text-muted-foreground text-center text-sm">{{ t('session.empty') }}</p>
         </div>
 
-        <template v-for="block in entries" :key="block.key">
+        <div v-for="block in entries" :key="block.key" class="flex min-w-0 flex-col" :class="enter">
           <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
 
           <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
@@ -101,7 +113,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
           </template>
 
           <ToolBlock v-else :call="block.call" :result="block.result" />
-        </template>
+        </div>
 
         <template v-if="live">
           <ReasoningBlock v-if="live.reasoning" :text="live.reasoning" streaming :default-open="thinkingOpen" :folded="false" />
@@ -141,7 +153,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
       @click="toBottom"
     >
       <ArrowDown class="size-4" />
-      {{ t('session.jump') }}
+      {{ unseen > 0 && live ? t('session.jump.new') : t('session.jump') }}
     </Button>
   </div>
 </template>

@@ -7,6 +7,8 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch, type WatchSource } fr
 export function useStickToBottom(source: WatchSource) {
   const scroller = ref<HTMLElement | null>(null)
   const pinned = ref(true)
+  // Updates that arrived while the reader was scrolled up.
+  const unseen = ref(0)
   let observer: ResizeObserver | null = null
 
   function distance(element: HTMLElement): number {
@@ -17,6 +19,7 @@ export function useStickToBottom(source: WatchSource) {
     const element = scroller.value
     if (!element) return
     pinned.value = distance(element) < 96
+    if (pinned.value) unseen.value = 0
   }
 
   function toBottom(): void {
@@ -24,10 +27,14 @@ export function useStickToBottom(source: WatchSource) {
     if (!element) return
     element.scrollTop = element.scrollHeight
     pinned.value = true
+    unseen.value = 0
   }
 
   watch(source, async () => {
-    if (!pinned.value) return
+    if (!pinned.value) {
+      unseen.value += 1
+      return
+    }
     await nextTick()
     // A scroll that started while this render was queued has to win.
     if (!pinned.value) return
@@ -57,5 +64,5 @@ export function useStickToBottom(source: WatchSource) {
     scroller.value = element instanceof HTMLElement ? element : null
   }
 
-  return { bind, pinned, onScroll, toBottom }
+  return { bind, pinned, unseen, onScroll, toBottom }
 }

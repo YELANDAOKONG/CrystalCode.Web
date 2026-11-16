@@ -90,6 +90,7 @@ export const zhTw: Record<MessageKey, string> = {
   'session.image.failed': '無法載入圖片 {number}。',
   'session.image.remote': '開啟遠端圖片',
   'session.jump': '回到最新',
+  'session.jump.new': '下方有新內容',
   'session.notice.error': '錯誤',
   'session.transcript': '對話',
   'progress.waiting': '正在等待模型',
