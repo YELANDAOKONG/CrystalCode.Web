@@ -66,11 +66,11 @@ watch(
 // What the archive does not hold yet. Once the child has stopped and the
 // archive is fresh, the trace repeats it, so it is hidden.
 const showTrace = computed(() => trace.value !== null && (running.value || !child.value?.archive))
-const { groupTools, quietTools } = useDisplayStyle()
-const archiveBlocks = computed(() => groupToolBlocks(toBlocks(child.value?.archive ?? []), groupTools.value))
-const traceBlocks = computed(() => groupToolBlocks(showTrace.value && trace.value ? toBlocks(trace.value.items) : [], groupTools.value))
+const { groupTools, groupSingleTool, quietTools } = useDisplayStyle()
+const archiveBlocks = computed(() => groupToolBlocks(toBlocks(child.value?.archive ?? []), groupTools.value, groupSingleTool.value))
+const traceBlocks = computed(() => groupToolBlocks(showTrace.value && trace.value ? toBlocks(trace.value.items) : [], groupTools.value, groupSingleTool.value))
 const liveTools = computed(() =>
-  groupToolBlocks((live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null })), groupTools.value),
+  groupToolBlocks((live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null })), groupTools.value, groupSingleTool.value),
 )
 const live = computed(() => (showTrace.value ? (trace.value?.live ?? null) : null))
 const retry = computed(() => {

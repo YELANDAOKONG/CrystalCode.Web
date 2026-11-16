@@ -70,8 +70,12 @@ export function foldRuns(list: GroupedBlock[], enabled: boolean): FoldedBlock[] 
   return entries
 }
 
-/** Folds two or more tool calls in a row into one entry. With `enabled` false every call keeps its own entry. */
-export function groupToolBlocks(list: Block[], enabled: boolean): GroupedBlock[] {
+/**
+ * Folds two or more tool calls in a row into one entry. With `enabled` false
+ * every call keeps its own entry. With `includeSingle` a lone call becomes a
+ * group of one.
+ */
+export function groupToolBlocks(list: Block[], enabled: boolean, includeSingle = false): GroupedBlock[] {
   if (!enabled) return list
   const entries: GroupedBlock[] = []
   for (const block of list) {
@@ -86,7 +90,8 @@ export function groupToolBlocks(list: Block[], enabled: boolean): GroupedBlock[]
       entries.push(block)
     }
   }
-  return entries
+  if (!includeSingle) return entries
+  return entries.map((entry) => (entry.kind === 'tool' ? { kind: 'toolgroup' as const, key: `g${entry.key}`, calls: [entry] } : entry))
 }
 
 /**

@@ -22,7 +22,7 @@ const model = server.model
 const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
-const { groupTools, foldRuns: foldRunsSetting, fadeIn } = useDisplayStyle()
+const { groupTools, groupSingleTool, foldRuns: foldRunsSetting, fadeIn } = useDisplayStyle()
 
 // The round still streaming is drawn with the saved blocks, so a run of
 // thinking and tool calls folds as one whether or not it has finished.
@@ -35,7 +35,7 @@ const liveBlocks = computed<Block[]>(() => {
   for (const call of current.toolCalls) list.push({ kind: 'tool', key: `live-${call.callId}`, call, result: null, running: true })
   return list
 })
-const entries = computed(() => foldRuns(groupToolBlocks([...blocks.value, ...liveBlocks.value], groupTools.value), foldRunsSetting.value))
+const entries = computed(() => foldRuns(groupToolBlocks([...blocks.value, ...liveBlocks.value], groupTools.value, groupSingleTool.value), foldRunsSetting.value))
 const retry = computed(() => {
   const current = live.value
   return current && current.retries > 0 ? retryLine(current.retries, current.retryMessage) : null

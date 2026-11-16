@@ -11,12 +11,13 @@ import SettingsGroup from './SettingsGroup.vue'
 
 const model = server.model
 const { canOperate, isAdmin } = server
-const { toolFolding, openLatestTool, foldThinking, foldRuns, setToolFolding, setOpenLatestTool, setFoldThinking, setFoldRuns } = useDisplayStyle()
+const { toolFolding, foldTools, foldThinking, foldRuns, setToolFolding, setFoldTools, setFoldThinking, setFoldRuns } = useDisplayStyle()
 
 const foldingOptions = (): { value: string; label: string; help: string }[] => [
   { value: 'each', label: t('settings.toolFolding.each'), help: '' },
   { value: 'group', label: t('settings.toolFolding.group'), help: '' },
-  { value: 'all', label: t('settings.toolFolding.all'), help: '' },
+  { value: 'line', label: t('settings.toolFolding.line'), help: '' },
+  { value: 'single-group', label: t('settings.toolFolding.singleGroup'), help: '' },
 ]
 
 // The wire names are the engine's `VerboseTarget` values.
@@ -74,9 +75,9 @@ const setTokens = (on: boolean | 'indeterminate') => void server.send(`/tokens $
       <SettingRow :label="t('settings.toolFolding')" :help="t('settings.toolFolding.help')" label-for="set-tool-folding">
         <ChoiceSelect id="set-tool-folding" :options="foldingOptions()" :model-value="toolFolding" @change="(v) => setToolFolding(v as ToolFolding)" />
       </SettingRow>
-      <SettingRow :label="t('settings.openLatestTool')" :help="t('settings.openLatestTool.help')" label-for="set-open-latest-tool">
+      <SettingRow :label="t('settings.foldTools')" :help="t('settings.foldTools.help')" label-for="set-fold-tools">
         <div class="flex items-center sm:justify-end">
-          <Switch id="set-open-latest-tool" :model-value="openLatestTool" @update:model-value="(value) => setOpenLatestTool(value === true)" />
+          <Switch id="set-fold-tools" :model-value="foldTools" @update:model-value="(value) => setFoldTools(value === true)" />
         </div>
       </SettingRow>
       <SettingRow :label="t('settings.foldThinking')" :help="t('settings.foldThinking.help')" label-for="set-fold-thinking">

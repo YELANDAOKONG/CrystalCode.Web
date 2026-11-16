@@ -1,17 +1,20 @@
 import { computed, ref } from 'vue'
 import { loadPreference, savePreference } from '@/connection/storage'
 
-// How tool calls are listed: one card each, two or more in a row folded into a
-// line, or every call folded, even a single one.
-export type ToolFolding = 'each' | 'group' | 'all'
-
 // The defaults are the compact look. The earlier, more literal layout is one
 // choice away: cards for tool calls, nothing opened or folded for the reader.
+//
+// How tool calls are listed: one card each; two or more in a row folded into a
+// group while a single call stays a card; the same with a single call as a
+// quiet line; or a single call also as a group of one.
+const TOOL_FOLDINGS = ['each', 'group', 'line', 'single-group'] as const
+export type ToolFolding = (typeof TOOL_FOLDINGS)[number]
 const stored = loadPreference('tool-grouping')
-const toolFolding = ref<ToolFolding>(stored === 'each' || stored === 'group' ? stored : 'all')
+const toolFolding = ref<ToolFolding>(TOOL_FOLDINGS.find((value) => value === stored) ?? 'line')
 const groupTools = computed(() => toolFolding.value !== 'each')
-const quietTools = computed(() => toolFolding.value === 'all')
-const openLatestTool = ref(loadPreference('tool-latest') !== 'keep')
+const quietTools = computed(() => toolFolding.value === 'line')
+const groupSingleTool = computed(() => toolFolding.value === 'single-group')
+const foldTools = ref(loadPreference('tool-latest') !== 'keep')
 const foldThinking = ref(loadPreference('thinking-fold') !== 'keep')
 // Off by default: it hides the most, so the reader turns it on.
 const foldRuns = ref(loadPreference('run-fold') === 'fold')
@@ -22,7 +25,8 @@ export function useDisplayStyle() {
     toolFolding,
     groupTools,
     quietTools,
-    openLatestTool,
+    groupSingleTool,
+    foldTools,
     foldThinking,
     foldRuns,
     fadeIn,
@@ -30,8 +34,8 @@ export function useDisplayStyle() {
       toolFolding.value = value
       savePreference('tool-grouping', value)
     },
-    setOpenLatestTool(value: boolean) {
-      openLatestTool.value = value
+    setFoldTools(value: boolean) {
+      foldTools.value = value
       savePreference('tool-latest', value ? 'open' : 'keep')
     },
     setFoldRuns(value: boolean) {

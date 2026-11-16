@@ -16,9 +16,9 @@ const props = defineProps<{
   latestTool: string | null
 }>()
 
-const { foldThinking, openLatestTool, quietTools } = useDisplayStyle()
+const { foldThinking, foldTools, quietTools } = useDisplayStyle()
 const thinkingOpen = computed(() => server.model.preferences?.verboseThinking ?? false)
-const toolOpen = computed(() => openLatestTool.value && props.step.key === props.latestTool)
+const toolOpen = computed(() => foldTools.value && props.step.key === props.latestTool)
 </script>
 
 <template>
