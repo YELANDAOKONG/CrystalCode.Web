@@ -11,23 +11,35 @@ const emit = defineEmits<{ submit: [answers: string[][]]; dismiss: [] }>()
 interface Entry {
   picked: string[]
   custom: string
+  customOn: boolean
 }
 
-const entries = reactive<Entry[]>(props.questions.map(() => ({ picked: [], custom: '' })))
+const entries = reactive<Entry[]>(props.questions.map(() => ({ picked: [], custom: '', customOn: false })))
 
 function toggle(entry: Entry, question: Question, label: string, on: boolean): void {
   if (!question.multiple) {
     entry.picked = on ? [label] : []
+    if (on) entry.customOn = false
     return
   }
 
   entry.picked = on ? [...entry.picked, label] : entry.picked.filter((item) => item !== label)
 }
 
-// A single-choice question takes the typed answer over a picked option.
+function toggleCustom(entry: Entry, question: Question, on: boolean): void {
+  entry.customOn = on
+  if (on && !question.multiple) entry.picked = []
+}
+
+// Typing into the custom field selects it.
+function typeCustom(entry: Entry, question: Question, value: string | number): void {
+  entry.custom = String(value)
+  if (entry.custom !== '' && !entry.customOn) toggleCustom(entry, question, true)
+}
+
 function answerFor(entry: Entry, question: Question): string[] {
   const custom = entry.custom.trim()
-  if (custom === '') return entry.picked
+  if (!question.custom || !entry.customOn || custom === '') return entry.picked
   return question.multiple ? [...entry.picked, custom] : [custom]
 }
 
@@ -61,12 +73,22 @@ function submit(): void {
           <span v-if="option.description" class="text-muted-foreground block text-xs">{{ option.description }}</span>
         </span>
       </label>
-      <Input
-        v-if="question.custom"
-        v-model="entries[index]!.custom"
-        :aria-label="t('interaction.question.custom')"
-        :placeholder="t('interaction.question.custom')"
-      />
+      <div v-if="question.custom" class="flex items-center gap-3 rounded-md border px-3 py-2">
+        <input
+          :type="question.multiple ? 'checkbox' : 'radio'"
+          :name="`question-${index}`"
+          class="accent-primary"
+          :aria-label="t('interaction.question.custom')"
+          :checked="entries[index]!.customOn"
+          @change="toggleCustom(entries[index]!, question, ($event.target as HTMLInputElement).checked)"
+        />
+        <Input
+          :model-value="entries[index]!.custom"
+          :aria-label="t('interaction.question.custom')"
+          :placeholder="t('interaction.question.custom')"
+          @update:model-value="typeCustom(entries[index]!, question, $event)"
+        />
+      </div>
     </fieldset>
     <div class="flex justify-end gap-2">
       <Button type="button" variant="ghost" :disabled="disabled" @click="emit('dismiss')">{{ t('interaction.dismiss') }}</Button>
