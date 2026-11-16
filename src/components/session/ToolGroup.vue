@@ -2,10 +2,8 @@
 import { computed } from 'vue'
 import { ChevronRight, Wrench } from '@lucide/vue'
 import { t } from '@/i18n'
-import type { Block } from '@/session/blocks'
+import type { ToolEntry } from '@/session/blocks'
 import ToolBlock from './ToolBlock.vue'
-
-type ToolEntry = Extract<Block, { kind: 'tool' }>
 
 const props = defineProps<{ calls: ToolEntry[] }>()
 

@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ArrowDown, RefreshCw } from '@lucide/vue'
+import { ArrowDown, ChevronRight, RefreshCw } from '@lucide/vue'
 import { server } from '@/app/server'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Spinner } from '@/components/ui/spinner'
+import { useDisplayStyle } from '@/composables/display-style'
 import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import type { ChildSummary } from '@/protocol/types'
-import { toBlocks } from '@/session/blocks'
+import { groupToolBlocks, toBlocks } from '@/session/blocks'
 import { childActivity, isChildActive } from '@/session/child-trace'
 import { retryLine } from '@/session/progress'
+import MessageBlock from './MessageBlock.vue'
+import ReasoningBlock from './ReasoningBlock.vue'
 import ToolBlock from './ToolBlock.vue'
+import ToolGroup from './ToolGroup.vue'
 
 const childId = defineModel<string | null>('childId', { required: true })
 
@@ -62,8 +66,12 @@ watch(
 // What the archive does not hold yet. Once the child has stopped and the
 // archive is fresh, the trace repeats it, so it is hidden.
 const showTrace = computed(() => trace.value !== null && (running.value || !child.value?.archive))
-const archiveBlocks = computed(() => toBlocks(child.value?.archive ?? []))
-const traceBlocks = computed(() => (showTrace.value && trace.value ? toBlocks(trace.value.items) : []))
+const { groupTools } = useDisplayStyle()
+const archiveBlocks = computed(() => groupToolBlocks(toBlocks(child.value?.archive ?? []), groupTools.value))
+const traceBlocks = computed(() => groupToolBlocks(showTrace.value && trace.value ? toBlocks(trace.value.items) : [], groupTools.value))
+const liveTools = computed(() =>
+  groupToolBlocks((live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null })), groupTools.value),
+)
 const live = computed(() => (showTrace.value ? (trace.value?.live ?? null) : null))
 const retry = computed(() => {
   const current = live.value
@@ -82,7 +90,9 @@ const { bind, pinned, onScroll, toBottom } = useStickToBottom(() => [
   live.value?.retries,
 ])
 
-const roleKey = (role: string) => (role === 'user' ? 'session.role.user' : 'session.role.assistant')
+// The server's thinking preference decides whether a reasoning block starts open.
+const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
+
 const number = new Intl.NumberFormat()
 
 const activityText = computed(() => {
@@ -107,82 +117,92 @@ const activityText = computed(() => {
 <template>
   <Sheet :open="childId !== null" @update:open="(open) => !open && (childId = null)">
     <SheetContent side="right" class="w-full gap-0 sm:max-w-xl">
-      <SheetHeader>
-        <SheetTitle>{{ summary?.label || summary?.agent || t('child.title') }}</SheetTitle>
-        <SheetDescription class="flex flex-wrap items-center gap-2">
-          <template v-if="summary">
-            <Badge variant="secondary">{{ displayToken(summary.status) }}</Badge>
-            <span class="font-mono text-xs">{{ summary.agent }}</span>
-          </template>
-        </SheetDescription>
-        <p v-if="childId" class="text-muted-foreground text-xs">
-          {{ t('session.id') }}: <span class="select-text break-all font-mono">{{ childId }}</span>
-        </p>
+      <SheetHeader class="border-b pb-3">
+        <div class="flex items-start gap-2">
+          <div class="min-w-0 flex-1">
+            <SheetTitle class="truncate">{{ summary?.label || summary?.agent || t('child.title') }}</SheetTitle>
+            <SheetDescription class="mt-1 flex flex-wrap items-center gap-2">
+              <template v-if="summary">
+                <Badge :variant="running ? 'outline' : 'secondary'" class="gap-1.5">
+                  <Spinner v-if="running" class="size-3 motion-reduce:animate-none" />
+                  {{ displayToken(summary.status) }}
+                </Badge>
+                <span class="font-mono text-xs">{{ summary.agent }}</span>
+                <span class="text-xs tabular-nums">{{ t('panel.children.calls', { model: summary.modelCalls, tool: summary.toolCalls }) }}</span>
+              </template>
+            </SheetDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="mr-8 size-9 shrink-0"
+            :disabled="loading"
+            :title="t('child.refresh')"
+            :aria-label="t('child.refresh')"
+            @click="load"
+          >
+            <RefreshCw class="size-4" :class="loading ? 'animate-spin motion-reduce:animate-none' : ''" />
+          </Button>
+        </div>
+        <p v-if="running" role="status" class="text-muted-foreground flex items-center gap-2 text-xs">{{ t('child.live') }}: {{ activityText }}</p>
+        <details v-if="summary" class="text-muted-foreground group text-xs">
+          <summary class="hover:text-foreground flex cursor-pointer list-none items-center gap-1">
+            <ChevronRight class="size-3.5 transition-transform group-open:rotate-90" />
+            {{ t('child.details') }}
+          </summary>
+          <dl class="mt-2 grid grid-cols-[5rem_1fr] gap-x-3 gap-y-1">
+            <template v-if="summary.model.model">
+              <dt>{{ t('child.model') }}</dt>
+              <dd class="min-w-0 break-words">{{ [summary.model.provider, summary.model.model, summary.model.thinking].filter(Boolean).join(' · ') }}</dd>
+            </template>
+            <template v-if="summary.tools.length">
+              <dt>{{ t('child.tools') }}</dt>
+              <dd class="min-w-0 font-mono break-words">{{ summary.tools.join(', ') }}</dd>
+            </template>
+            <template v-if="summary.cumulativeUsage ?? summary.usage">
+              <dt>{{ t('child.usage') }}</dt>
+              <dd class="tabular-nums">
+                {{ number.format((summary.cumulativeUsage ?? summary.usage)!.inputTokens) }} IN /
+                {{ number.format((summary.cumulativeUsage ?? summary.usage)!.outputTokens) }} OUT
+              </dd>
+            </template>
+            <dt>{{ t('session.id') }}</dt>
+            <dd class="min-w-0 font-mono break-all select-text">{{ childId }}</dd>
+          </dl>
+        </details>
       </SheetHeader>
 
       <div class="relative min-h-0 flex-1">
-        <div :ref="bind" class="h-full space-y-4 overflow-y-auto px-4 pb-6" tabindex="0" @scroll.passive="onScroll">
-          <div v-if="summary" class="text-muted-foreground space-y-1 text-xs">
-            <p v-if="summary.model.model">{{ t('child.model') }}: {{ [summary.model.provider, summary.model.model, summary.model.thinking].filter(Boolean).join(' · ') }}</p>
-            <p v-if="summary.tools.length">{{ t('child.tools') }}: <span class="font-mono">{{ summary.tools.join(', ') }}</span></p>
-            <p v-if="summary.cumulativeUsage ?? summary.usage">
-              {{ t('child.usage') }}: {{ number.format((summary.cumulativeUsage ?? summary.usage)!.inputTokens) }} IN /
-              {{ number.format((summary.cumulativeUsage ?? summary.usage)!.outputTokens) }} OUT
-            </p>
-            <p>{{ t('panel.children.calls', { model: summary.modelCalls, tool: summary.toolCalls }) }}</p>
-          </div>
-
-          <Button variant="outline" size="sm" :disabled="loading" @click="load">
-            <RefreshCw class="size-3.5" :class="loading ? 'animate-spin' : ''" />
-            {{ t('child.refresh') }}
-          </Button>
-
+        <div :ref="bind" class="h-full space-y-5 overflow-y-auto px-4 py-4" tabindex="0" @scroll.passive="onScroll">
           <p v-if="loading && !child?.archive" class="text-muted-foreground text-sm">{{ t('child.loading') }}</p>
           <p v-else-if="failed" role="alert" class="text-destructive text-sm">{{ t('child.failed') }}</p>
           <p v-else-if="child && !hasContent && !running" class="text-muted-foreground text-sm">{{ t('child.empty') }}</p>
 
           <template v-for="block in archiveBlocks" :key="block.key">
-            <section v-if="block.kind === 'message'" class="text-sm">
-              <div class="text-muted-foreground mb-1 text-xs font-medium">{{ t(roleKey(block.role)) }}</div>
-              <MarkdownView v-if="block.role !== 'user'" :source="block.text" />
-              <p v-else class="whitespace-pre-wrap">{{ block.text }}</p>
-            </section>
-            <details v-else-if="block.kind === 'reasoning'" class="text-muted-foreground text-sm">
-              <summary class="cursor-pointer">{{ t('session.reasoning') }}</summary>
-              <MarkdownView :source="block.text" />
-            </details>
+            <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
+            <ReasoningBlock v-else-if="block.kind === 'reasoning'" :text="block.text" :default-open="thinkingOpen" :folded="false" />
+            <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
             <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" />
           </template>
 
           <template v-if="showTrace">
-            <p v-if="running" class="text-muted-foreground flex items-center gap-2 border-t pt-3 text-xs font-medium">
-              <Spinner class="size-3.5" />
-              {{ t('child.live') }}: {{ activityText }}
-            </p>
+            <p v-if="archiveBlocks.length" class="text-muted-foreground border-t pt-3 text-xs font-medium">{{ t('child.live') }}</p>
             <p v-if="trace && !trace.complete" class="text-muted-foreground text-xs">{{ t('child.partial') }}</p>
 
             <template v-for="block in traceBlocks" :key="block.key">
-              <section v-if="block.kind === 'message'" class="text-sm">
-                <div class="text-muted-foreground mb-1 text-xs font-medium">{{ t(roleKey(block.role)) }}</div>
-                <MarkdownView :source="block.text" />
-              </section>
-              <details v-else-if="block.kind === 'reasoning'" class="text-muted-foreground text-sm">
-                <summary class="cursor-pointer">{{ t('session.reasoning') }}</summary>
-                <MarkdownView :source="block.text" />
-              </details>
+              <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
+              <ReasoningBlock v-else-if="block.kind === 'reasoning'" :text="block.text" :default-open="thinkingOpen" :folded="false" />
+              <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
               <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" :running="block.result === null && running" />
             </template>
 
             <template v-if="live">
-              <details v-if="live.reasoning" class="text-muted-foreground text-sm" open>
-                <summary class="cursor-pointer">{{ t('session.reasoning') }}</summary>
-                <MarkdownView :source="live.reasoning" streaming />
-              </details>
-              <section v-if="live.text" class="text-sm">
-                <div class="text-muted-foreground mb-1 text-xs font-medium">{{ t('session.role.assistant') }}</div>
-                <MarkdownView :source="live.text" streaming />
-              </section>
-              <ToolBlock v-for="call in live.toolCalls" :key="call.callId" :call="call" :result="null" running />
+              <ReasoningBlock v-if="live.reasoning" :text="live.reasoning" streaming :default-open="thinkingOpen" :folded="false" />
+              <section v-if="live.text" class="mr-4"><MarkdownView :source="live.text" streaming /></section>
+              <template v-for="entry in liveTools" :key="entry.key">
+                <ToolGroup v-if="entry.kind === 'toolgroup'" :calls="entry.calls" />
+                <ToolBlock v-else-if="entry.kind === 'tool'" :call="entry.call" :result="null" running />
+              </template>
               <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
             </template>
 

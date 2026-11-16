@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { ChevronRight } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +24,16 @@ const initialized = ref(false)
 const latest = computed(() => {
   const check = pursue.value?.latestCheck
   return check && !checks.value.some((item) => item.id === check.id) ? check : null
+})
+const stats = computed(() => {
+  const current = pursue.value
+  if (!current) return []
+  return [
+    { label: t('pursue.stat.total'), value: current.checkCount },
+    { label: t('pursue.stat.run'), value: current.checks },
+    { label: t('pursue.stat.continuations'), value: current.continuations },
+    { label: t('pursue.stat.stalls'), value: current.stalls },
+  ]
 })
 let request: AbortController | undefined
 
@@ -106,32 +117,52 @@ onBeforeUnmount(() => request?.abort())
 <template>
   <Sheet v-model:open="open">
     <SheetContent side="right" class="w-full gap-0 sm:max-w-xl">
-      <SheetHeader>
+      <SheetHeader class="border-b pb-3">
         <SheetTitle>{{ t('pursue.title') }}</SheetTitle>
         <SheetDescription>{{ t('pursue.description') }}</SheetDescription>
       </SheetHeader>
-      <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-6" tabindex="0" :aria-busy="loading">
+      <div class="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 py-4" tabindex="0" :aria-busy="loading">
         <template v-if="pursue">
-          <section class="flex flex-col gap-2 text-sm">
-            <h2 class="font-medium">{{ t('pursue.objective') }}</h2>
-            <p class="whitespace-pre-wrap break-words">{{ pursue.objective }}</p>
-            <div class="flex flex-wrap gap-2">
-              <Badge variant="secondary">{{ pursueLabel('status', pursue.status) }}</Badge>
+          <section class="flex flex-col gap-3 text-sm">
+            <div class="flex flex-wrap items-center gap-2">
+              <Badge :variant="pursue.status === 'blocked' ? 'destructive' : 'secondary'">{{ pursueLabel('status', pursue.status) }}</Badge>
               <Badge variant="outline">{{ pursueLabel('phase', pursue.phase) }}</Badge>
             </div>
-            <p class="text-muted-foreground break-all text-xs">{{ t('pursue.objectiveId') }}: <span class="select-text font-mono">{{ pursue.id }}</span></p>
-            <p class="text-muted-foreground break-all text-xs">{{ t('pursue.runId') }}: <span class="select-text font-mono">{{ pursue.runId }}</span></p>
-            <p class="text-muted-foreground text-xs">{{ t('pursue.counts', { total: pursue.checkCount, checks: pursue.checks, continuations: pursue.continuations, stalls: pursue.stalls }) }}</p>
+            <p class="text-base leading-snug font-medium whitespace-pre-wrap break-words">{{ pursue.objective }}</p>
+            <dl class="grid grid-cols-4 gap-2">
+              <div v-for="stat in stats" :key="stat.label" class="bg-card rounded-lg border px-3 py-2">
+                <dd class="text-lg leading-tight font-semibold tabular-nums">{{ stat.value }}</dd>
+                <dt class="text-muted-foreground truncate text-xs" :title="stat.label">{{ stat.label }}</dt>
+              </div>
+            </dl>
             <p v-if="pursue.reason" class="whitespace-pre-wrap break-words">{{ pursue.reason }}</p>
-            <p v-if="pursue.reasonCode" class="text-muted-foreground break-all font-mono text-xs">{{ pursue.reasonCode }}</p>
-            <p v-if="pursue.nextStep" class="whitespace-pre-wrap break-words">{{ t('pursue.nextStep') }}: {{ pursue.nextStep }}</p>
+            <p v-if="pursue.nextStep" class="bg-muted rounded-lg px-3 py-2 whitespace-pre-wrap break-words">
+              <span class="text-muted-foreground block text-xs">{{ t('pursue.nextStep') }}</span>
+              {{ pursue.nextStep }}
+            </p>
+            <details class="text-muted-foreground group text-xs">
+              <summary class="hover:text-foreground flex cursor-pointer list-none items-center gap-1">
+                <ChevronRight class="size-3.5 transition-transform group-open:rotate-90" />
+                {{ t('pursue.identifiers') }}
+              </summary>
+              <dl class="mt-2 grid grid-cols-[6rem_1fr] gap-x-3 gap-y-1">
+                <dt>{{ t('pursue.objectiveId') }}</dt>
+                <dd class="font-mono break-all select-text">{{ pursue.id }}</dd>
+                <dt>{{ t('pursue.runId') }}</dt>
+                <dd class="font-mono break-all select-text">{{ pursue.runId }}</dd>
+                <template v-if="pursue.reasonCode">
+                  <dt>{{ t('pursue.reasonCode') }}</dt>
+                  <dd class="font-mono break-all select-text">{{ pursue.reasonCode }}</dd>
+                </template>
+              </dl>
+            </details>
           </section>
           <section v-if="latest" class="min-w-0">
-            <h2 class="text-sm font-medium">{{ t('pursue.latest') }}</h2>
+            <h2 class="mb-1 text-sm font-semibold">{{ t('pursue.latest') }}</h2>
             <PursueCheckView :key="latest.id" :check="latest" />
           </section>
           <div class="flex items-center justify-between gap-2">
-            <h2 class="text-sm font-medium">{{ t('pursue.history') }}</h2>
+            <h2 class="text-sm font-semibold">{{ t('pursue.history') }}</h2>
             <Button variant="outline" size="sm" :disabled="loading || server.phase.value !== 'live'" @click="load(true)">{{ t('catalog.refresh') }}</Button>
           </div>
           <p v-if="server.phase.value !== 'live'" role="status" class="text-muted-foreground text-sm">{{ t('pursue.offline') }}</p>

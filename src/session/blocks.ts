@@ -28,6 +28,28 @@ export type Block =
   | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null }
   | { kind: 'notice'; key: string; notice: Notice }
 
+export type ToolEntry = Extract<Block, { kind: 'tool' }>
+export type GroupedBlock = Block | { kind: 'toolgroup'; key: string; calls: ToolEntry[] }
+
+/** Folds two or more tool calls in a row into one entry. With `enabled` false every call keeps its own entry. */
+export function groupToolBlocks(list: Block[], enabled: boolean): GroupedBlock[] {
+  if (!enabled) return list
+  const entries: GroupedBlock[] = []
+  for (const block of list) {
+    const last = entries[entries.length - 1]
+    if (block.kind !== 'tool') {
+      entries.push(block)
+    } else if (last?.kind === 'toolgroup') {
+      last.calls.push(block)
+    } else if (last?.kind === 'tool') {
+      entries[entries.length - 1] = { kind: 'toolgroup', key: `g${last.key}`, calls: [last, block] }
+    } else {
+      entries.push(block)
+    }
+  }
+  return entries
+}
+
 /**
  * @param notices Notes, errors, and reports. Each is placed before the item at
  *   its `at` index, so output appears where the command that caused it was typed.

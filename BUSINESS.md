@@ -187,6 +187,10 @@ Interface:
 - Appearance settings can expand the conversation, progress row, and composer
   to the available width. The default is a centered, limited-width layout; the
   preference is stored in the browser.
+- Child session and pursue panels use the same conversation components as the
+  main view: no role label, folded tool calls, folded thinking, and copy on
+  every message. Their identifiers and model details are folded under a
+  Details or Identifiers row.
 - The default conversation is compact: messages carry no role label, two or
   more consecutive tool calls fold into one line, and thinking blocks fold when
   newer thinking arrives unless the reader opened them. Conversation settings

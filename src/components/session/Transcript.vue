@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { ArrowDown, Check, CircleAlert, Copy } from '@lucide/vue'
+import { computed } from 'vue'
+import { ArrowDown, CircleAlert } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -10,11 +10,11 @@ import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { useConversationWidth } from '@/composables/conversation-width'
 import { useDisplayStyle } from '@/composables/display-style'
 import { t } from '@/i18n'
-import { compactionSummary, toBlocks, type Block } from '@/session/blocks'
+import { compactionSummary, groupToolBlocks, toBlocks } from '@/session/blocks'
 import { retryLine } from '@/session/progress'
 import ReportBlock from '@/components/report/ReportBlock.vue'
+import MessageBlock from './MessageBlock.vue'
 import ReasoningBlock from './ReasoningBlock.vue'
-import ServerImage from './ServerImage.vue'
 import SummaryCard from './SummaryCard.vue'
 import ToolBlock from './ToolBlock.vue'
 import ToolGroup from './ToolGroup.vue'
@@ -25,46 +25,13 @@ const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
 const { groupTools, foldThinking } = useDisplayStyle()
 
-type ToolEntry = Extract<Block, { kind: 'tool' }>
-type Entry = Block | { kind: 'toolgroup'; key: string; calls: ToolEntry[] }
-
-// Two or more tool calls in a row collapse into one line. A single call keeps
-// its own row, and turning the setting off leaves every call as its own card.
-function grouped(list: Block[]): Entry[] {
-  if (!groupTools.value) return list
-  const entries: Entry[] = []
-  for (const block of list) {
-    const last = entries[entries.length - 1]
-    if (block.kind !== 'tool') {
-      entries.push(block)
-    } else if (last?.kind === 'toolgroup') {
-      last.calls.push(block)
-    } else if (last?.kind === 'tool') {
-      entries[entries.length - 1] = { kind: 'toolgroup', key: `g${last.key}`, calls: [last, block] }
-    } else {
-      entries.push(block)
-    }
-  }
-  return entries
-}
-
-const entries = computed(() => grouped(blocks.value))
+const entries = computed(() => groupToolBlocks(blocks.value, groupTools.value))
 const liveEntries = computed(() =>
-  grouped((live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null }))),
+  groupToolBlocks(
+    (live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null })),
+    groupTools.value,
+  ),
 )
-
-const copiedKey = ref<string | null>(null)
-async function copyMessage(key: string, text: string): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(text)
-    copiedKey.value = key
-    setTimeout(() => {
-      if (copiedKey.value === key) copiedKey.value = null
-    }, 1500)
-  } catch {
-    // Clipboard access can be denied on an insecure page. The text stays selectable.
-  }
-}
 const retry = computed(() => {
   const current = live.value
   return current && current.retries > 0 ? retryLine(current.retries, current.retryMessage) : null
@@ -109,30 +76,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
         </div>
 
         <template v-for="block in entries" :key="block.key">
-          <section
-            v-if="block.kind === 'message'"
-            class="group/message relative min-w-0"
-            :class="block.role === 'user' ? 'max-w-[85%] self-end' : 'mr-4'"
-          >
-            <div v-if="block.role === 'user'" class="bg-secondary rounded-2xl px-4 py-2.5">
-              <p class="whitespace-pre-wrap">{{ block.text }}</p>
-            </div>
-            <MarkdownView v-else :source="block.text" />
-            <div v-if="block.images.length" class="mt-2 flex flex-wrap gap-2">
-              <ServerImage v-for="number in block.images" :key="number" :number="number" />
-            </div>
-            <div
-              v-if="block.text"
-              class="absolute top-full left-0 flex h-5 opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:mt-1 [@media(hover:none)]:h-auto [@media(hover:none)]:opacity-100"
-              :class="block.role === 'user' ? 'right-0 left-auto justify-end' : '-ml-2'"
-            >
-              <Button variant="ghost" size="sm" class="text-muted-foreground h-5 px-2 text-xs [@media(hover:none)]:h-7" @click="copyMessage(block.key, block.text)">
-                <Check v-if="copiedKey === block.key" class="size-3.5" />
-                <Copy v-else class="size-3.5" />
-                {{ copiedKey === block.key ? t('common.copied') : t('common.copy') }}
-              </Button>
-            </div>
-          </section>
+          <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
 
           <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
 
