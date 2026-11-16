@@ -40,8 +40,8 @@ async function copy(): Promise<void> {
 </script>
 
 <template>
-  <div class="code-block group relative my-3 overflow-hidden rounded-lg border">
-    <div class="text-muted-foreground flex items-center justify-between border-b px-3 py-1 font-mono text-xs">
+  <div class="code-block group bg-card relative my-4 overflow-hidden rounded-xl border">
+    <div class="text-muted-foreground bg-secondary/60 flex items-center justify-between px-3 py-1 font-mono text-xs">
       <span>{{ lang }}</span>
       <Button variant="ghost" size="sm" class="h-6 px-2 text-xs" @click="copy">
         <Check v-if="copied" class="size-3" />

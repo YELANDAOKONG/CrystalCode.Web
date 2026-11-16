@@ -5,6 +5,7 @@ import { useTheme, type ThemeSetting } from '@/theme/theme'
 import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
 import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/header-title'
 import { useConversationWidth } from '@/composables/conversation-width'
+import { useDisplayStyle } from '@/composables/display-style'
 import { Switch } from '@/components/ui/switch'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
@@ -14,6 +15,7 @@ const { theme, setTheme } = useTheme()
 const { titleSetting, setTitleSetting } = useTitleSetting()
 const { headerTitle, setHeaderTitle } = useHeaderTitleSetting()
 const { fullWidth, setFullWidth } = useConversationWidth()
+const { groupTools, foldThinking, setGroupTools, setFoldThinking } = useDisplayStyle()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = (): { value: string; label: string; help: string }[] => [
@@ -34,6 +36,16 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
     <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-conversation-width" :model-value="fullWidth" @update:model-value="(value) => setFullWidth(value === true)" />
+      </div>
+    </SettingRow>
+    <SettingRow :label="t('settings.foldThinking')" :help="t('settings.foldThinking.help')" label-for="set-fold-thinking">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-fold-thinking" :model-value="foldThinking" @update:model-value="(value) => setFoldThinking(value === true)" />
+      </div>
+    </SettingRow>
+    <SettingRow :label="t('settings.groupTools')" :help="t('settings.groupTools.help')" label-for="set-group-tools">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-group-tools" :model-value="groupTools" @update:model-value="(value) => setGroupTools(value === true)" />
       </div>
     </SettingRow>
     <SettingRow :label="t('settings.pageTitle')" :help="t('settings.title.help')" label-for="set-title">

@@ -387,7 +387,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
-      <div class="bg-card focus-within:ring-ring rounded-xl border focus-within:ring-2">
+      <div class="bg-card focus-within:ring-ring rounded-2xl border shadow-sm transition-shadow focus-within:ring-2">
         <div v-if="recovered.length" class="border-b px-3 py-2" role="status">
           <p class="text-muted-foreground mb-1 text-xs font-medium">{{ t('composer.recovered') }}</p>
           <ul class="max-h-36 space-y-1 overflow-y-auto">
@@ -414,7 +414,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           :disabled="blocked"
           :placeholder="busy ? t('composer.placeholder.busy') : t('composer.placeholder')"
           :aria-label="t('composer.placeholder')"
-          class="max-h-[min(12rem,30dvh)] min-h-[3.5rem] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
+          class="max-h-[min(14rem,35dvh)] min-h-[3.5rem] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
           @keydown="onKeydown"
           @paste="onPaste"
           @compositionstart="composing = true"
@@ -493,14 +493,13 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 
           <span class="flex-1" />
 
-          <Button v-if="busy" variant="outline" size="sm" :disabled="blocked || acting('stop')" @click="stop">
+          <Button v-if="busy" variant="outline" size="icon" class="size-10 rounded-full md:size-8" :disabled="blocked || acting('stop')" :title="t('composer.stop')" :aria-label="t('composer.stop')" @click="stop">
             <Spinner v-if="acting('stop')" class="size-3.5 motion-reduce:animate-none" />
             <Square v-else class="size-3.5" />
-            {{ t('composer.stop') }}
           </Button>
           <Button
             size="icon"
-            class="size-10 md:size-8"
+            class="size-10 rounded-full md:size-8"
             :disabled="blocked || (text.trim() === '' && !(busy && model.queue.length)) || sizeState(text) === 'over'"
             :aria-busy="sending || undefined"
             :aria-label="text.trim() === '' ? t('composer.queue.release') : t('composer.send')"

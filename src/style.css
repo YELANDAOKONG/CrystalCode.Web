@@ -273,7 +273,7 @@ html:lang(zh-TW) {
 @layer components {
   .md {
     overflow-wrap: anywhere;
-    line-height: 1.65;
+    line-height: 1.75;
   }
 
   .md > :first-child {
@@ -288,7 +288,11 @@ html:lang(zh-TW) {
   .md ul,
   .md ol,
   .md blockquote {
-    margin: 0.6em 0;
+    margin: 0.85em 0;
+  }
+
+  .md li {
+    margin: 0.3em 0;
   }
 
   .md ul {
@@ -311,7 +315,7 @@ html:lang(zh-TW) {
   .md h4,
   .md h5,
   .md h6 {
-    margin: 1.1em 0 0.4em;
+    margin: 1.4em 0 0.5em;
     font-weight: 600;
     line-height: 1.3;
   }

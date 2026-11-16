@@ -181,6 +181,11 @@ Interface:
 - Interface settings can expand the conversation, progress row, and composer
   to the available width. The default is a centered, limited-width layout; the
   preference is stored in the browser.
+- The default conversation is compact: messages carry no role label, two or
+  more consecutive tool calls fold into one line, and thinking blocks fold when
+  newer thinking arrives unless the reader opened them. Interface settings
+  restore one card per tool call and leave thinking as it was. Both preferences
+  are stored in the browser. Every message has a copy action.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
   preview, followed by Crystal Code. For browser titles only, control characters,
