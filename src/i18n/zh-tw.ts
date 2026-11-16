@@ -468,6 +468,8 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.scope.server': '在伺服器上生效',
   'settings.conversationWidth': '對話鋪滿寬度',
   'settings.conversationWidth.help': '讓訊息和輸入框使用可用的頁面寬度。',
+  'settings.fadeIn': '新訊息淡入',
+  'settings.fadeIn.help': '新訊息和步驟出現時帶淡入效果。關閉後直接顯示。',
   'settings.foldThinking': '摺疊先前的思考',
   'settings.foldThinking.help': '新的思考出現後,摺疊你沒有手動展開過的先前思考區塊。關閉則維持原狀。',
   'settings.groupTools': '摺疊連續的工具呼叫',

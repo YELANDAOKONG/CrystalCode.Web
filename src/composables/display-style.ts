@@ -6,14 +6,20 @@ import { loadPreference, savePreference } from '@/connection/storage'
 // left as it was opened.
 const groupTools = ref(loadPreference('tool-grouping') !== 'each')
 const foldThinking = ref(loadPreference('thinking-fold') !== 'keep')
+const fadeIn = ref(loadPreference('block-fade') !== 'off')
 
 export function useDisplayStyle() {
   return {
     groupTools,
     foldThinking,
+    fadeIn,
     setGroupTools(value: boolean) {
       groupTools.value = value
       savePreference('tool-grouping', value ? 'group' : 'each')
+    },
+    setFadeIn(value: boolean) {
+      fadeIn.value = value
+      savePreference('block-fade', value ? 'on' : 'off')
     },
     setFoldThinking(value: boolean) {
       foldThinking.value = value

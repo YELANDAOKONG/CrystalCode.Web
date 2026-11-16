@@ -468,6 +468,8 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.scope.server': '在服务器上生效',
   'settings.conversationWidth': '对话铺满宽度',
   'settings.conversationWidth.help': '让消息和输入框使用可用的页面宽度。',
+  'settings.fadeIn': '新消息淡入',
+  'settings.fadeIn.help': '新消息和步骤出现时带淡入效果。关闭后直接显示。',
   'settings.foldThinking': '折叠之前的思考',
   'settings.foldThinking.help': '新的思考出现后,折叠你没有手动展开过的前面的思考块。关闭则保持原状。',
   'settings.groupTools': '折叠连续的工具调用',

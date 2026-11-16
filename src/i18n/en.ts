@@ -467,6 +467,8 @@ export const en = {
   'settings.scope.server': 'Applies on the server',
   'settings.conversationWidth': 'Full-width conversation',
   'settings.conversationWidth.help': 'Use the available width for messages and the composer.',
+  'settings.fadeIn': 'Fade in new messages',
+  'settings.fadeIn.help': 'New messages and steps ease in as they arrive. Off shows them at once.',
   'settings.foldThinking': 'Fold earlier thinking',
   'settings.foldThinking.help': 'When new thinking arrives, fold earlier blocks you did not open yourself. Off leaves them as they were.',
   'settings.groupTools': 'Group consecutive tool calls',

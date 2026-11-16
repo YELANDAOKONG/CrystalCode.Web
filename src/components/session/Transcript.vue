@@ -23,7 +23,7 @@ const model = server.model
 const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
-const { groupTools, foldThinking } = useDisplayStyle()
+const { groupTools, foldThinking, fadeIn } = useDisplayStyle()
 
 const entries = computed(() => groupToolBlocks(blocks.value, groupTools.value))
 const liveEntries = computed(() =>
@@ -65,7 +65,7 @@ watch(
   },
   { immediate: true },
 )
-const enter = computed(() => (settled.value ? 'block-enter' : ''))
+const enter = computed(() => (settled.value && fadeIn.value ? 'block-enter' : ''))
 
 const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !live.value && model.notices.length === 0)
 

@@ -4,6 +4,7 @@ import { useTheme, type ThemeSetting } from '@/theme/theme'
 import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
 import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/header-title'
 import { useConversationWidth } from '@/composables/conversation-width'
+import { useDisplayStyle } from '@/composables/display-style'
 import { Switch } from '@/components/ui/switch'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
@@ -14,6 +15,7 @@ const { theme, setTheme } = useTheme()
 const { titleSetting, setTitleSetting } = useTitleSetting()
 const { headerTitle, setHeaderTitle } = useHeaderTitleSetting()
 const { fullWidth, setFullWidth } = useConversationWidth()
+const { fadeIn, setFadeIn } = useDisplayStyle()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = (): { value: string; label: string; help: string }[] => [
@@ -35,6 +37,11 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
       <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">
         <div class="flex items-center sm:justify-end">
           <Switch id="set-conversation-width" :model-value="fullWidth" @update:model-value="(value) => setFullWidth(value === true)" />
+        </div>
+      </SettingRow>
+      <SettingRow :label="t('settings.fadeIn')" :help="t('settings.fadeIn.help')" label-for="set-fade-in">
+        <div class="flex items-center sm:justify-end">
+          <Switch id="set-fade-in" :model-value="fadeIn" @update:model-value="(value) => setFadeIn(value === true)" />
         </div>
       </SettingRow>
     </SettingsGroup>
