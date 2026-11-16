@@ -16,9 +16,15 @@ import { t, type MessageKey } from '@/i18n'
 import AdvisoryNotice from './AdvisoryNotice.vue'
 import DiagnosisPanel from './DiagnosisPanel.vue'
 
-const address = ref(server.savedServers.value[0]?.url ?? '')
+const host = server.hosted.value
+const address = ref(host?.url ?? server.savedServers.value[0]?.url ?? '')
 const token = ref('')
 const showToken = ref(false)
+// A hosting server fixes the address. A token is asked for only when it is
+// needed: the server said so, or it answered 401 although it said not.
+const tokenNeeded = computed(
+  () => host === null || host.authentication || server.diagnosis.value?.code === 'unauthorized',
+)
 const keepToken = ref(false)
 const remember = ref(true)
 const space = ref<'unknown' | 'local' | 'loopback'>('unknown')
@@ -30,14 +36,16 @@ const addressError = computed(() => {
 })
 const origin = window.location.origin
 // Shown while the operator types, so a blocked mix is known before the first try.
-const advisory = computed(() => (address.value.trim() === '' ? null : inspectAddress(address.value).advisory))
+const advisory = computed(() =>
+  host !== null || address.value.trim() === '' ? null : inspectAddress(address.value).advisory,
+)
 
 function submit(): void {
   void server.connect({
     input: address.value,
     token: token.value,
     keepTokenInTab: keepToken.value,
-    remember: remember.value,
+    remember: host === null && remember.value,
     addressSpace: space.value === 'unknown' ? null : space.value,
   })
 }
@@ -65,11 +73,15 @@ function pick(url: string): void {
     <main class="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6 px-6 pb-16">
       <div class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight">{{ t('connect.title') }}</h1>
-        <p class="text-muted-foreground text-sm">{{ t('connect.lead') }}</p>
+        <p class="text-muted-foreground text-sm">{{ host ? t('connect.lead.hosted') : t('connect.lead') }}</p>
       </div>
 
-      <form class="space-y-5" novalidate @submit.prevent="submit">
-        <div class="space-y-2">
+      <p v-if="host && busy && !server.diagnosis.value" class="text-muted-foreground flex items-center gap-2 text-sm" role="status">
+        <Spinner />
+        {{ t('connect.connecting') }}
+      </p>
+      <form v-else class="space-y-5" novalidate @submit.prevent="submit">
+        <div v-if="host === null" class="space-y-2">
           <Label for="address">{{ t('connect.address') }}</Label>
           <Input
             id="address"
@@ -89,7 +101,7 @@ function pick(url: string): void {
           <p v-else id="address-hint" class="text-muted-foreground text-xs">{{ t('connect.address.hint') }}</p>
         </div>
 
-        <div class="space-y-2">
+        <div v-if="tokenNeeded" class="space-y-2">
           <Label for="token">{{ t('connect.token') }}</Label>
           <div class="relative">
             <Input
@@ -115,15 +127,15 @@ function pick(url: string): void {
               <Eye v-else class="size-4" />
             </Button>
           </div>
-          <p id="token-hint" class="text-muted-foreground text-xs">{{ t('connect.token.hint') }}</p>
+          <p id="token-hint" class="text-muted-foreground text-xs">{{ host ? t('connect.token.required') : t('connect.token.hint') }}</p>
         </div>
 
         <div class="space-y-3">
-          <div class="flex items-center gap-2">
+          <div v-if="tokenNeeded" class="flex items-center gap-2">
             <Checkbox id="keep-token" v-model="keepToken" />
             <Label for="keep-token" class="font-normal">{{ t('connect.keepToken') }}</Label>
           </div>
-          <div class="flex items-center gap-2">
+          <div v-if="host === null" class="flex items-center gap-2">
             <Checkbox id="remember" v-model="remember" />
             <Label for="remember" class="font-normal">{{ t('connect.remember') }}</Label>
           </div>
@@ -152,7 +164,7 @@ function pick(url: string): void {
         </Button>
       </form>
 
-      <section v-if="server.savedServers.value.length > 0" class="space-y-2" aria-labelledby="saved-title">
+      <section v-if="host === null && server.savedServers.value.length > 0" class="space-y-2" aria-labelledby="saved-title">
         <h2 id="saved-title" class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
           {{ t('connect.saved') }}
         </h2>

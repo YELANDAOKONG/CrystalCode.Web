@@ -17,6 +17,8 @@ export const en = {
   'common.theme.dark': 'Dark',
   'common.retry': 'Try again',
 
+  'connect.lead.hosted': 'This page is served by a Crystal Code server.',
+  'connect.token.required': 'This server requires a token.',
   'connect.title': 'Connect to a server',
   'connect.lead': 'Enter the address of a running crystal server. This page talks to that server only.',
   'connect.address': 'Server address',

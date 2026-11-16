@@ -2,6 +2,7 @@ import { computed, ref, shallowReactive, shallowRef } from 'vue'
 import { baseUrl } from '@/connection/address'
 import { advise, type Advisory } from '@/connection/advisory'
 import { newClientId, newRequestId } from '@/connection/clientId'
+import { parseConfig, type HostedServer } from '@/connection/deployment'
 import { diagnose, type Diagnosis } from '@/connection/diagnosis'
 import { inspectAddress, pageContext } from '@/connection/page'
 import {
@@ -82,6 +83,10 @@ function createServer() {
   /** Seconds until the next reconnect attempt, for display. */
   const retryIn = ref<number | null>(null)
   const waitingState = ref<string | null>(null)
+  /** The server that serves this page, or null when the operator types an address. */
+  const hosted = shallowRef<HostedServer | null>(null)
+  /** True until `/config` has been asked. */
+  const starting = ref(true)
 
   let client: CrystalClient | null = null
   let run: AbortController | null = null
@@ -108,6 +113,24 @@ function createServer() {
 
   function startingToken(url: string, typed: string): string {
     return typed !== '' ? typed : (loadTabToken(url) ?? '')
+  }
+
+  async function start(): Promise<void> {
+    try {
+      const response = await fetch(new URL('/config', window.location.origin), { cache: 'no-store' })
+      if (response.ok) hosted.value = parseConfig(await response.text(), window.location.origin)
+    } catch {
+      // No readable answer means the operator types the address.
+    }
+
+    // A server without authentication, or a token kept for this tab, needs
+    // nothing typed. Starting moves the phase to `connecting` before the first
+    // await, so the connect form never shows in between.
+    const host = hosted.value
+    const ready = host !== null && (!host.authentication || loadTabToken(host.url) !== null)
+    const pending = ready ? connect({ input: host.url, token: '', keepTokenInTab: host.authentication, remember: false, addressSpace: null }) : null
+    starting.value = false
+    await pending
   }
 
   async function connect(request: ConnectRequest): Promise<void> {
@@ -472,6 +495,9 @@ function createServer() {
     problem,
     retryIn,
     waitingState,
+    hosted,
+    starting,
+    start,
     scope,
     canOperate,
     isAdmin,

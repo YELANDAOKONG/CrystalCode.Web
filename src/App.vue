@@ -59,6 +59,6 @@ watchEffect(() => {
 
 <template>
   <SessionView v-if="showSession" />
-  <ConnectView v-else />
+  <ConnectView v-else-if="!server.starting.value" />
   <ProblemToaster />
 </template>

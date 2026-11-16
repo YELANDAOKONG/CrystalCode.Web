@@ -62,6 +62,7 @@ binding.
    the request when the browser will likely block it. A path in the address is
    the server's `--api-base`; every route is requested under it, and a 404
    there is reported as a likely prefix mismatch.
+   A server that serves this page itself skips this step; see Hosted mode.
 2. `GET /health` (no token) confirms a server answers and reads its state.
    The page's `Origin` header applies to this request too.
 3. `GET /info` (needs a token unless `--auth none`) returns the scope, build
@@ -215,6 +216,31 @@ The deployment must not weaken this:
   submitted to the selected server or dismissed; it is not stored or logged.
 - Because any operator-chosen server can return arbitrary content, every
   server-supplied string is untrusted (see Invariants).
+
+## Hosted mode
+
+A Crystal Code server may serve this page itself. The page then asks its own
+origin for `GET /config` once at start:
+
+```json
+{ "product": "crystal-code", "apiBase": "/api", "authentication": true }
+```
+
+- `connection/deployment.ts` accepts the answer only when `product` is
+  `crystal-code` and `apiBase` is a plain path (the same rules as an address
+  path). Anything else, including a 404, a page returned by a static host, or
+  a request error, means the page is not hosted and the operator types the
+  address as before.
+- The answer holds no token and no host. The address is always the page's own
+  origin plus `apiBase`, so it cannot point the page elsewhere.
+- The address form, saved list, and address-space choice are not shown. With
+  `authentication: false` the page connects at once and never asks for a token.
+  With `true` it asks for a token only, or connects at once when this tab kept
+  one. `authentication` only decides which fields show: a 401 from a server that
+  said `false` still shows the token field.
+- Requirement for the server: `GET /config` is same-origin, needs no token, sits
+  outside `--api-base`, and is not cached. Recorded for the owner of
+  `../CrystalCode`.
 
 ## Server facts the client depends on
 
@@ -403,7 +429,8 @@ The client reports the matching failure; it cannot fix any of them.
   request to any host but the server the operator entered. Fonts and icons are
   bundled.
 - The page never connects, and never fills the address or token, from its own
-  URL (path, query, or fragment). Only the operator's typed input does.
+  URL (path, query, or fragment). Only the operator's typed input does, or the
+  `/config` answer of a server hosting the page (Hosted mode).
 - The page needs no server-side routing or rewrite rules. If routing is
   added, it is hash based.
 - The client tolerates unknown event types, fields, operations, and

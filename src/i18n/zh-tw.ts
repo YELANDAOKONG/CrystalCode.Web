@@ -18,6 +18,8 @@ export const zhTw: Record<MessageKey, string> = {
   'common.theme.dark': '深色',
   'common.retry': '重試',
 
+  'connect.lead.hosted': '這個頁面由 Crystal Code 伺服器提供。',
+  'connect.token.required': '這個伺服器需要 Token。',
   'connect.title': '連線到伺服器',
   'connect.lead': '輸入執行中的 crystal server 位址。此頁面只會與該伺服器通訊。',
   'connect.address': '伺服器位址',

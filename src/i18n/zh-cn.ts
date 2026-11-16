@@ -18,6 +18,8 @@ export const zhCn: Record<MessageKey, string> = {
   'common.theme.dark': '深色',
   'common.retry': '重试',
 
+  'connect.lead.hosted': '这个页面由 Crystal Code 服务端提供。',
+  'connect.token.required': '这个服务端需要 Token。',
   'connect.title': '连接服务端',
   'connect.lead': '输入正在运行的 crystal server 的地址。此页面只与该服务端通信。',
   'connect.address': '服务端地址',

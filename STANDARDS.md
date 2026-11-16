@@ -161,7 +161,10 @@ and cover the cases that apply:
   with the permission granted and denied, and against a plain HTTP public
   server to confirm the advisory;
 - a copy of the build served over HTTP on a LAN against a LAN server;
-- a dropped and restored connection, and a `resync`.
+- a dropped and restored connection, and a `resync`;
+- the page served by the server itself: `/config` with `authentication` false
+  (nothing is asked), and true (only a token is asked), and a static host with
+  no `/config` (the address form shows).
 
 Never write a real token, certificate, or key into the repository, a
 screenshot, or a commit.
