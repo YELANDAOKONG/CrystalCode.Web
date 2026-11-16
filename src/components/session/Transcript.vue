@@ -22,7 +22,7 @@ const model = server.model
 const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
-const { groupTools, groupSingleTool, foldRuns: foldRunsSetting, keepNewestRun, fadeIn } = useDisplayStyle()
+const { groupTools, groupSingleTool, foldRuns: foldRunsSetting, keepNewestRun, foldThinking, foldTools, fadeIn } = useDisplayStyle()
 
 // The round still streaming is drawn with the saved blocks, so a run of
 // thinking and tool calls folds as one whether or not it has finished.
@@ -73,6 +73,9 @@ const latest = computed(() => {
     else if (entry.kind === 'tool' || entry.kind === 'toolgroup') result.tool = entry.key
   }
   entries.value.forEach(visit)
+  // Once the turn ends, a block set to fold after the reply has no newest one left.
+  if (foldThinking.value === 'done' && !model.turnActive) result.reasoning = null
+  if (foldTools.value === 'done' && !model.turnActive) result.tool = null
   return result
 })
 

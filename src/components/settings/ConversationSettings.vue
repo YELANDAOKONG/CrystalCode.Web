@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { server } from '@/app/server'
 import { Switch } from '@/components/ui/switch'
-import { useDisplayStyle, type RunFolding, type ToolFolding } from '@/composables/display-style'
+import { useDisplayStyle, type StepFolding, type ToolFolding } from '@/composables/display-style'
 import { t, type MessageKey } from '@/i18n'
 import type { Preferences } from '@/protocol/types'
 import ChoiceSelect from './ChoiceSelect.vue'
@@ -20,10 +20,10 @@ const foldingOptions = (): { value: string; label: string; help: string }[] => [
   { value: 'single-group', label: t('settings.toolFolding.singleGroup'), help: '' },
 ]
 
-const runOptions = (): { value: string; label: string; help: string }[] => [
-  { value: 'off', label: t('settings.foldRuns.off'), help: '' },
-  { value: 'done', label: t('settings.foldRuns.done'), help: '' },
-  { value: 'newest', label: t('settings.foldRuns.newest'), help: '' },
+const stepOptions = (): { value: string; label: string; help: string }[] => [
+  { value: 'off', label: t('settings.stepFolding.off'), help: '' },
+  { value: 'earlier', label: t('settings.stepFolding.earlier'), help: '' },
+  { value: 'done', label: t('settings.stepFolding.done'), help: '' },
 ]
 
 // The wire names are the engine's `VerboseTarget` values.
@@ -82,17 +82,13 @@ const setTokens = (on: boolean | 'indeterminate') => void server.send(`/tokens $
         <ChoiceSelect id="set-tool-folding" :options="foldingOptions()" :model-value="toolFolding" @change="(v) => setToolFolding(v as ToolFolding)" />
       </SettingRow>
       <SettingRow :label="t('settings.foldTools')" :help="t('settings.foldTools.help')" label-for="set-fold-tools">
-        <div class="flex items-center sm:justify-end">
-          <Switch id="set-fold-tools" :model-value="foldTools" @update:model-value="(value) => setFoldTools(value === true)" />
-        </div>
+        <ChoiceSelect id="set-fold-tools" :options="stepOptions()" :model-value="foldTools" @change="(v) => setFoldTools(v as StepFolding)" />
       </SettingRow>
       <SettingRow :label="t('settings.foldThinking')" :help="t('settings.foldThinking.help')" label-for="set-fold-thinking">
-        <div class="flex items-center sm:justify-end">
-          <Switch id="set-fold-thinking" :model-value="foldThinking" @update:model-value="(value) => setFoldThinking(value === true)" />
-        </div>
+        <ChoiceSelect id="set-fold-thinking" :options="stepOptions()" :model-value="foldThinking" @change="(v) => setFoldThinking(v as StepFolding)" />
       </SettingRow>
       <SettingRow :label="t('settings.foldRuns')" :help="t('settings.foldRuns.help')" label-for="set-fold-runs">
-        <ChoiceSelect id="set-fold-runs" :options="runOptions()" :model-value="runFolding" @change="(v) => setRunFolding(v as RunFolding)" />
+        <ChoiceSelect id="set-fold-runs" :options="stepOptions()" :model-value="runFolding" @change="(v) => setRunFolding(v as StepFolding)" />
       </SettingRow>
     </SettingsGroup>
   </div>

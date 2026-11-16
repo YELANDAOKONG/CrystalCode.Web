@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const { foldThinking, foldTools, quietTools } = useDisplayStyle()
 const thinkingOpen = computed(() => server.model.preferences?.verboseThinking ?? false)
-const toolOpen = computed(() => foldTools.value && props.step.key === props.latestTool)
+const toolOpen = computed(() => foldTools.value !== 'off' && props.step.key === props.latestTool)
 </script>
 
 <template>
@@ -27,7 +27,7 @@ const toolOpen = computed(() => foldTools.value && props.step.key === props.late
     :text="step.text"
     :streaming="step.streaming"
     :default-open="thinkingOpen"
-    :folded="foldThinking && step.key !== latestReasoning"
+    :folded="foldThinking !== 'off' && step.key !== latestReasoning"
   />
   <ToolGroup v-else-if="step.kind === 'toolgroup'" :calls="step.calls" :default-open="toolOpen" />
   <ToolBlock v-else :call="step.call" :result="step.result" :running="step.running" :quiet="quietTools" :default-open="toolOpen" />

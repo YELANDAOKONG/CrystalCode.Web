@@ -204,15 +204,15 @@ Interface:
   every message. Their identifiers and model details are folded under a
   Details or Identifiers row.
 - The default conversation is compact: messages carry no role label, consecutive
-  tool calls fold into one line, a single call is a group of one, and the newest
-  tool call and the newest thinking block stay open while
-  earlier ones fold unless the reader opened them. Conversation settings choose
-  how tool calls appear (one card per call; consecutive calls folded with a
-  single call as a card, a quiet line, or a group), stop the automatic
-  folding of earlier tool calls and thinking, and can fold each run of thinking
-  and tool steps between two messages into one line (on by default; the newest
-  run folds once the reply is done, or stays open if the reader prefers). These
-  preferences are stored in the browser. Every message has a copy action.
+  tool calls fold into one line, a single call is a group of one, and while a
+  reply runs the newest tool call, thinking block, and run of steps stay open
+  while earlier ones fold unless the reader opened them. Once the reply is done
+  they all fold. Conversation settings choose how tool calls appear (one card
+  per call; consecutive calls folded with a single call as a card, a quiet line,
+  or a group), and for tool calls, thinking blocks, and runs of steps whether
+  and when they fold (never, all but the newest, or all after the reply). A run
+  is the thinking and tool steps between two messages. These preferences are
+  stored in the browser. Every message has a copy action.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
   preview, followed by Crystal Code. For browser titles only, control characters,
