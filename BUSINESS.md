@@ -210,9 +210,9 @@ Interface:
   how tool calls appear (one card per call; consecutive calls folded with a
   single call as a card, a quiet line, or a group), stop the automatic
   folding of earlier tool calls and thinking, and can fold each run of thinking
-  and tool steps between two messages into one line (off by default; the newest
-  run stays open). These preferences are stored in the browser. Every message
-  has a copy action.
+  and tool steps between two messages into one line (on by default; the newest
+  run folds once the reply is done, or stays open if the reader prefers). These
+  preferences are stored in the browser. Every message has a copy action.
 - Browser tab titles default to the server-provided session topic, falling back
   to the first user message with whitespace collapsed as in the saved-session
   preview, followed by Crystal Code. For browser titles only, control characters,

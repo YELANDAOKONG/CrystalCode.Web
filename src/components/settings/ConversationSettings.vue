@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { server } from '@/app/server'
 import { Switch } from '@/components/ui/switch'
-import { useDisplayStyle, type ToolFolding } from '@/composables/display-style'
+import { useDisplayStyle, type RunFolding, type ToolFolding } from '@/composables/display-style'
 import { t, type MessageKey } from '@/i18n'
 import type { Preferences } from '@/protocol/types'
 import ChoiceSelect from './ChoiceSelect.vue'
@@ -11,13 +11,19 @@ import SettingsGroup from './SettingsGroup.vue'
 
 const model = server.model
 const { canOperate, isAdmin } = server
-const { toolFolding, foldTools, foldThinking, foldRuns, setToolFolding, setFoldTools, setFoldThinking, setFoldRuns } = useDisplayStyle()
+const { toolFolding, foldTools, foldThinking, runFolding, setToolFolding, setFoldTools, setFoldThinking, setRunFolding } = useDisplayStyle()
 
 const foldingOptions = (): { value: string; label: string; help: string }[] => [
   { value: 'each', label: t('settings.toolFolding.each'), help: '' },
   { value: 'group', label: t('settings.toolFolding.group'), help: '' },
   { value: 'line', label: t('settings.toolFolding.line'), help: '' },
   { value: 'single-group', label: t('settings.toolFolding.singleGroup'), help: '' },
+]
+
+const runOptions = (): { value: string; label: string; help: string }[] => [
+  { value: 'off', label: t('settings.foldRuns.off'), help: '' },
+  { value: 'done', label: t('settings.foldRuns.done'), help: '' },
+  { value: 'newest', label: t('settings.foldRuns.newest'), help: '' },
 ]
 
 // The wire names are the engine's `VerboseTarget` values.
@@ -86,9 +92,7 @@ const setTokens = (on: boolean | 'indeterminate') => void server.send(`/tokens $
         </div>
       </SettingRow>
       <SettingRow :label="t('settings.foldRuns')" :help="t('settings.foldRuns.help')" label-for="set-fold-runs">
-        <div class="flex items-center sm:justify-end">
-          <Switch id="set-fold-runs" :model-value="foldRuns" @update:model-value="(value) => setFoldRuns(value === true)" />
-        </div>
+        <ChoiceSelect id="set-fold-runs" :options="runOptions()" :model-value="runFolding" @change="(v) => setRunFolding(v as RunFolding)" />
       </SettingRow>
     </SettingsGroup>
   </div>

@@ -22,7 +22,7 @@ const model = server.model
 const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
-const { groupTools, groupSingleTool, foldRuns: foldRunsSetting, fadeIn } = useDisplayStyle()
+const { groupTools, groupSingleTool, foldRuns: foldRunsSetting, keepNewestRun, fadeIn } = useDisplayStyle()
 
 // The round still streaming is drawn with the saved blocks, so a run of
 // thinking and tool calls folds as one whether or not it has finished.
@@ -54,6 +54,10 @@ const { bind, pinned, unseen, onScroll, toBottom } = useStickToBottom(() => [
   fullWidth.value,
 ])
 
+// The newest run stays open while the turn runs, and afterwards only when the
+// reader asked to keep it.
+const newestRunOpen = computed(() => keepNewestRun.value || model.turnActive)
+
 // The newest thinking block, tool call, and run stay open and earlier ones
 // close, unless the reader opened them. A step inside a folded run closes with
 // it, even when it is the newest of its kind.
@@ -64,7 +68,7 @@ const latest = computed(() => {
   }
   const visit = (entry: FoldedBlock) => {
     if (entry.kind === 'process') {
-      if (entry.key === result.run) entry.steps.forEach(visit)
+      if (entry.key === result.run && newestRunOpen.value) entry.steps.forEach(visit)
     } else if (entry.kind === 'reasoning') result.reasoning = entry.key
     else if (entry.kind === 'tool' || entry.kind === 'toolgroup') result.tool = entry.key
   }
@@ -111,7 +115,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
           </section>
           <MessageBlock v-else-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
 
-          <ProcessGroup v-else-if="block.kind === 'process'" :thinking="block.thinking" :tools="block.tools" :default-open="block.key === latest.run">
+          <ProcessGroup v-else-if="block.kind === 'process'" :thinking="block.thinking" :tools="block.tools" :default-open="block.key === latest.run && newestRunOpen">
             <StepView v-for="step in block.steps" :key="step.key" :step="step" :latest-reasoning="latest.reasoning" :latest-tool="latest.tool" />
           </ProcessGroup>
 
