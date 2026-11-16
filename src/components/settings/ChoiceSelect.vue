@@ -44,7 +44,7 @@ const groups = computed(() => {
 <template>
   <LongChoice v-if="long" :id="id" :options="options" :model-value="modelValue" :disabled="disabled" :loading="loading" @change="(v) => emit('change', v)" />
   <Select v-else :model-value="value" :disabled="disabled || loading || options.length === 0" @update:model-value="(v) => emit('change', String(v))">
-    <SelectTrigger :id="id" class="h-10 w-full sm:h-9 [&>svg:last-child]:data-[loading=true]:hidden" :data-loading="loading" :aria-busy="loading || undefined">
+    <SelectTrigger :id="id" class="h-10 w-full sm:h-9 *:data-[slot=select-value]:block! *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:truncate [&>svg:last-child]:data-[loading=true]:hidden" :data-loading="loading" :aria-busy="loading || undefined">
       <SelectValue :placeholder="placeholder" />
       <Spinner v-if="loading" class="text-muted-foreground size-4 shrink-0 motion-reduce:animate-none" />
     </SelectTrigger>

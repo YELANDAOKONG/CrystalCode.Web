@@ -10,7 +10,7 @@ import { loadPreference, savePreference } from '@/connection/storage'
 const TOOL_FOLDINGS = ['each', 'group', 'line', 'single-group'] as const
 export type ToolFolding = (typeof TOOL_FOLDINGS)[number]
 const stored = loadPreference('tool-grouping')
-const toolFolding = ref<ToolFolding>(TOOL_FOLDINGS.find((value) => value === stored) ?? 'line')
+const toolFolding = ref<ToolFolding>(TOOL_FOLDINGS.find((value) => value === stored) ?? 'single-group')
 const groupTools = computed(() => toolFolding.value !== 'each')
 const quietTools = computed(() => toolFolding.value === 'line')
 const groupSingleTool = computed(() => toolFolding.value === 'single-group')

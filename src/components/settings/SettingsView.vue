@@ -59,7 +59,7 @@ watch(saving, (now, before) => {
     <component
       :is="wide ? DialogContent : SheetContent"
       v-bind="wide ? {} : { side: 'bottom' }"
-      :class="wide ? 'flex h-[min(88dvh,46rem)] flex-col gap-4 sm:max-w-3xl' : 'flex h-dvh max-h-dvh flex-col gap-0 rounded-none p-0'"
+      :class="wide ? 'flex h-[min(88dvh,46rem)] flex-col gap-4 sm:max-w-4xl' : 'flex h-dvh max-h-dvh flex-col gap-0 rounded-none p-0'"
     >
       <component :is="wide ? DialogHeader : SheetHeader" :class="wide ? 'text-left' : 'border-b px-4 py-3 text-left'">
         <component :is="wide ? DialogTitle : SheetTitle">{{ t('settings.title') }}</component>

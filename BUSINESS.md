@@ -203,12 +203,12 @@ Interface:
   main view: no role label, folded tool calls, folded thinking, and copy on
   every message. Their identifiers and model details are folded under a
   Details or Identifiers row.
-- The default conversation is compact: messages carry no role label, two or
-  more consecutive tool calls fold into one line, a single call is one quiet
-  line, and the newest tool call and the newest thinking block stay open while
+- The default conversation is compact: messages carry no role label, consecutive
+  tool calls fold into one line, a single call is a group of one, and the newest
+  tool call and the newest thinking block stay open while
   earlier ones fold unless the reader opened them. Conversation settings choose
   how tool calls appear (one card per call; consecutive calls folded with a
-  single call as a card, a quiet line, or a group of one), stop the automatic
+  single call as a card, a quiet line, or a group), stop the automatic
   folding of earlier tool calls and thinking, and can fold each run of thinking
   and tool steps between two messages into one line (off by default; the newest
   run stays open). These preferences are stored in the browser. Every message
