@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Eye, EyeOff, X } from '@lucide/vue'
 import LogoMark from '@/components/common/LogoMark.vue'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
@@ -35,6 +35,18 @@ const addressError = computed(() => {
   return failure ? t(`address.${failure.error}` as MessageKey) : null
 })
 const origin = window.location.origin
+// A hosting server fixes the address, so the only thing left to do after a
+// failure is to try again, or to type the token it asked for.
+const retrying = computed(() => host !== null && !tokenNeeded.value && server.diagnosis.value !== null)
+watch(
+  tokenNeeded,
+  async (needed) => {
+    if (!needed || host === null) return
+    await nextTick()
+    document.getElementById('token')?.focus()
+  },
+  { immediate: true, flush: 'post' },
+)
 // Shown while the operator types, so a blocked mix is known before the first try.
 const advisory = computed(() =>
   host !== null || address.value.trim() === '' ? null : inspectAddress(address.value).advisory,
@@ -160,7 +172,7 @@ function pick(url: string): void {
 
         <Button type="submit" class="w-full" :disabled="busy">
           <Spinner v-if="busy" />
-          {{ busy ? t('connect.connecting') : t('connect.submit') }}
+          {{ busy ? t('connect.connecting') : retrying ? t('connect.retry') : t('connect.submit') }}
         </Button>
       </form>
 

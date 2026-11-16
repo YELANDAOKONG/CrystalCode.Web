@@ -238,6 +238,11 @@ origin for `GET /config` once at start:
   With `true` it asks for a token only, or connects at once when this tab kept
   one. `authentication` only decides which fields show: a 401 from a server that
   said `false` still shows the token field.
+- A failure in hosted mode gets its own text, with no address checklist: the
+  address, scheme, certificate, and origin list cannot be the cause on one
+  origin. A network failure says the server may have stopped, and the button
+  becomes "Try again". A rejected token is dropped from tab storage so a
+  reload does not send it again, and the token field takes focus.
 - Requirement for the server: `GET /config` is same-origin, needs no token, sits
   outside `--api-base`, and is not cached. Recorded for the owner of
   `../CrystalCode`.

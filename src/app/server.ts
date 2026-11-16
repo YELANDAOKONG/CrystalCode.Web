@@ -202,7 +202,15 @@ function createServer() {
   }
 
   function fail(error: unknown, address: ServerAddress): void {
-    diagnosis.value = diagnose(error, advisory.value ?? advise(pageContext(), address), address.scheme, address.pathPrefix !== '')
+    diagnosis.value = diagnose(
+      error,
+      advisory.value ?? advise(pageContext(), address),
+      address.scheme,
+      address.pathPrefix !== '',
+      hosted.value !== null,
+    )
+    // A rejected token kept for this tab would be tried again on every reload.
+    if (diagnosis.value.code === 'unauthorized') clearTabToken(baseUrl(address))
     phase.value = 'failed'
     client = null
     run?.abort()

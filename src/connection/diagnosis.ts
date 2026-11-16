@@ -15,6 +15,8 @@ export type DiagnosisCode =
   | 'unreachable-blocked' // network, and the advisory said the browser likely blocked it
   | 'bad-response' // reachable but not a Crystal Code server
   | 'path-not-found' // 404 under a path prefix: --api-base may not match
+  | 'hosted-unreachable' // network, and the server that serves this page
+  | 'hosted-mismatch' // 404 or a foreign answer from the server that serves this page
   | 'other'
 
 export interface Diagnosis {
@@ -39,6 +41,7 @@ export function diagnose(
   advisory: Advisory,
   targetScheme: 'http' | 'https',
   hasPathPrefix: boolean,
+  hosted: boolean,
 ): Diagnosis {
   if (!(error instanceof ProtocolError)) {
     return { code: 'other', detail: '', retryAfter: null, checklist: [] }
@@ -56,11 +59,15 @@ export function diagnose(
       return { ...base, code: 'rate-limited' }
     case 'not-ready':
       return { ...base, code: 'not-ready' }
-    case 'not-found':
-      return { ...base, code: hasPathPrefix ? 'path-not-found' : 'bad-response' }
     case 'invalid-response':
-      return { ...base, code: 'bad-response' }
+    case 'not-found':
+      if (hosted) return { ...base, code: 'hosted-mismatch' }
+      return { ...base, code: hasPathPrefix && error.kind === 'not-found' ? 'path-not-found' : 'bad-response' }
     case 'network': {
+      // The page and the server share an origin, so the address, the scheme,
+      // the certificate, and the origin list cannot be the cause. The server
+      // most likely stopped.
+      if (hosted) return { ...base, code: 'hosted-unreachable' }
       const checklist: ChecklistItem[] = []
       if (advisory.likelyBlocked) checklist.push('mixed-content')
       checklist.push('address', 'running', 'allow-origin', 'allow-host')
