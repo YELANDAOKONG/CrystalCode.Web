@@ -55,18 +55,20 @@ const { bind, pinned, unseen, onScroll, toBottom } = useStickToBottom(() => [
 ])
 
 // The newest thinking block, tool call, and run stay open and earlier ones
-// close, unless the reader opened them.
+// close, unless the reader opened them. A step inside a folded run closes with
+// it, even when it is the newest of its kind.
 const latest = computed(() => {
   const result = { reasoning: null as string | null, tool: null as string | null, run: null as string | null }
-  const visit = (entry: FoldedBlock) => {
-    if (entry.kind === 'process') entry.steps.forEach(visit)
-    else if (entry.kind === 'reasoning') result.reasoning = entry.key
-    else if (entry.kind === 'tool' || entry.kind === 'toolgroup') result.tool = entry.key
-  }
   for (const entry of entries.value) {
-    visit(entry)
     if (entry.kind === 'process' || entry.kind === 'reasoning' || entry.kind === 'tool' || entry.kind === 'toolgroup') result.run = entry.key
   }
+  const visit = (entry: FoldedBlock) => {
+    if (entry.kind === 'process') {
+      if (entry.key === result.run) entry.steps.forEach(visit)
+    } else if (entry.kind === 'reasoning') result.reasoning = entry.key
+    else if (entry.kind === 'tool' || entry.kind === 'toolgroup') result.tool = entry.key
+  }
+  entries.value.forEach(visit)
   return result
 })
 
