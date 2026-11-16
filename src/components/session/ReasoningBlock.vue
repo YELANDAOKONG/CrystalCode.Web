@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Brain, ChevronRight } from '@lucide/vue'
+import { ChevronRight, Sparkles } from '@lucide/vue'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { t } from '@/i18n'
 
@@ -25,7 +25,7 @@ const open = computed(() => manual.value ?? (props.defaultOpen && !props.folded)
       @click.prevent="manual = !open"
     >
       <ChevronRight class="size-4 transition-transform group-open:rotate-90" />
-      <Brain class="size-4" />
+      <Sparkles class="size-4" />
       {{ t('session.reasoning') }}
     </summary>
     <div class="text-muted-foreground mt-1 border-l-2 pl-4"><MarkdownView :source="text" :streaming="streaming" /></div>

@@ -4,7 +4,7 @@ import { toast } from 'vue-sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
 import { useConversationWidth } from '@/composables/conversation-width'
-import { ArrowUp, Brain, ImagePlus, Layers, Maximize2, ShieldCheck, Square, Zap } from '@lucide/vue'
+import { ArrowUp, ImagePlus, Maximize2, ShieldCheck, SlidersHorizontal, Sparkles, Square, Zap } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -546,7 +546,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         <div class="flex items-center gap-1 px-2 pb-2">
           <ComposerChip
             v-if="mode"
-            :icon="Layers"
+            :icon="SlidersHorizontal"
             :name="t('chip.mode')"
             :value="mode"
             :options="modeOptions"
@@ -567,7 +567,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           />
           <ComposerChip
             v-if="thinkingValue"
-            :icon="Brain"
+            :icon="Sparkles"
             :name="t('chip.thinking')"
             :value="thinkingValue"
             :options="thinkingOptions"
