@@ -14,6 +14,7 @@ export type DiagnosisCode =
   | 'unreachable' // network: several causes, see the checklist
   | 'unreachable-blocked' // network, and the advisory said the browser likely blocked it
   | 'bad-response' // reachable but not a Crystal Code server
+  | 'path-not-found' // 404 under a path prefix: --api-base may not match
   | 'other'
 
 export interface Diagnosis {
@@ -33,7 +34,12 @@ export type ChecklistItem =
   | 'mixed-content' // https page, http server
   | 'permission' // local network permission denied
 
-export function diagnose(error: unknown, advisory: Advisory, targetScheme: 'http' | 'https'): Diagnosis {
+export function diagnose(
+  error: unknown,
+  advisory: Advisory,
+  targetScheme: 'http' | 'https',
+  hasPathPrefix: boolean,
+): Diagnosis {
   if (!(error instanceof ProtocolError)) {
     return { code: 'other', detail: '', retryAfter: null, checklist: [] }
   }
@@ -50,8 +56,9 @@ export function diagnose(error: unknown, advisory: Advisory, targetScheme: 'http
       return { ...base, code: 'rate-limited' }
     case 'not-ready':
       return { ...base, code: 'not-ready' }
-    case 'invalid-response':
     case 'not-found':
+      return { ...base, code: hasPathPrefix ? 'path-not-found' : 'bad-response' }
+    case 'invalid-response':
       return { ...base, code: 'bad-response' }
     case 'network': {
       const checklist: ChecklistItem[] = []

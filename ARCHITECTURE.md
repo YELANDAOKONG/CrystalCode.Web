@@ -59,7 +59,9 @@ binding.
 
 1. The operator enters an address and optionally a token. `connection`
    validates the address, builds the advisory (below), and shows it before
-   the request when the browser will likely block it.
+   the request when the browser will likely block it. A path in the address is
+   the server's `--api-base`; every route is requested under it, and a 404
+   there is reported as a likely prefix mismatch.
 2. `GET /health` (no token) confirms a server answers and reads its state.
    The page's `Origin` header applies to this request too.
 3. `GET /info` (needs a token unless `--auth none`) returns the scope, build

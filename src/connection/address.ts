@@ -11,7 +11,7 @@ export interface ServerAddress {
   port: number | null
   /** `scheme://host[:port]` with no trailing slash. This is the Origin the server sees. */
   origin: string
-  /** Path prefix for a server behind a reverse proxy. No trailing slash. */
+  /** The server's `--api-base`, or a reverse proxy's path. Empty for `/`, no trailing slash. */
   pathPrefix: string
   space: AddressSpace
   /** True when the host is a name, so the client cannot know where it resolves. */
@@ -24,6 +24,7 @@ export type AddressError =
   | 'unsupported-scheme'
   | 'credentials'
   | 'query-or-fragment'
+  | 'invalid-path'
 
 export type ParseResult = { ok: true; address: ServerAddress } | { ok: false; error: AddressError }
 
@@ -58,6 +59,10 @@ export function parseAddress(input: string, defaultScheme: 'http' | 'https'): Pa
   const host = url.hostname
   const port = url.port === '' ? null : Number(url.port)
   const origin = `${scheme}://${host}${port === null ? '' : `:${port}`}`
+  if (!isPlainPath(rawPath(hasScheme ? text : `${defaultScheme}://${text}`))) {
+    return { ok: false, error: 'invalid-path' }
+  }
+
   const pathPrefix = url.pathname.replace(/\/+$/, '')
   return {
     ok: true,
@@ -71,6 +76,26 @@ export function parseAddress(input: string, defaultScheme: 'http' | 'https'): Pa
       isName: !isIpLiteral(host),
     },
   }
+}
+
+/** The path exactly as typed, before `URL` resolves dot segments or encodes characters. */
+function rawPath(text: string): string {
+  const rest = text.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '')
+  const start = rest.search(/[/\\]/)
+  if (start < 0) return ''
+  const end = rest.search(/[?#]/)
+  return rest.slice(start, end < 0 ? undefined : end)
+}
+
+/**
+ * The server rejects a prefix with an empty or dot segment or any of
+ * `{ } % * \`. Refusing them here keeps the page from quietly connecting to a
+ * different path than the one typed.
+ */
+function isPlainPath(path: string): boolean {
+  if (/[{}%*\\]/.test(path)) return false
+  const segments = path.replace(/\/$/, '').split('/').slice(1)
+  return segments.every((segment) => segment !== '' && segment !== '.' && segment !== '..')
 }
 
 export function baseUrl(address: ServerAddress): string {

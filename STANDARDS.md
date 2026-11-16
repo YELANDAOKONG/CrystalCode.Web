@@ -41,7 +41,8 @@
 - Every request is cancellable with `AbortController`. Cancel on disconnect
   and on page unload.
 - Reject addresses with embedded credentials. Normalize IPv6 literals.
-- Never concatenate user or server text into a URL without encoding.
+- Reject a path the server's `--api-base` rules refuse; check the typed text,
+  because `URL` rewrites dot segments and encodes characters.- Never concatenate user or server text into a URL without encoding.
 - Tokens: memory by default. `sessionStorage` only after an explicit choice.
   Never `localStorage`, cookies, URLs, or logs.
 - Images and exports are fetched with the `Authorization` header into a blob

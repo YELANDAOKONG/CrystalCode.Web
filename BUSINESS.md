@@ -65,7 +65,9 @@ Connection:
 - Connect to any address the operator types: host and port, with a scheme.
   Public and local network addresses are equal cases. Nothing about a specific
   address is built in.
-- Send a bearer token when the operator provides one. A server started with
+- The address may carry the server's `--api-base` as a path, such as
+  `https://example.com/api`. The page sends every route under it and rejects a
+  path the server would refuse (empty, `.` or `..` segment, or `{ } % * \`).- Send a bearer token when the operator provides one. A server started with
   `--auth none` needs none.
 - Remember addresses between visits. Keep the token in memory only unless the
   operator ticks a box to keep it for the current tab (see Data).

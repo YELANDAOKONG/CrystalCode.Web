@@ -179,7 +179,7 @@ function createServer() {
   }
 
   function fail(error: unknown, address: ServerAddress): void {
-    diagnosis.value = diagnose(error, advisory.value ?? advise(pageContext(), address), address.scheme)
+    diagnosis.value = diagnose(error, advisory.value ?? advise(pageContext(), address), address.scheme, address.pathPrefix !== '')
     phase.value = 'failed'
     client = null
     run?.abort()
