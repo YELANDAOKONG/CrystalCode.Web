@@ -238,11 +238,15 @@ html:lang(zh-TW) {
     -moz-osx-font-smoothing: grayscale;
     font-synthesis: none;
     height: 100%;
+    /* The page is a fixed app shell. Only the panes inside it scroll, so a drag
+       on empty space must not rubber-band the whole view. */
+    overscroll-behavior: none;
   }
 
   body {
     margin: 0;
     height: 100%;
+    overscroll-behavior: none;
     background: var(--site-bg);
     color: var(--site-ink);
   }
