@@ -52,3 +52,4 @@ over HTTP on a local network.
 - [ARCHITECTURE.md](ARCHITECTURE.md): ownership, flow, mixed-content rules
 - [STANDARDS.md](STANDARDS.md): code, dependencies, verification
 - [AGENTS.md](AGENTS.md): instructions for coding agents
+
