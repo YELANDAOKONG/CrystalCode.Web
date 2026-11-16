@@ -256,6 +256,15 @@ html:lang(zh-TW) {
     outline-offset: 2px;
   }
 
+  /* Continuous-curvature corners wherever a rounded-* utility sets a radius.
+     A browser without corner-shape ignores this and keeps circular arcs. Fully
+     round controls stay circles. */
+  @supports (corner-shape: squircle) {
+    [class*='rounded-']:not([class*='rounded-full']) {
+      corner-shape: squircle;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

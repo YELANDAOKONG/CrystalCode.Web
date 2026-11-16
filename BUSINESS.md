@@ -175,6 +175,8 @@ Interface:
 - Visual language follows `../CrystalCode.Website`: Archivo and IBM Plex Mono,
   the cool ivory, blue-gray, and ice palette, light, dark, and auto themes,
   the crystal mark. Planned; the current stylesheet is still the starter.
+- Rounded corners use continuous curvature (`corner-shape: squircle`) where the
+  browser supports it, and circular arcs elsewhere. It is not a setting.
 - Responsive on desktop, tablet, and phone.
 - Remember whether the desktop side panel is open as a browser preference.
   The mobile side panel opens separately and is not restored on refresh.
