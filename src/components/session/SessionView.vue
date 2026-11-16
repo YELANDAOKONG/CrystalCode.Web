@@ -4,7 +4,8 @@ import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { t } from '@/i18n'
+import { t, type MessageKey } from '@/i18n'
+import { displayToken } from '@/session/display-case'
 import CatalogView from '@/components/catalog/CatalogView.vue'
 import SettingsView from '@/components/settings/SettingsView.vue'
 import StatsWindow from '@/components/report/StatsWindow.vue'
@@ -44,6 +45,12 @@ function openPursue(): void {
   pursueOpen.value = true
 }
 
+const SERVER_STATES = new Set(['starting', 'awaiting_operator', 'ready', 'closing', 'failed'])
+
+function serverStateLabel(state: string): string {
+  return SERVER_STATES.has(state) ? t(`banner.state.${state}` as MessageKey) : displayToken(state)
+}
+
 const banner = computed(() => {
   if (phase.value === 'reconnecting') {
     const wait = retryIn.value
@@ -54,7 +61,7 @@ const banner = computed(() => {
     return model.server.closing?.saved ? t('banner.closed.saved') : t('banner.closed')
   }
 
-  return waitingState.value ? t('banner.waiting', { state: waitingState.value }) : null
+  return waitingState.value ? t('banner.waiting', { state: serverStateLabel(waitingState.value) }) : null
 })
 </script>
 
