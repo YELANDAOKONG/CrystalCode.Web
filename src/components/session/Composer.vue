@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { toast } from 'vue-sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
 import { useConversationWidth } from '@/composables/conversation-width'
@@ -11,9 +12,11 @@ import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import { approvalModes, currentByLabel, findArguments, modeChoices, toOptions } from '@/session/settings'
-import { sizeState } from '@/session/draft-size'
+import { insertMarker, MAX_IMAGE_BYTES, removeMarker, type Attachment } from '@/session/attachment'
+import { formatBytes, sizeState } from '@/session/draft-size'
 import { promptHistory, rememberPrompt } from '@/session/prompt-history'
 import { aliasesOf, completedText, createPicker, isExact } from '@/session/slash'
+import ComposerAttachments from './ComposerAttachments.vue'
 import ComposerChip from './ComposerChip.vue'
 import FullscreenComposer from './FullscreenComposer.vue'
 import QuickPromptPicker from './QuickPromptPicker.vue'
@@ -87,6 +90,10 @@ let latestSend = 0
 async function submit(): Promise<void> {
   const value = text.value
   if (blocked.value || sizeState(value) === 'over') return
+  if (uploading.value) {
+    toast.message(t('composer.attach.wait'))
+    return
+  }
   // Empty text does not enqueue. While something is queued it interrupts, so
   // the queue is sent now. The same key starts a prompt when the box has text.
   if (value.trim() === '') {
@@ -99,12 +106,19 @@ async function submit(): Promise<void> {
   text.value = ''
   historyIndex.value = null
   remembered.value = rememberPrompt(remembered.value, value)
+  const sent = takeSent(value)
   const ticket = ++latestSend
   if (!busy.value) awaiting.value = true
   const result = await server.send(value)
   if (ticket === latestSend) awaiting.value = false
-  // A refused input (the reason arrives as an error notice) keeps its text.
-  if (!result || !result.accepted) keepDraft(value)
+  // A refused input (the reason arrives as an error notice) keeps its text and
+  // its thumbnails.
+  if (!result || !result.accepted) {
+    keepDraft(value)
+    attachments.value.push(...sent)
+  } else {
+    sent.forEach(release)
+  }
 }
 
 function keepDraft(value: string): void {
@@ -265,6 +279,7 @@ watch(
   () => {
     remembered.value = []
     historyIndex.value = null
+    dropAll()
   },
 )
 
@@ -281,36 +296,136 @@ watch(
 
 const canAttach = computed(() => canOperate.value && server.can('POST /images'))
 
-async function attach(blob: Blob): Promise<void> {
-  const uploaded = await server.uploadImage(blob)
-  if (!uploaded) return
-  const area = element()
-  const marker = uploaded.trustedMarker || uploaded.marker
-  const at = area?.selectionStart ?? text.value.length
-  text.value = `${text.value.slice(0, at)}${marker}${text.value.slice(at)}`
+// The marker in the text is what binds an image to the message. The list only
+// keeps what the thumbnails need: the local file, its state, and its marker.
+const attachments = ref<Attachment[]>([])
+let attachmentId = 0
+const uploading = computed(() => attachments.value.some((item) => item.status === 'uploading'))
+// A ready image whose marker was deleted from the text is no longer part of the draft.
+const tray = computed(() => attachments.value.filter((item) => item.status !== 'ready' || text.value.includes(item.marker)))
+
+function release(item: Attachment): void {
+  URL.revokeObjectURL(item.preview)
 }
+
+// Images the message carries leave the tray with it. Failed and unsent ones stay.
+function takeSent(value: string): Attachment[] {
+  const sent = attachments.value.filter((item) => item.status === 'ready' && value.includes(item.marker))
+  const stale = attachments.value.filter((item) => item.status === 'ready' && !sent.includes(item))
+  stale.forEach(release)
+  attachments.value = attachments.value.filter((item) => item.status !== 'ready')
+  return sent
+}
+
+function dropAll(): void {
+  attachments.value.forEach(release)
+  attachments.value = []
+}
+
+function placeMarker(marker: string): void {
+  const area = element()
+  // A caret only means something while the box has focus. Otherwise append.
+  const at = area && document.activeElement === area ? area.selectionStart : text.value.length
+  const next = insertMarker(text.value, marker, at)
+  text.value = next.text
+  if (area && document.activeElement === area) {
+    void nextTick(() => element()?.setSelectionRange(next.caret, next.caret))
+  }
+}
+
+async function upload(id: number): Promise<void> {
+  const item = attachments.value.find((entry) => entry.id === id)
+  if (!item) return
+  item.status = 'uploading'
+  const uploaded = await server.uploadImage(item.file)
+  // Removed while it was uploading: leave the text alone.
+  const current = attachments.value.find((entry) => entry.id === id)
+  if (!current) return
+  if (!uploaded) {
+    current.status = 'failed'
+    return
+  }
+  current.marker = uploaded.trustedMarker || uploaded.marker
+  current.number = uploaded.number
+  current.status = 'ready'
+  placeMarker(current.marker)
+}
+
+function addFiles(files: File[]): void {
+  const images = files.filter((file) => file.type.startsWith('image/'))
+  if (images.length < files.length) toast.error(t('composer.attach.notImage'))
+  for (const file of images) {
+    if (file.size > MAX_IMAGE_BYTES) {
+      toast.error(t('composer.attach.tooLarge', { name: file.name, limit: formatBytes(MAX_IMAGE_BYTES) }))
+      continue
+    }
+    const id = ++attachmentId
+    attachments.value.push({
+      id,
+      name: file.name || t('composer.attach'),
+      file,
+      preview: URL.createObjectURL(file),
+      status: 'uploading',
+      marker: '',
+      number: 0,
+    })
+    void upload(id)
+  }
+}
+
+function removeAttachment(id: number): void {
+  const item = attachments.value.find((entry) => entry.id === id)
+  if (!item) return
+  if (item.marker) text.value = removeMarker(text.value, item.marker)
+  release(item)
+  attachments.value = attachments.value.filter((entry) => entry.id !== id)
+}
+
+const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false
 
 function onPaste(event: ClipboardEvent): void {
   if (!canAttach.value) return
   const files = [...(event.clipboardData?.files ?? [])].filter((file) => file.type.startsWith('image/'))
   if (files.length === 0) return
   event.preventDefault()
-  for (const file of files) void attach(file)
+  addFiles(files)
+}
+
+// The overlay counts enter and leave events, because moving over a child fires
+// a leave on its parent first.
+const dragging = ref(false)
+let dragDepth = 0
+
+function onDragEnter(event: DragEvent): void {
+  if (!canAttach.value || !hasFiles(event)) return
+  dragDepth++
+  dragging.value = true
+}
+
+function onDragLeave(): void {
+  if (dragDepth > 0 && --dragDepth === 0) dragging.value = false
 }
 
 function onDrop(event: DragEvent): void {
-  if (!canAttach.value) return
-  const files = [...(event.dataTransfer?.files ?? [])].filter((file) => file.type.startsWith('image/'))
-  if (files.length === 0) return
+  dragDepth = 0
+  dragging.value = false
+  if (!hasFiles(event)) return
+  // A file dropped on the page would otherwise open in this tab and end the session view.
   event.preventDefault()
-  for (const file of files) void attach(file)
+  if (!canAttach.value) {
+    toast.error(t('composer.attach.unavailable'))
+    return
+  }
+  addFiles([...(event.dataTransfer?.files ?? [])])
 }
 
 function onPick(event: Event): void {
   const input = event.target as HTMLInputElement
-  for (const file of input.files ?? []) void attach(file)
+  addFiles([...(input.files ?? [])])
   input.value = ''
 }
+
+onBeforeUnmount(dropAll)
 
 // --- quick prompts and mode ------------------------------------------------
 
@@ -349,7 +464,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 </script>
 
 <template>
-  <div class="bg-background shrink-0 px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" :class="fullWidth && 'md:px-8 lg:px-12'" @dragover.prevent @drop="onDrop">
+  <div class="bg-background shrink-0 px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" :class="fullWidth && 'md:px-8 lg:px-12'" @dragover.prevent @dragenter="onDragEnter" @dragleave="onDragLeave" @drop="onDrop">
     <div class="relative mx-auto" :class="fullWidth ? '' : 'max-w-3xl'">
       <ul
         v-if="suggestions.length"
@@ -387,7 +502,14 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 
       <p v-if="blocked" class="text-muted-foreground mb-2 text-sm">{{ t('composer.readonly') }}</p>
 
-      <div class="bg-card focus-within:ring-ring rounded-2xl border shadow-sm transition-shadow focus-within:ring-2">
+      <div class="bg-card focus-within:ring-ring relative rounded-2xl border shadow-sm transition-shadow focus-within:ring-2" :class="dragging && 'ring-ring ring-2'">
+        <div
+          v-if="dragging"
+          aria-hidden="true"
+          class="bg-background/90 border-ring text-foreground pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-2xl border-2 border-dashed text-sm font-medium"
+        >
+          <span class="flex items-center gap-2"><ImagePlus class="size-4" />{{ t('composer.attach.drop') }}</span>
+        </div>
         <div v-if="recovered.length" class="border-b px-3 py-2" role="status">
           <p class="text-muted-foreground mb-1 text-xs font-medium">{{ t('composer.recovered') }}</p>
           <ul class="max-h-36 space-y-1 overflow-y-auto">
@@ -407,6 +529,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           </ol>
           <p class="text-muted-foreground mt-1 text-xs">{{ t('composer.queue.release') }}</p>
         </div>
+        <ComposerAttachments :items="tray" :disabled="blocked" @remove="removeAttachment" @retry="upload" />
         <Textarea
           ref="field"
           v-model="text"
@@ -500,8 +623,9 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           <Button
             size="icon"
             class="size-10 rounded-full md:size-8"
-            :disabled="blocked || (text.trim() === '' && !(busy && model.queue.length)) || sizeState(text) === 'over'"
-            :aria-busy="sending || undefined"
+            :disabled="blocked || uploading || (text.trim() === '' && !(busy && model.queue.length)) || sizeState(text) === 'over'"
+            :aria-busy="sending || uploading || undefined"
+            :title="uploading ? t('composer.attach.wait') : undefined"
             :aria-label="text.trim() === '' ? t('composer.queue.release') : t('composer.send')"
             @click="submit"
           >

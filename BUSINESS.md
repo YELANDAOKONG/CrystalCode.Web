@@ -136,7 +136,14 @@ Session:
   the title of a saved session in the catalog.
 - Show `report.document` results, such as `/skills` and plugin commands.
 - Side questions (`/btw`) with cancel and clear.
-- Upload images and view session and tool images.
+- Upload images and view session and tool images. A picked, pasted, or dropped
+  image shows as a thumbnail above the composer text with its upload state
+  (uploading, ready, failed with retry) and a remove action that also removes
+  its marker from the text. Sending waits for uploads to finish. Dragging
+  files over the composer shows a drop target. Files over 20 MiB and
+  non-image files are refused before upload. Thumbnails are local previews;
+  an image restored from history or a retracted follow-up keeps its marker
+  without a thumbnail.
 - Quick prompts: list, fill into the composer, and send.
 - Pursue: the side panel shows an objective summary with status, phase, and
   retained check count above the child agents. The summary is available in the
