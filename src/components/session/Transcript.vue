@@ -111,7 +111,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
         <template v-for="block in entries" :key="block.key">
           <section
             v-if="block.kind === 'message'"
-            class="group/message min-w-0"
+            class="group/message relative min-w-0"
             :class="block.role === 'user' ? 'max-w-[85%] self-end' : 'mr-4'"
           >
             <div v-if="block.role === 'user'" class="bg-secondary rounded-2xl px-4 py-2.5">
@@ -123,10 +123,10 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
             </div>
             <div
               v-if="block.text"
-              class="mt-1 flex opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 [@media(hover:none)]:opacity-100"
-              :class="block.role === 'user' ? 'justify-end' : '-ml-2'"
+              class="absolute top-full left-0 flex h-5 opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:mt-1 [@media(hover:none)]:h-auto [@media(hover:none)]:opacity-100"
+              :class="block.role === 'user' ? 'right-0 left-auto justify-end' : '-ml-2'"
             >
-              <Button variant="ghost" size="sm" class="text-muted-foreground h-7 px-2 text-xs" @click="copyMessage(block.key, block.text)">
+              <Button variant="ghost" size="sm" class="text-muted-foreground h-5 px-2 text-xs [@media(hover:none)]:h-7" @click="copyMessage(block.key, block.text)">
                 <Check v-if="copiedKey === block.key" class="size-3.5" />
                 <Copy v-else class="size-3.5" />
                 {{ copiedKey === block.key ? t('common.copied') : t('common.copy') }}
