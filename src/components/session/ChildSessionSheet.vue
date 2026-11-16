@@ -145,7 +145,7 @@ const activityText = computed(() => {
           </Button>
         </div>
         <p v-if="running" role="status" class="text-muted-foreground flex items-center gap-2 text-xs">{{ t('child.live') }}: {{ activityText }}</p>
-        <details v-if="summary" class="text-muted-foreground group text-xs">
+        <details v-if="summary" class="text-muted-foreground group max-h-[40vh] overflow-y-auto text-xs">
           <summary class="hover:text-foreground flex cursor-pointer list-none items-center gap-1">
             <ChevronRight class="size-3.5 transition-transform group-open:rotate-90" />
             {{ t('child.details') }}
@@ -157,7 +157,7 @@ const activityText = computed(() => {
             </template>
             <template v-if="summary.tools.length">
               <dt>{{ t('child.tools') }}</dt>
-              <dd class="min-w-0 font-mono break-words">{{ summary.tools.join(', ') }}</dd>
+              <dd class="max-h-32 min-w-0 overflow-y-auto font-mono break-words" tabindex="0">{{ summary.tools.join(', ') }}</dd>
             </template>
             <template v-if="summary.cumulativeUsage ?? summary.usage">
               <dt>{{ t('child.usage') }}</dt>
@@ -220,10 +220,10 @@ const activityText = computed(() => {
               </li>
             </ul>
           </section>
-          <section v-if="summary?.notes.length">
+          <section v-if="summary?.notes.length" class="bg-card rounded-lg border px-3 py-2">
             <h3 class="mb-1 text-sm font-medium">{{ t('child.notes') }}</h3>
             <ul class="text-muted-foreground list-disc space-y-0.5 pl-4 text-xs">
-              <li v-for="(note, index) in summary.notes" :key="index">{{ note }}</li>
+              <li v-for="(note, index) in summary.notes" :key="index" class="break-words">{{ note }}</li>
             </ul>
           </section>
         </div>
