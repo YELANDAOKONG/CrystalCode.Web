@@ -17,7 +17,8 @@ import {
   type Option,
 } from '@/session/settings'
 import { formatWindow } from '@/session/usage-text'
-import ChoiceSelect from './ChoiceSelect.vue'
+import SessionChoice from './SessionChoice.vue'
+import SettingsGroup from './SettingsGroup.vue'
 import SideModelSettings from './SideModelSettings.vue'
 import SettingRow from './SettingRow.vue'
 import PursueSettings from './PursueSettings.vue'
@@ -140,142 +141,131 @@ const thinkingNote = computed(() => (chrome.value && chrome.value.thinking === '
 </script>
 
 <template>
-  <div class="divide-y">
-    <h3 class="text-muted-foreground pb-1 text-xs font-medium tracking-wide uppercase">{{ t('settings.group.session') }}</h3>
-
-    <SettingRow :label="t('settings.mode')" :help="t('settings.mode.help')" :note="pendingMode" label-for="set-mode">
-      <ChoiceSelect id="set-mode" :options="modes" :model-value="currentMode" :disabled="locked" :loading="busy('mode')" @change="setMode" />
-    </SettingRow>
-
-    <SettingRow
-      :label="t('settings.approval')"
-      :help="t('settings.approval.help')"
-      :note="pendingApproval ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
-      label-for="set-approval"
-    >
-      <ChoiceSelect
+  <div class="space-y-8">
+    <SettingsGroup :title="t('settings.group.session')" scope="server">
+      <SessionChoice
+        id="set-mode"
+        :label="t('settings.mode')"
+        :help="t('settings.mode.help')"
+        :options="modes"
+        :current="currentMode"
+        :pending="pendingMode"
+        :loading="busy('mode')"
+        @change="setMode"
+      />
+      <SessionChoice
         id="set-approval"
+        admin
+        :label="t('settings.approval')"
+        :help="t('settings.approval.help')"
         :options="approvals"
-        :model-value="currentApproval"
-        :disabled="locked || adminLocked"
+        :current="currentApproval"
+        :pending="pendingApproval"
         :loading="busy('approval')"
         @change="(v) => run('approval', `/approval ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow
-      :label="t('settings.model')"
-      :help="t('settings.model.help')"
-      :note="pendingModel ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
-      label-for="set-model"
-    >
-      <ChoiceSelect
+      <SessionChoice
         id="set-model"
+        admin
+        :label="t('settings.model')"
+        :help="t('settings.model.help')"
         :options="modelOptions"
-        :model-value="currentModel"
-        :disabled="locked || adminLocked"
+        :current="currentModel"
+        :pending="pendingModel"
         :loading="busy('model')"
         @change="(v) => run('model', `/model ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow
-      :label="t('settings.thinking')"
-      :help="t('settings.thinking.help')"
-      :note="pendingThinking ?? thinkingNote ?? (adminLocked && canOperate ? t('settings.adminOnly') : undefined)"
-      label-for="set-thinking"
-    >
-      <ChoiceSelect
+      <SessionChoice
         id="set-thinking"
+        admin
+        :label="t('settings.thinking')"
+        :help="t('settings.thinking.help')"
         :options="thinking"
-        :model-value="currentThinking"
-        :disabled="locked || adminLocked"
+        :current="currentThinking"
+        :pending="pendingThinking"
+        :note="thinkingNote"
         :loading="busy('thinking')"
         @change="(v) => run('thinking', `/thinking ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow
-      v-if="windows.length > 0"
-      :label="t('settings.context')"
-      :help="t('settings.context.help')"
-      :note="pendingContext ?? (windows.length === 1 ? t('settings.single') : undefined)"
-      label-for="set-context"
-    >
-      <ChoiceSelect
+      <SessionChoice
+        v-if="windows.length > 0"
         id="set-context"
+        admin
+        :label="t('settings.context')"
+        :help="t('settings.context.help')"
         :options="windows"
-        :model-value="currentWindow"
-        :disabled="locked || adminLocked || windows.length < 2"
+        :current="currentWindow"
+        :pending="pendingContext"
+        :note="windows.length === 1 ? t('settings.single') : undefined"
+        :disabled="windows.length < 2"
         :loading="busy('context')"
         @change="(v) => run('context', `/context ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow v-if="tiers.length > 0" :label="t('settings.tier')" :note="pendingTier" label-for="set-tier">
-      <ChoiceSelect
+      <SessionChoice
+        v-if="tiers.length > 0"
         id="set-tier"
+        admin
+        :label="t('settings.tier')"
         :options="tiers"
-        :model-value="currentTier"
-        :disabled="locked || adminLocked"
+        :current="currentTier"
+        :pending="pendingTier"
         :loading="busy('tier')"
         @change="(v) => run('tier', `/tier ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow v-if="speeds.length > 0" :label="t('settings.speed')" :note="pendingSpeed" label-for="set-speed">
-      <ChoiceSelect
+      <SessionChoice
+        v-if="speeds.length > 0"
         id="set-speed"
+        admin
+        :label="t('settings.speed')"
         :options="speeds"
-        :model-value="currentSpeed"
-        :disabled="locked || adminLocked"
+        :current="currentSpeed"
+        :pending="pendingSpeed"
         :loading="busy('speed')"
         @change="(v) => run('speed', `/speed ${v}`)"
       />
-    </SettingRow>
-
-    <SettingRow v-if="canOptions && promptSets.length > 1" :label="t('settings.promptSet')" :help="t('settings.promptSet.help')" label-for="set-promptset">
-      <ChoiceSelect
+      <SessionChoice
+        v-if="canOptions && promptSets.length > 1"
         id="set-promptset"
+        admin
+        :label="t('settings.promptSet')"
+        :help="t('settings.promptSet.help')"
         :options="promptSets"
-        :model-value="promptSet?.current"
-        :disabled="locked || adminLocked"
+        :current="promptSet?.current"
         :loading="busy('prompt_set')"
         @change="setPromptSet"
       />
-    </SettingRow>
+      <template v-if="canOptions">
+        <SettingRow
+          v-for="option in switches"
+          :key="option.id"
+          :label="switchLabel(option.id, option.name)"
+          :help="switchHelp(option.id, option.description)"
+          :label-for="`opt-${option.id}`"
+        >
+          <div class="flex items-center gap-2 sm:justify-end">
+            <Spinner v-if="busy(option.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
+            <Switch
+              :id="`opt-${option.id}`"
+              :model-value="option.current === 'on'"
+              :aria-busy="busy(option.id) || undefined"
+              :disabled="locked || adminLocked || busy(option.id)"
+              @update:model-value="(on) => setSwitch(option.id, on)"
+            />
+          </div>
+        </SettingRow>
+      </template>
+    </SettingsGroup>
 
-    <template v-if="canOptions">
-      <SettingRow
-        v-for="option in switches"
-        :key="option.id"
-        :label="switchLabel(option.id, option.name)"
-        :help="switchHelp(option.id, option.description)"
-        :label-for="`opt-${option.id}`"
-      >
-        <div class="flex items-center gap-2 sm:justify-end">
-          <Spinner v-if="busy(option.id)" class="text-muted-foreground size-4 motion-reduce:animate-none" />
-          <Switch
-            :id="`opt-${option.id}`"
-            :model-value="option.current === 'on'"
-            :aria-busy="busy(option.id) || undefined"
-            :disabled="locked || adminLocked || busy(option.id)"
-            @update:model-value="(on) => setSwitch(option.id, on)"
-          />
-        </div>
-      </SettingRow>
-
-      <h3 class="text-muted-foreground pt-4 pb-1 text-xs font-medium tracking-wide uppercase">{{ t('settings.group.side') }}</h3>
+    <SettingsGroup v-if="canOptions" :title="t('settings.group.side')" scope="server">
       <SideModelSettings slot="approval" />
       <SideModelSettings slot="extended" />
       <SideModelSettings slot="compaction" />
-
       <SideModelSettings slot="topic" />
       <SideModelSettings slot="image" />
       <SideModelSettings slot="audio" />
       <SideModelSettings slot="video" />
       <SideModelSettings slot="document" />
-    </template>
+    </SettingsGroup>
 
     <PursueSettings />
   </div>

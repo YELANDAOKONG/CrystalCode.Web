@@ -3,13 +3,12 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
-import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { t } from '@/i18n'
-import DisplaySettings from './DisplaySettings.vue'
-import InterfaceSettings from './InterfaceSettings.vue'
+import AppearanceSettings from './AppearanceSettings.vue'
+import ConversationSettings from './ConversationSettings.vue'
 import ServerSettings from './ServerSettings.vue'
 import SessionSettings from './SessionSettings.vue'
 
@@ -18,18 +17,14 @@ const wide = useMediaQuery('(min-width: 768px)')
 
 const TABS = [
   ['session', 'settings.tab.session'],
-  ['display', 'settings.tab.display'],
-  ['interface', 'settings.tab.interface'],
+  ['conversation', 'settings.tab.conversation'],
+  ['appearance', 'settings.tab.appearance'],
   ['server', 'settings.tab.server'],
 ] as const
-// Where a tab's choices live, so the operator knows what a change reaches.
-const SCOPE = {
-  session: 'settings.scope.server',
-  display: 'settings.scope.server',
-  interface: 'settings.scope.browser',
-} as const
-const scope = computed(() => SCOPE[tab.value as keyof typeof SCOPE])
-const saved = loadPreference('settings-tab')
+// Earlier builds saved `display` and `interface`. Their settings now live here.
+const RENAMED: Record<string, string> = { display: 'conversation', interface: 'appearance' }
+const stored = loadPreference('settings-tab')
+const saved = stored === null ? null : (RENAMED[stored] ?? stored)
 const tab = ref(TABS.some(([id]) => id === saved) ? (saved as string) : 'session')
 const list = ref<{ $el: HTMLElement } | null>(null)
 
@@ -91,10 +86,9 @@ watch(saving, (now, before) => {
           </TabsList>
         </div>
         <div class="min-h-0 min-w-0 flex-1 overflow-y-auto py-1 pr-2 pb-[max(1rem,env(safe-area-inset-bottom))]" :class="wide ? '' : 'py-4 pr-1'">
-          <Badge v-if="scope" variant="outline" class="text-muted-foreground mb-2">{{ t(scope) }}</Badge>
           <TabsContent value="session" class="mt-0"><SessionSettings /></TabsContent>
-          <TabsContent value="display" class="mt-0"><DisplaySettings /></TabsContent>
-          <TabsContent value="interface" class="mt-0"><InterfaceSettings /></TabsContent>
+          <TabsContent value="conversation" class="mt-0"><ConversationSettings /></TabsContent>
+          <TabsContent value="appearance" class="mt-0"><AppearanceSettings /></TabsContent>
           <TabsContent value="server" class="mt-0"><ServerSettings @leave="open = false" /></TabsContent>
         </div>
       </Tabs>

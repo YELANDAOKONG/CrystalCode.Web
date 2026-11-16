@@ -177,15 +177,19 @@ Interface:
   the crystal mark. Planned; the current stylesheet is still the starter.
 - Rounded corners use continuous curvature (`corner-shape: squircle`) where the
   browser supports it, and circular arcs elsewhere. It is not a setting.
+- Settings have four tabs: Session and Server settings change the server, Conversation
+  holds the server's verbose switches and the browser's layout choices, and Appearance
+  holds language, theme, width, and title choices. Each group says whether it applies
+  on the server or only in this browser.
 - Responsive on desktop, tablet, and phone.
 - Remember whether the desktop side panel is open as a browser preference.
   The mobile side panel opens separately and is not restored on refresh.
-- Interface settings can expand the conversation, progress row, and composer
+- Appearance settings can expand the conversation, progress row, and composer
   to the available width. The default is a centered, limited-width layout; the
   preference is stored in the browser.
 - The default conversation is compact: messages carry no role label, two or
   more consecutive tool calls fold into one line, and thinking blocks fold when
-  newer thinking arrives unless the reader opened them. Interface settings
+  newer thinking arrives unless the reader opened them. Conversation settings
   restore one card per tool call and leave thinking as it was. Both preferences
   are stored in the browser. Every message has a copy action.
 - Browser tab titles default to the server-provided session topic, falling back
@@ -201,7 +205,7 @@ Interface:
   settings can keep the title fixed as Crystal Code instead; this preference
   is stored only in the browser, without storing the topic.
 - The page header's first line shows the session topic, or the workspace path
-  when the session is unnamed. Interface settings can show the workspace path
+  when the session is unnamed. Appearance settings can show the workspace path
   instead. The choice is stored only in the browser. `/clear`, `/new`, and
   `/fork` arrive with an empty topic, so the header returns to the workspace
   path. The tab title drops the old topic and uses the first message of what
