@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - release
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build and upload
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: CrystalCode-Web.zip
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - name: Checkout CrystalCode.Web
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag || github.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # The archive holds the contents of dist at its root, so the installer can
+      # extract it straight into the directory the server serves.
+      - name: Archive dist
+        working-directory: dist
+        run: zip -q -r ../CrystalCode-Web.zip .
+
+      - name: Upload release asset
+        if: github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" CrystalCode-Web.zip --clobber
+
+      - name: Upload build artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CrystalCode-Web
+          path: dist
+          if-no-files-found: error
+
+  checksum:
+    name: checksum.txt
+    needs: publish
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - name: Download release archive
+        run: >
+          gh release download "$TAG"
+          --repo "$GITHUB_REPOSITORY"
+          --pattern 'CrystalCode-Web.zip'
+          --dir assets
+
+      - name: Write checksum.txt
+        working-directory: assets
+        run: sha256sum CrystalCode-Web.zip > checksum.txt
+
+      - name: Upload checksum.txt
+        working-directory: assets
+        run: gh release upload "$TAG" checksum.txt --repo "$GITHUB_REPOSITORY" --clobber

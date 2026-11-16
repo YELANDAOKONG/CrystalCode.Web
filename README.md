@@ -26,6 +26,9 @@ pnpm dev
 pnpm build
 ```
 
+A release publishes the contents of `dist/` as `CrystalCode-Web.zip`; see
+[STANDARDS.md](STANDARDS.md), Release.
+
 The output in `dist/` is static and carries no server address. The intended
 deployment is one public HTTPS site. Operators open it and type their own
 server address, public or on a local network. The same build can be served

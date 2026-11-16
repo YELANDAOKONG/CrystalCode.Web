@@ -467,4 +467,5 @@ no test framework and no lint rule. See Open questions.
   `GET /info` capability handled or excluded). Needs a test framework or a
   lint tool, both of which need dependency approval.
 - Whether the build uses a relative `base` so it can live under any path.
-  The invariant that it needs no rewrite rules stands.
+  The invariant that it needs no rewrite rules stands. Until it does, the
+  `CrystalCode-Web.zip` release archive works only at the root of a site.

@@ -143,6 +143,25 @@ pnpm build
 `pnpm build` runs `vue-tsc -b && vite build`. `pnpm dev` starts Vite and does
 not exit; start it in the background and stop it when done.
 
+## Release
+
+CI lives in `.github/workflows`, copied in shape from `../CrystalCode`.
+
+- `test.yml` runs on a push to the `test` branch: `pnpm install
+  --frozen-lockfile` and `pnpm build`.
+- `release.yml` runs on a push to `release`, a published release, or a manual
+  run with a tag. It builds and archives the contents of `dist/` as
+  `CrystalCode-Web.zip`, with `index.html` at the archive root and no outer
+  folder. A release and a manual run upload the zip to the release, then
+  `checksum.txt` (SHA-256). A push to `release` keeps `dist` as a build
+  artifact only.
+- The Crystal Code install script downloads `CrystalCode-Web.zip`. Do not
+  rename it or add an outer folder without changing that script.
+- Workflow actions are pinned by major version: `actions/checkout`,
+  `actions/setup-node`, `actions/upload-artifact`, `pnpm/action-setup`. Node and
+  pnpm versions are set in the workflow because `package.json` has no
+  `packageManager` field.
+
 There is no unit test, component test, lint, or format command. Test framework
 is an Open question: Vitest is a candidate. Do not add one without approval,
 and do not claim coverage that does not exist.
