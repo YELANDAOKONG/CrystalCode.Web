@@ -10,34 +10,37 @@ import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { useConversationWidth } from '@/composables/conversation-width'
 import { useDisplayStyle } from '@/composables/display-style'
 import { t } from '@/i18n'
-import { compactionSummary, groupToolBlocks, toBlocks } from '@/session/blocks'
+import { compactionSummary, foldRuns, groupToolBlocks, toBlocks, type Block, type FoldedBlock } from '@/session/blocks'
 import { retryLine } from '@/session/progress'
 import ReportBlock from '@/components/report/ReportBlock.vue'
 import MessageBlock from './MessageBlock.vue'
-import ReasoningBlock from './ReasoningBlock.vue'
+import ProcessGroup from './ProcessGroup.vue'
 import SummaryCard from './SummaryCard.vue'
-import ToolBlock from './ToolBlock.vue'
-import ToolGroup from './ToolGroup.vue'
+import StepView from './StepView.vue'
 
 const model = server.model
 const { fullWidth } = useConversationWidth()
 const blocks = computed(() => toBlocks(model.conversation, model.notices))
 const live = computed(() => model.live)
-const { groupTools, foldThinking, fadeIn } = useDisplayStyle()
+const { groupTools, foldRuns: foldRunsSetting, fadeIn } = useDisplayStyle()
 
-const entries = computed(() => groupToolBlocks(blocks.value, groupTools.value))
-const liveEntries = computed(() =>
-  groupToolBlocks(
-    (live.value?.toolCalls ?? []).map((call) => ({ kind: 'tool' as const, key: call.callId, call, result: null })),
-    groupTools.value,
-  ),
-)
+// The round still streaming is drawn with the saved blocks, so a run of
+// thinking and tool calls folds as one whether or not it has finished.
+const liveBlocks = computed<Block[]>(() => {
+  const current = live.value
+  if (!current) return []
+  const list: Block[] = []
+  if (current.reasoning) list.push({ kind: 'reasoning', key: 'live-reasoning', text: current.reasoning, streaming: true })
+  if (current.text) list.push({ kind: 'message', key: 'live-text', role: 'assistant', text: current.text, images: [], streaming: true })
+  for (const call of current.toolCalls) list.push({ kind: 'tool', key: `live-${call.callId}`, call, result: null, running: true })
+  return list
+})
+const entries = computed(() => foldRuns(groupToolBlocks([...blocks.value, ...liveBlocks.value], groupTools.value), foldRunsSetting.value))
 const retry = computed(() => {
   const current = live.value
   return current && current.retries > 0 ? retryLine(current.retries, current.retryMessage) : null
 })
 const pending = computed(() => model.notices.filter((notice) => notice.at === null))
-const thinkingOpen = computed(() => model.preferences?.verboseThinking ?? false)
 
 // Stick to the bottom only while the reader is already there. Once they scroll
 // up, streaming text must not pull them back down.
@@ -51,9 +54,21 @@ const { bind, pinned, unseen, onScroll, toBottom } = useStickToBottom(() => [
   fullWidth.value,
 ])
 
-// Thinking before the newest thinking block folds, unless the reader opened it.
-const lastReasoningKey = computed(() => [...blocks.value].reverse().find((b) => b.kind === 'reasoning')?.key ?? null)
-const foldedReasoning = (key: string) => foldThinking.value && (!!live.value?.reasoning || key !== lastReasoningKey.value)
+// The newest thinking block, tool call, and run stay open and earlier ones
+// close, unless the reader opened them.
+const latest = computed(() => {
+  const result = { reasoning: null as string | null, tool: null as string | null, run: null as string | null }
+  const visit = (entry: FoldedBlock) => {
+    if (entry.kind === 'process') entry.steps.forEach(visit)
+    else if (entry.kind === 'reasoning') result.reasoning = entry.key
+    else if (entry.kind === 'tool' || entry.kind === 'toolgroup') result.tool = entry.key
+  }
+  for (const entry of entries.value) {
+    visit(entry)
+    if (entry.kind === 'process' || entry.kind === 'reasoning' || entry.kind === 'tool' || entry.kind === 'toolgroup') result.run = entry.key
+  }
+  return result
+})
 
 // Blocks that were there when the page finished loading do not animate.
 const settled = ref(false)
@@ -65,7 +80,8 @@ watch(
   },
   { immediate: true },
 )
-const enter = computed(() => (settled.value && fadeIn.value ? 'block-enter' : ''))
+// The live round does not fade as it streams in, only when it is saved.
+const enter = computed(() => (settled.value && fadeIn.value && !live.value ? 'block-enter' : ''))
 
 const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !live.value && model.notices.length === 0)
 
@@ -88,13 +104,23 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
         </div>
 
         <div v-for="block in entries" :key="block.key" class="flex min-w-0 flex-col" :class="enter">
-          <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
+          <section v-if="block.kind === 'message' && block.streaming" class="mr-4">
+            <MarkdownView :source="block.text" streaming />
+          </section>
+          <MessageBlock v-else-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
 
-          <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
+          <ProcessGroup v-else-if="block.kind === 'process'" :thinking="block.thinking" :tools="block.tools" :default-open="block.key === latest.run">
+            <StepView v-for="step in block.steps" :key="step.key" :step="step" :latest-reasoning="latest.reasoning" :latest-tool="latest.tool" />
+          </ProcessGroup>
+
+          <StepView
+            v-else-if="block.kind === 'toolgroup' || block.kind === 'reasoning' || block.kind === 'tool'"
+            :step="block"
+            :latest-reasoning="latest.reasoning"
+            :latest-tool="latest.tool"
+          />
 
           <SummaryCard v-else-if="block.kind === 'summary'" :text="block.text" />
-
-          <ReasoningBlock v-else-if="block.kind === 'reasoning'" :text="block.text" :default-open="thinkingOpen" :folded="foldedReasoning(block.key)" />
 
           <template v-else-if="block.kind === 'notice'">
             <div
@@ -111,19 +137,9 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
             </template>
             <ReportBlock v-else :notice="block.notice" />
           </template>
-
-          <ToolBlock v-else :call="block.call" :result="block.result" />
         </div>
 
         <template v-if="live">
-          <ReasoningBlock v-if="live.reasoning" :text="live.reasoning" streaming :default-open="thinkingOpen" :folded="false" />
-          <section v-if="live.text" class="mr-4">
-            <MarkdownView :source="live.text" streaming />
-          </section>
-          <template v-for="entry in liveEntries" :key="entry.key">
-            <ToolGroup v-if="entry.kind === 'toolgroup'" :calls="entry.calls" />
-            <ToolBlock v-else-if="entry.kind === 'tool'" :call="entry.call" :result="null" running />
-          </template>
           <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
         </template>
 

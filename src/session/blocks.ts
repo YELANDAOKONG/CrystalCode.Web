@@ -21,15 +21,54 @@ export interface ToolResult {
   images: number[]
 }
 
+// `streaming` and `running` mark a block that is still arriving from the live round.
 export type Block =
-  | { kind: 'message'; key: string; role: string; text: string; images: number[] }
+  | { kind: 'message'; key: string; role: string; text: string; images: number[]; streaming?: boolean }
   | { kind: 'summary'; key: string; text: string }
-  | { kind: 'reasoning'; key: string; text: string }
-  | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null }
+  | { kind: 'reasoning'; key: string; text: string; streaming?: boolean }
+  | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null; running?: boolean }
   | { kind: 'notice'; key: string; notice: Notice }
 
 export type ToolEntry = Extract<Block, { kind: 'tool' }>
 export type GroupedBlock = Block | { kind: 'toolgroup'; key: string; calls: ToolEntry[] }
+
+/** A step of the model's work: thinking or tool calls, as opposed to a message. */
+export type StepBlock = Extract<GroupedBlock, { kind: 'reasoning' | 'tool' | 'toolgroup' }>
+export type FoldedBlock = GroupedBlock | { kind: 'process'; key: string; steps: StepBlock[]; thinking: number; tools: number }
+
+/**
+ * Folds each run of two or more steps between messages into one entry. A lone
+ * step stays as it is. With `enabled` false every step is listed on its own.
+ */
+export function foldRuns(list: GroupedBlock[], enabled: boolean): FoldedBlock[] {
+  if (!enabled) return list
+  const entries: FoldedBlock[] = []
+  let run: StepBlock[] = []
+  const flush = () => {
+    if (run.length > 1) {
+      entries.push({
+        kind: 'process',
+        key: `p${run[0]!.key}`,
+        steps: run,
+        thinking: run.filter((step) => step.kind === 'reasoning').length,
+        tools: run.reduce((sum, step) => sum + (step.kind === 'toolgroup' ? step.calls.length : step.kind === 'tool' ? 1 : 0), 0),
+      })
+    } else {
+      entries.push(...run)
+    }
+    run = []
+  }
+  for (const block of list) {
+    if (block.kind === 'reasoning' || block.kind === 'tool' || block.kind === 'toolgroup') {
+      run.push(block)
+    } else {
+      flush()
+      entries.push(block)
+    }
+  }
+  flush()
+  return entries
+}
 
 /** Folds two or more tool calls in a row into one entry. With `enabled` false every call keeps its own entry. */
 export function groupToolBlocks(list: Block[], enabled: boolean): GroupedBlock[] {

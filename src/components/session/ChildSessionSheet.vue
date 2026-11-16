@@ -66,7 +66,7 @@ watch(
 // What the archive does not hold yet. Once the child has stopped and the
 // archive is fresh, the trace repeats it, so it is hidden.
 const showTrace = computed(() => trace.value !== null && (running.value || !child.value?.archive))
-const { groupTools } = useDisplayStyle()
+const { groupTools, quietTools } = useDisplayStyle()
 const archiveBlocks = computed(() => groupToolBlocks(toBlocks(child.value?.archive ?? []), groupTools.value))
 const traceBlocks = computed(() => groupToolBlocks(showTrace.value && trace.value ? toBlocks(trace.value.items) : [], groupTools.value))
 const liveTools = computed(() =>
@@ -182,7 +182,7 @@ const activityText = computed(() => {
             <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
             <ReasoningBlock v-else-if="block.kind === 'reasoning'" :text="block.text" :default-open="thinkingOpen" :folded="false" />
             <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
-            <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" />
+            <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" :quiet="quietTools" />
           </template>
 
           <template v-if="showTrace">
@@ -193,7 +193,7 @@ const activityText = computed(() => {
               <MessageBlock v-if="block.kind === 'message'" :role="block.role" :text="block.text" :images="block.images" />
               <ReasoningBlock v-else-if="block.kind === 'reasoning'" :text="block.text" :default-open="thinkingOpen" :folded="false" />
               <ToolGroup v-else-if="block.kind === 'toolgroup'" :calls="block.calls" />
-              <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" :running="block.result === null && running" />
+              <ToolBlock v-else-if="block.kind === 'tool'" :call="block.call" :result="block.result" :running="block.result === null && running" :quiet="quietTools" />
             </template>
 
             <template v-if="live">
@@ -201,7 +201,7 @@ const activityText = computed(() => {
               <section v-if="live.text" class="mr-4"><MarkdownView :source="live.text" streaming /></section>
               <template v-for="entry in liveTools" :key="entry.key">
                 <ToolGroup v-if="entry.kind === 'toolgroup'" :calls="entry.calls" />
-                <ToolBlock v-else-if="entry.kind === 'tool'" :call="entry.call" :result="null" running />
+                <ToolBlock v-else-if="entry.kind === 'tool'" :call="entry.call" :result="null" running :quiet="quietTools" />
               </template>
               <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
             </template>

@@ -2,15 +2,22 @@
 import { computed } from 'vue'
 import { server } from '@/app/server'
 import { Switch } from '@/components/ui/switch'
-import { useDisplayStyle } from '@/composables/display-style'
+import { useDisplayStyle, type ToolFolding } from '@/composables/display-style'
 import { t, type MessageKey } from '@/i18n'
 import type { Preferences } from '@/protocol/types'
+import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 import SettingsGroup from './SettingsGroup.vue'
 
 const model = server.model
 const { canOperate, isAdmin } = server
-const { groupTools, foldThinking, setGroupTools, setFoldThinking } = useDisplayStyle()
+const { toolFolding, openLatestTool, foldThinking, foldRuns, setToolFolding, setOpenLatestTool, setFoldThinking, setFoldRuns } = useDisplayStyle()
+
+const foldingOptions = (): { value: string; label: string; help: string }[] => [
+  { value: 'each', label: t('settings.toolFolding.each'), help: '' },
+  { value: 'group', label: t('settings.toolFolding.group'), help: '' },
+  { value: 'all', label: t('settings.toolFolding.all'), help: '' },
+]
 
 // The wire names are the engine's `VerboseTarget` values.
 const TARGETS = [
@@ -64,14 +71,22 @@ const setTokens = (on: boolean | 'indeterminate') => void server.send(`/tokens $
     </SettingsGroup>
 
     <SettingsGroup :title="t('settings.group.layout')" scope="browser">
-      <SettingRow :label="t('settings.groupTools')" :help="t('settings.groupTools.help')" label-for="set-group-tools">
+      <SettingRow :label="t('settings.toolFolding')" :help="t('settings.toolFolding.help')" label-for="set-tool-folding">
+        <ChoiceSelect id="set-tool-folding" :options="foldingOptions()" :model-value="toolFolding" @change="(v) => setToolFolding(v as ToolFolding)" />
+      </SettingRow>
+      <SettingRow :label="t('settings.openLatestTool')" :help="t('settings.openLatestTool.help')" label-for="set-open-latest-tool">
         <div class="flex items-center sm:justify-end">
-          <Switch id="set-group-tools" :model-value="groupTools" @update:model-value="(value) => setGroupTools(value === true)" />
+          <Switch id="set-open-latest-tool" :model-value="openLatestTool" @update:model-value="(value) => setOpenLatestTool(value === true)" />
         </div>
       </SettingRow>
       <SettingRow :label="t('settings.foldThinking')" :help="t('settings.foldThinking.help')" label-for="set-fold-thinking">
         <div class="flex items-center sm:justify-end">
           <Switch id="set-fold-thinking" :model-value="foldThinking" @update:model-value="(value) => setFoldThinking(value === true)" />
+        </div>
+      </SettingRow>
+      <SettingRow :label="t('settings.foldRuns')" :help="t('settings.foldRuns.help')" label-for="set-fold-runs">
+        <div class="flex items-center sm:justify-end">
+          <Switch id="set-fold-runs" :model-value="foldRuns" @update:model-value="(value) => setFoldRuns(value === true)" />
         </div>
       </SettingRow>
     </SettingsGroup>
