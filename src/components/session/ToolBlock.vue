@@ -44,13 +44,13 @@ const failed = computed(() => (props.result ? /error|fail|denied|reject|timeout|
     <div class="space-y-2 px-3 py-2" :class="quiet ? 'bg-card mt-1 ml-2 rounded-lg border' : 'border-t'">
       <div v-if="input">
         <div class="text-muted-foreground mb-1 text-xs">{{ t('session.tool.input') }}</div>
-        <pre class="bg-muted max-h-64 overflow-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap">{{ input }}</pre>
+        <pre class="bg-muted max-h-64 overflow-auto rounded-md p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">{{ input }}</pre>
       </div>
       <div v-if="result">
         <div class="text-muted-foreground mb-1 text-xs">{{ t('session.tool.output') }}</div>
         <pre
           v-if="result.text"
-          class="bg-muted max-h-80 overflow-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap"
+          class="bg-muted max-h-80 overflow-auto rounded-md p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap"
         >{{ result.text }}</pre>
         <ImageStrip v-if="result.images.length" :numbers="result.images" class="mt-2" />
       </div>

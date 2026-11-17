@@ -153,11 +153,11 @@ const activityText = computed(() => {
           <dl class="mt-2 grid grid-cols-[5rem_1fr] gap-x-3 gap-y-1">
             <template v-if="summary.model.model">
               <dt>{{ t('child.model') }}</dt>
-              <dd class="min-w-0 break-words">{{ [summary.model.provider, summary.model.model, summary.model.thinking].filter(Boolean).join(' · ') }}</dd>
+              <dd class="min-w-0 wrap-anywhere">{{ [summary.model.provider, summary.model.model, summary.model.thinking].filter(Boolean).join(' · ') }}</dd>
             </template>
             <template v-if="summary.tools.length">
               <dt>{{ t('child.tools') }}</dt>
-              <dd class="max-h-32 min-w-0 overflow-y-auto font-mono break-words" tabindex="0">{{ summary.tools.join(', ') }}</dd>
+              <dd class="max-h-32 min-w-0 overflow-y-auto font-mono wrap-anywhere" tabindex="0">{{ summary.tools.join(', ') }}</dd>
             </template>
             <template v-if="summary.cumulativeUsage ?? summary.usage">
               <dt>{{ t('child.usage') }}</dt>
@@ -173,7 +173,7 @@ const activityText = computed(() => {
       </SheetHeader>
 
       <div class="relative min-h-0 flex-1">
-        <div :ref="bind" class="h-full space-y-5 overflow-y-auto px-4 py-4" tabindex="0" @scroll.passive="onScroll">
+        <div :ref="bind" class="h-full space-y-5 overflow-x-hidden overflow-y-auto px-4 py-4" tabindex="0" @scroll.passive="onScroll">
           <p v-if="loading && !child?.archive" class="text-muted-foreground text-sm">{{ t('child.loading') }}</p>
           <p v-else-if="failed" role="alert" class="text-destructive text-sm">{{ t('child.failed') }}</p>
           <p v-else-if="child && !hasContent && !running" class="text-muted-foreground text-sm">{{ t('child.empty') }}</p>
@@ -203,11 +203,11 @@ const activityText = computed(() => {
                 <ToolGroup v-if="entry.kind === 'toolgroup'" :calls="entry.calls" />
                 <ToolBlock v-else-if="entry.kind === 'tool'" :call="entry.call" :result="null" running :quiet="quietTools" />
               </template>
-              <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
+              <p v-if="retry" class="text-muted-foreground text-sm wrap-anywhere whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
             </template>
 
             <div v-if="trace?.errors.length" role="alert" class="border-destructive/40 text-destructive space-y-1 rounded-lg border px-3 py-2 text-sm">
-              <p v-for="(text, index) in trace.errors" :key="index" class="whitespace-pre-wrap">{{ text }}</p>
+              <p v-for="(text, index) in trace.errors" :key="index" class="wrap-anywhere whitespace-pre-wrap">{{ text }}</p>
             </div>
           </template>
 
@@ -216,14 +216,14 @@ const activityText = computed(() => {
             <ul class="space-y-1 text-sm">
               <li v-for="todo in summary.todos" :key="todo.id" class="flex gap-2">
                 <span class="text-muted-foreground w-24 shrink-0 text-xs leading-5">{{ displayToken(todo.status) }}</span>
-                <span>{{ todo.content }}</span>
+                <span class="min-w-0 wrap-anywhere">{{ todo.content }}</span>
               </li>
             </ul>
           </section>
           <section v-if="summary?.notes.length" class="bg-card rounded-lg border px-3 py-2">
             <h3 class="mb-1 text-sm font-medium">{{ t('child.notes') }}</h3>
             <ul class="text-muted-foreground list-disc space-y-0.5 pl-4 text-xs">
-              <li v-for="(note, index) in summary.notes" :key="index" class="break-words">{{ note }}</li>
+              <li v-for="(note, index) in summary.notes" :key="index" class="wrap-anywhere">{{ note }}</li>
             </ul>
           </section>
         </div>

@@ -103,15 +103,15 @@ const loginLink = computed(() => {
           <Badge variant="outline">{{ t('interaction.approval.risk', { risk: displayToken(approval.classification.risk) }) }}</Badge>
           <Badge variant="outline">{{ t('interaction.approval.authority', { authority: displayToken(approval.classification.authority) }) }}</Badge>
         </div>
-        <p v-if="approval.classification.summary" class="text-sm whitespace-pre-wrap">{{ approval.classification.summary }}</p>
-        <pre class="bg-muted max-h-56 overflow-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap">{{ prettyArguments(approval.call.arguments) }}</pre>
+        <p v-if="approval.classification.summary" class="text-sm wrap-anywhere whitespace-pre-wrap">{{ approval.classification.summary }}</p>
+        <pre class="bg-muted max-h-56 overflow-auto rounded-md p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">{{ prettyArguments(approval.call.arguments) }}</pre>
         <div v-if="approval.review" class="text-sm">
           <div class="text-muted-foreground text-xs font-medium">{{ t('interaction.approval.review') }}</div>
-          <p class="whitespace-pre-wrap">{{ verdictLines(approval.review) }}</p>
+          <p class="wrap-anywhere whitespace-pre-wrap">{{ verdictLines(approval.review) }}</p>
         </div>
         <div v-if="approval.extendedReview" class="text-sm">
           <div class="text-muted-foreground text-xs font-medium">{{ t('interaction.approval.extended') }}</div>
-          <p class="whitespace-pre-wrap">{{ verdictLines(approval.extendedReview) }}</p>
+          <p class="wrap-anywhere whitespace-pre-wrap">{{ verdictLines(approval.extendedReview) }}</p>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
           <Button
@@ -197,12 +197,12 @@ const loginLink = computed(() => {
 
       <div v-else-if="login" class="space-y-3 text-sm">
         <p class="font-medium break-words">{{ login.provider }}</p>
-        <p v-for="(step, index) in login.steps" :key="index" class="whitespace-pre-wrap break-words">{{ step }}</p>
+        <p v-for="(step, index) in login.steps" :key="index" class="wrap-anywhere whitespace-pre-wrap">{{ step }}</p>
         <a v-if="loginLink && allowed" :href="loginLink" target="_blank" rel="noopener noreferrer" class="text-primary block break-all underline underline-offset-4">{{ login.linkLabel || loginLink }}</a>
         <p v-else-if="login.link && !loginLink" class="text-destructive">{{ t('interaction.login.invalidLink') }}</p>
         <p class="text-muted-foreground">{{ t('interaction.login.hint') }}</p>
         <form class="space-y-3" @submit.prevent="answer({ address: loginAddress.trim() })">
-          <label for="login-address" class="block whitespace-pre-wrap">{{ login.prompt || t('interaction.login.address') }}</label>
+          <label for="login-address" class="block wrap-anywhere whitespace-pre-wrap">{{ login.prompt || t('interaction.login.address') }}</label>
           <Input id="login-address" v-model="loginAddress" type="url" autocomplete="off" :disabled="disabled" />
           <div class="flex justify-end gap-2">
             <Button type="button" variant="outline" :disabled="disabled" @click="answer({ cancelled: true })">{{ t('common.cancel') }}</Button>

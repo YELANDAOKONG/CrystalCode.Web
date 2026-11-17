@@ -39,7 +39,7 @@ async function copy(): Promise<void> {
 <template>
   <section class="group/message relative min-w-0" :class="role === 'user' ? 'max-w-[85%] self-end' : 'mr-4'">
     <div v-if="role === 'user'" class="bg-secondary rounded-2xl px-4 py-2.5">
-      <p class="whitespace-pre-wrap">{{ text }}</p>
+      <p class="wrap-anywhere whitespace-pre-wrap">{{ text }}</p>
     </div>
     <MarkdownView v-else :source="text" />
     <ImageStrip v-if="images.length" :numbers="ordered" :thumb="role === 'user'" class="mt-2" :class="role === 'user' && 'justify-end'" />

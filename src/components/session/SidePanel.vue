@@ -97,11 +97,11 @@ function activityText(id: string): string {
         <Button v-else variant="ghost" size="sm" @click="server.clearSide()">{{ t('panel.side.clear') }}</Button>
       </div>
       <div v-for="(exchange, index) in model.side.exchanges" :key="index" class="mb-3 space-y-1">
-        <p class="font-medium whitespace-pre-wrap">{{ exchange.question }}</p>
+        <p class="font-medium wrap-anywhere whitespace-pre-wrap">{{ exchange.question }}</p>
         <MarkdownView :source="exchange.answer" />
       </div>
       <div v-if="model.side.running" class="space-y-1">
-        <p class="font-medium whitespace-pre-wrap">{{ model.side.pendingQuestion }}</p>
+        <p class="font-medium wrap-anywhere whitespace-pre-wrap">{{ model.side.pendingQuestion }}</p>
         <MarkdownView v-if="model.side.liveAnswer" :source="model.side.liveAnswer" streaming />
         <p v-else class="text-muted-foreground">{{ t('panel.side.running') }}</p>
       </div>

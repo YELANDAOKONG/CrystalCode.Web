@@ -55,7 +55,7 @@ function submit(): void {
   <form class="space-y-5" @submit.prevent="submit">
     <fieldset v-for="(question, index) in questions" :key="index" class="space-y-2" :disabled="disabled">
       <legend class="text-muted-foreground text-xs font-medium tracking-wide uppercase">{{ question.header }}</legend>
-      <p class="text-sm whitespace-pre-wrap">{{ question.text }}</p>
+      <p class="text-sm wrap-anywhere whitespace-pre-wrap">{{ question.text }}</p>
       <label
         v-for="option in question.options"
         :key="option.label"

@@ -138,18 +138,18 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
               class="border-destructive/40 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
             >
               <CircleAlert class="mt-0.5 size-4 shrink-0" />
-              <span class="whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ block.notice.text }}</span>
+              <span class="wrap-anywhere whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ block.notice.text }}</span>
             </div>
             <template v-else-if="block.notice.kind === 'note'">
               <SummaryCard v-if="compactionSummary(block.notice.text) !== null" :text="compactionSummary(block.notice.text)!" />
-              <p v-else class="text-muted-foreground text-sm whitespace-pre-wrap">{{ block.notice.text }}</p>
+              <p v-else class="text-muted-foreground text-sm wrap-anywhere whitespace-pre-wrap">{{ block.notice.text }}</p>
             </template>
             <ReportBlock v-else :notice="block.notice" />
           </template>
         </div>
 
         <template v-if="live">
-          <p v-if="retry" class="text-muted-foreground text-sm break-words whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
+          <p v-if="retry" class="text-muted-foreground text-sm wrap-anywhere whitespace-pre-wrap">{{ t(retry.key, retry.params) }}</p>
         </template>
 
         <template v-for="notice in pending" :key="notice.seq">
@@ -159,11 +159,11 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
             class="border-destructive/40 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
           >
             <CircleAlert class="mt-0.5 size-4 shrink-0" />
-            <span class="whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ notice.text }}</span>
+            <span class="wrap-anywhere whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ notice.text }}</span>
           </div>
           <template v-else-if="notice.kind === 'note'">
             <SummaryCard v-if="compactionSummary(notice.text) !== null" :text="compactionSummary(notice.text)!" />
-            <p v-else class="text-muted-foreground text-sm whitespace-pre-wrap">{{ notice.text }}</p>
+            <p v-else class="text-muted-foreground text-sm wrap-anywhere whitespace-pre-wrap">{{ notice.text }}</p>
           </template>
           <ReportBlock v-else :notice="notice" />
         </template>
