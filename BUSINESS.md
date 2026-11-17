@@ -141,7 +141,10 @@ Session:
   (uploading, ready, failed with retry) and a remove action that also removes
   its marker from the text. Sending waits for uploads to finish. Dragging
   files over the composer shows a drop target. Files over 20 MiB and
-  non-image files are refused before upload. Thumbnails are local previews;
+  non-image files are refused before upload. A ready draft thumbnail, a sent
+  message's images (square thumbnails in the order of their markers), and
+  session and tool images open a full-size view that steps through the images
+  of the same message, draft, or result with Left and Right. Thumbnails are local previews;
   an image restored from history or a retracted follow-up keeps its marker
   without a thumbnail.
 - Quick prompts: list, fill into the composer, and send.

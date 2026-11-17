@@ -1,25 +1,42 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { RotateCw, TriangleAlert, X } from '@lucide/vue'
 import { Spinner } from '@/components/ui/spinner'
 import { t } from '@/i18n'
 import type { Attachment } from '@/session/attachment'
+import ImagePreview from './ImagePreview.vue'
 
 // Thumbnails of the images in the draft, above the text box. The marker in the
 // text is what the server reads; this strip shows what it stands for.
-defineProps<{ items: Attachment[]; disabled: boolean }>()
+const props = defineProps<{ items: Attachment[]; disabled: boolean }>()
 const emit = defineEmits<{ remove: [id: number]; retry: [id: number] }>()
 
 const label = (item: Attachment) => (item.status === 'ready' ? t('session.image.alt', { number: item.number }) : item.name)
+
+// Only a ready image opens. An uploading or failed one has its own controls.
+const open = ref<number | null>(null)
+const ready = computed(() => props.items.filter((item) => item.status === 'ready'))
+const previews = computed(() => ready.value.map((item) => ({ src: item.preview, alt: label(item) })))
 </script>
 
 <template>
   <ul v-if="items.length" class="flex gap-2 overflow-x-auto px-3 pt-3 pb-1" :aria-label="t('composer.attach.list')">
     <li v-for="item in items" :key="item.id" class="relative shrink-0" :title="label(item)">
+      <button
+        v-if="item.status === 'ready'"
+        type="button"
+        class="focus-visible:ring-ring cursor-zoom-in rounded-lg outline-none focus-visible:ring-2"
+        :title="t('session.image.open', { number: item.number })"
+        :aria-label="t('session.image.open', { number: item.number })"
+        @click="open = ready.indexOf(item)"
+      >
+        <img :src="item.preview" :alt="label(item)" class="bg-muted size-16 rounded-lg border object-cover" draggable="false" />
+      </button>
       <img
+        v-else
         :src="item.preview"
         :alt="label(item)"
-        class="bg-muted size-16 rounded-lg border object-cover"
-        :class="item.status !== 'ready' && 'opacity-50'"
+        class="bg-muted size-16 rounded-lg border object-cover opacity-50"
         draggable="false"
       />
       <span
@@ -55,5 +72,6 @@ const label = (item: Attachment) => (item.status === 'ready' ? t('session.image.
         <X class="size-3.5" />
       </button>
     </li>
+    <ImagePreview v-model="open" :items="previews" />
   </ul>
 </template>

@@ -6,7 +6,7 @@ import { t } from '@/i18n'
 import { displayToken } from '@/session/display-case'
 import { argumentSummary, prettyArguments, type ToolResult } from '@/session/blocks'
 import type { ToolCall } from '@/protocol/types'
-import ServerImage from './ServerImage.vue'
+import ImageStrip from './ImageStrip.vue'
 
 const props = defineProps<{
   call: ToolCall
@@ -52,9 +52,7 @@ const failed = computed(() => (props.result ? /error|fail|denied|reject|timeout|
           v-if="result.text"
           class="bg-muted max-h-80 overflow-auto rounded-md p-2 font-mono text-xs whitespace-pre-wrap"
         >{{ result.text }}</pre>
-        <div v-if="result.images.length" class="mt-2 flex flex-wrap gap-2">
-          <ServerImage v-for="number in result.images" :key="number" :number="number" />
-        </div>
+        <ImageStrip v-if="result.images.length" :numbers="result.images" class="mt-2" />
       </div>
     </div>
   </details>
