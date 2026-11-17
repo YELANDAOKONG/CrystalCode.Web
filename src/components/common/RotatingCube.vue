@@ -1,12 +1,14 @@
 <script setup lang="ts">
-// A wireframe cube turning in space, drawn on a canvas at device resolution so
-// the lines stay sharp. Edges and vertex dots only, in the text color. Decorative.
+// A wireframe cube turning slowly about its vertical axis at a fixed tilt.
+// Orthographic, so the size does not pulse as corners swing toward the viewer.
+// Canvas at device resolution, text color, edges and vertex dots only.
+// Decorative.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const SIZE = 72
 const HALF = 17
-const PERIOD_MS = 14000
-const FOCAL = 5
+const PERIOD_MS = 24000
+const TILT = 0.5
 
 const corners = [-1, 1].flatMap((x) => [-1, 1].flatMap((y) => [-1, 1].map((z) => [x, y, z] as const)))
 // Two corners share an edge when they differ in exactly one coordinate.
@@ -31,37 +33,28 @@ function draw(el: HTMLCanvasElement, angle: number) {
   ctx.lineWidth = 1.5
   ctx.lineCap = 'round'
 
-  const tilt = 0.6 + 0.25 * Math.sin(angle)
   const cosY = Math.cos(angle)
   const sinY = Math.sin(angle)
-  const cosX = Math.cos(tilt)
-  const sinX = Math.sin(tilt)
+  const cosX = Math.cos(TILT)
+  const sinX = Math.sin(TILT)
   const points = corners.map(([x, y, z]) => {
     const rx = x * cosY + z * sinY
     const rz = -x * sinY + z * cosY
     const ry = y * cosX - rz * sinX
-    const depth = y * sinX + rz * cosX
-    const k = FOCAL / (FOCAL - depth)
-    return { x: SIZE / 2 + rx * k * HALF, y: SIZE / 2 + ry * k * HALF, depth }
+    return { x: SIZE / 2 + rx * HALF, y: SIZE / 2 + ry * HALF }
   })
 
-  const shade = (depth: number) => 0.35 + 0.65 * ((depth + 1.8) / 3.6)
   for (const [a, b] of edges) {
-    const p = points[a]
-    const q = points[b]
-    ctx.globalAlpha = shade((p.depth + q.depth) / 2)
     ctx.beginPath()
-    ctx.moveTo(p.x, p.y)
-    ctx.lineTo(q.x, q.y)
+    ctx.moveTo(points[a].x, points[a].y)
+    ctx.lineTo(points[b].x, points[b].y)
     ctx.stroke()
   }
   for (const p of points) {
-    ctx.globalAlpha = shade(p.depth)
     ctx.beginPath()
     ctx.arc(p.x, p.y, 2, 0, Math.PI * 2)
     ctx.fill()
   }
-  ctx.globalAlpha = 1
 }
 
 onMounted(() => {
