@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
@@ -34,20 +34,6 @@ watch(tab, (id) => {
   void nextTick(() => list.value?.$el.querySelector('[data-state=active]')?.scrollIntoView({ inline: 'center', block: 'nearest' }))
 })
 
-// One live region tells the operator a change is on its way and that it landed.
-// A failure still arrives as a toast.
-const saving = computed(() => server.pendingActions.value > 0)
-const status = ref<'idle' | 'saving' | 'saved'>('idle')
-let settled: ReturnType<typeof setTimeout> | undefined
-watch(saving, (now, before) => {
-  clearTimeout(settled)
-  if (now) {
-    status.value = 'saving'
-  } else if (before && status.value === 'saving') {
-    status.value = 'saved'
-    settled = setTimeout(() => (status.value = 'idle'), 2000)
-  }
-})
 </script>
 
 <template>
@@ -66,10 +52,6 @@ watch(saving, (now, before) => {
         <component :is="wide ? DialogDescription : SheetDescription" :class="wide ? '' : 'sr-only'">
           {{ t('settings.description') }}
         </component>
-        <p role="status" class="text-muted-foreground h-4 text-xs">
-          <template v-if="status === 'saving'">{{ t('settings.saving') }}</template>
-          <template v-else-if="status === 'saved'">{{ t('settings.saved') }}</template>
-        </p>
       </component>
 
       <p v-if="!server.canOperate.value" class="bg-muted text-foreground mx-0 rounded-md px-3 py-2 text-sm" :class="wide ? '' : 'mx-4'">{{ t('settings.readonly') }}</p>

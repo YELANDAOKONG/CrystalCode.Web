@@ -104,6 +104,13 @@ label so it cannot extend the document's scroll range.
 The desktop side panel's open state is a browser preference. The mobile sheet
 has separate transient state, so opening or dismissing it does not change the
 desktop preference.
+`SessionView` owns transient interaction visibility. A new first pending
+interaction opens its dialog; hiding it preserves the server request and returns
+focus to the persistent request banner. Reopening never sends an answer.
+Settings do not infer save success from `pendingActions`, which includes reads
+and failed requests. Active and deferred values come from server state, while
+request failures use the existing error notices.
+
 The conversation width is another browser preference. It controls the width
 of the transcript, progress row, and composer together, within the space left
 by the side panel. The default keeps their centered maximum width.

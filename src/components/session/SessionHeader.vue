@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Download, LibraryBig, PanelRight, Settings } from '@lucide/vue'
+import { Download, Ellipsis, LibraryBig, PanelRight, Settings } from '@lucide/vue'
 import { server } from '@/app/server'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
 import LogoMark from '@/components/common/LogoMark.vue'
@@ -10,15 +10,25 @@ import { Spinner } from '@/components/ui/spinner'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useHeaderTitleSetting } from '@/composables/header-title'
-import { t } from '@/i18n'
+import { t, useLocale, type Locale } from '@/i18n'
+import { useTheme, type ThemeSetting } from '@/theme/theme'
 
 defineProps<{ panelOpen: boolean }>()
 const emit = defineEmits<{ togglePanel: []; openSettings: []; openCatalog: [] }>()
 
+const { locale, setLocale, locales } = useLocale()
+const { theme, setTheme } = useTheme()
 const model = server.model
 const { headerTitle } = useHeaderTitleSetting()
 
@@ -63,19 +73,23 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
       </template>
     </div>
 
-    <LanguageMenu />
-    <ThemeMenu />
+    <div class="hidden items-center md:flex">
+      <LanguageMenu />
+      <ThemeMenu />
+    </div>
 
     <DropdownMenu v-if="server.can('GET /export')">
       <DropdownMenuTrigger as-child>
-        <Button variant="ghost" size="icon" class="size-10 md:size-9" :aria-label="t('header.export')" :title="t('header.export')">
+        <Button variant="ghost" size="icon" class="hidden size-10 md:inline-flex md:size-9" :aria-label="t('header.export')" :title="t('header.export')">
           <Spinner v-if="exporting" class="size-4 motion-reduce:animate-none" />
           <Download v-else class="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem @select="download('markdown')">{{ t('header.export.markdown') }}</DropdownMenuItem>
-        <DropdownMenuItem @select="download('json')">{{ t('header.export.json') }}</DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem @select="download('markdown')">{{ t('header.export.markdown') }}</DropdownMenuItem>
+          <DropdownMenuItem @select="download('json')">{{ t('header.export.json') }}</DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
 
@@ -83,7 +97,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
       v-if="hasCatalog"
       variant="ghost"
       size="icon"
-      class="size-10 md:size-9"
+      class="hidden size-10 md:inline-flex md:size-9"
       :aria-label="t('header.catalog')"
       :title="t('header.catalog')"
       @click="emit('openCatalog')"
@@ -111,5 +125,45 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
     >
       <Settings class="size-4" />
     </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger as-child>
+        <Button variant="ghost" size="icon" class="size-10 md:hidden" :aria-label="t('common.more')" :title="t('common.more')">
+          <Ellipsis class="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" class="min-w-48">
+        <DropdownMenuGroup>
+          <DropdownMenuItem v-if="hasCatalog" @select="emit('openCatalog')"><LibraryBig class="size-4" />{{ t('header.catalog') }}</DropdownMenuItem>
+          <DropdownMenuSub v-if="server.can('GET /export')">
+            <DropdownMenuSubTrigger><Download class="size-4" />{{ t('header.export') }}</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuGroup>
+                <DropdownMenuItem :disabled="exporting" @select="download('markdown')">{{ t('header.export.markdown') }}</DropdownMenuItem>
+                <DropdownMenuItem :disabled="exporting" @select="download('json')">{{ t('header.export.json') }}</DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator v-if="hasCatalog || server.can('GET /export')" />
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>{{ t('common.language') }}</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup :model-value="locale" @update:model-value="setLocale($event as Locale)">
+                <DropdownMenuRadioItem v-for="item in locales" :key="item.id" :value="item.id" :lang="item.htmlLang">{{ item.label }}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>{{ t('common.theme') }}</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup :model-value="theme" @update:model-value="setTheme($event as ThemeSetting)">
+                <DropdownMenuRadioItem v-for="value in ['auto', 'light', 'dark'] as const" :key="value" :value="value">{{ t(`common.theme.${value}`) }}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   </header>
 </template>

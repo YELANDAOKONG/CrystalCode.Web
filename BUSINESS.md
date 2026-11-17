@@ -196,7 +196,17 @@ Interface:
   holds the server's verbose switches and the browser's layout choices, and Appearance
   holds language, theme, width, and title choices. Each group says whether it applies
   on the server or only in this browser.
-- Responsive on desktop, tablet, and phone.
+- Pending interactions can be hidden locally and reopened from a persistent
+  request banner. Hiding does not answer or cancel the server's request, and
+  remains available to clients without permission to answer.
+- Settings show server-confirmed active and pending values. A global request
+  counter is not a save-success signal; failures use the existing error notice.
+- Responsive on desktop, tablet, and phone. On phones, the composer keeps the
+  current mode visible and wraps its controls. The header groups catalog,
+  export, language, and theme under More actions.
+- Both composer sizes explain near-limit and oversized messages. Command
+  suggestions associate the selected option with the focused input and support
+  keyboard, mouse, and touch selection.
 - Remember whether the desktop side panel is open as a browser preference.
   The mobile side panel opens separately and is not restored on refresh.
 - Appearance settings can expand the conversation, progress row, and composer

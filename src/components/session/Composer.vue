@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useId, useTemplateRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { Spinner } from '@/components/ui/spinner'
 import { useBusy } from '@/composables/busy'
@@ -13,7 +13,7 @@ import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import { approvalModes, currentByLabel, findArguments, modeChoices, toOptions } from '@/session/settings'
 import { insertMarker, MAX_IMAGE_BYTES, removeMarker, type Attachment } from '@/session/attachment'
-import { formatBytes, sizeState } from '@/session/draft-size'
+import { bodyBytes, formatBytes, MAX_BODY_BYTES, sizeState } from '@/session/draft-size'
 import { promptHistory, rememberPrompt } from '@/session/prompt-history'
 import { aliasesOf, completedText, createPicker, isExact } from '@/session/slash'
 import ComposerAttachments from './ComposerAttachments.vue'
@@ -26,6 +26,12 @@ const { fullWidth } = useConversationWidth()
 const { canOperate, isAdmin } = server
 
 const text = ref('')
+const composerId = useId()
+const commandsId = `${composerId}-commands`
+const sizeId = `${composerId}-size`
+const draftSize = computed(() => sizeState(text.value))
+const draftBytes = computed(() => formatBytes(bodyBytes(text.value)))
+const limit = formatBytes(MAX_BODY_BYTES)
 const field = ref<InstanceType<typeof Textarea> | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const composing = ref(false)
@@ -48,7 +54,9 @@ const blocked = computed(() => !canOperate.value)
 // Commands, their aliases, and their arguments, three levels deep, from the
 // server's own list. A picker is only offered while the draft is one line.
 // A recalled slash command stays text until it is edited, as in the terminal.
-const picker = computed(() => (historyIndex.value === null ? createPicker(text.value, model.commands) : null))
+const pickerDismissed = ref(false)
+watch(text, () => { pickerDismissed.value = false }, { flush: 'sync' })
+const picker = computed(() => (historyIndex.value === null && !pickerDismissed.value ? createPicker(text.value, model.commands) : null))
 const suggestions = computed(() => picker.value?.matches ?? [])
 const options = useTemplateRef<HTMLLIElement[]>('options')
 
@@ -89,7 +97,7 @@ let latestSend = 0
 
 async function submit(): Promise<void> {
   const value = text.value
-  if (blocked.value || sizeState(value) === 'over') return
+  if (blocked.value || draftSize.value === 'over') return
   if (uploading.value) {
     toast.message(t('composer.attach.wait'))
     return
@@ -216,6 +224,12 @@ function onKeydown(event: KeyboardEvent): void {
   }
 
   if (suggestions.value.length > 0) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      pickerDismissed.value = true
+      return
+    }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       const count = suggestions.value.length
@@ -468,6 +482,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
     <div class="relative mx-auto" :class="fullWidth ? '' : 'max-w-3xl'">
       <ul
         v-if="suggestions.length"
+        :id="commandsId"
         role="listbox"
         :aria-label="t('composer.commands')"
         class="bg-popover text-popover-foreground absolute right-0 bottom-full left-0 z-10 mb-2 max-h-64 overflow-auto rounded-lg border p-1 shadow-md"
@@ -475,12 +490,14 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         <li
           v-for="(command, index) in suggestions"
           :key="command.name"
+          :id="`${commandsId}-${index}`"
           ref="options"
           role="option"
           :aria-selected="index === choice"
           class="flex cursor-pointer items-baseline gap-3 rounded-md px-3 py-1.5 text-sm"
           :class="index === choice ? 'bg-accent text-accent-foreground' : ''"
-          @mousedown.prevent="complete(index)"
+          @pointerdown.prevent
+          @click="complete(index)"
         >
           <span class="font-mono">{{ picker?.nested ? '' : '/' }}{{ command.name }}</span>
           <span v-if="aliasesOf(command, picker?.nested ?? false).length" class="text-muted-foreground font-mono text-xs">
@@ -537,18 +554,31 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           :disabled="blocked"
           :placeholder="busy ? t('composer.placeholder.busy') : t('composer.placeholder')"
           :aria-label="t('composer.placeholder')"
+          role="combobox"
+          aria-haspopup="listbox"
+          :aria-controls="suggestions.length ? commandsId : undefined"
+          :aria-expanded="suggestions.length > 0"
+          :aria-activedescendant="suggestions.length ? `${commandsId}-${choice}` : undefined"
+          aria-autocomplete="list"
+          :aria-invalid="draftSize === 'over' || undefined"
+          :aria-describedby="draftSize !== 'ok' ? sizeId : undefined"
           class="max-h-[min(14rem,35dvh)] min-h-[3.5rem] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
           @keydown="onKeydown"
           @paste="onPaste"
           @compositionstart="composing = true"
           @compositionend="composing = false"
         />
-        <div class="flex items-center gap-1 px-2 pb-2">
+        <div v-if="draftSize !== 'ok'" :id="sizeId" class="flex flex-col gap-1 px-3 pb-2 text-xs" :class="draftSize === 'over' ? 'text-destructive' : 'text-warn'" :role="draftSize === 'over' ? 'alert' : 'status'">
+          <span>{{ t('composer.size', { size: draftBytes }) }}</span>
+          <span>{{ draftSize === 'over' ? t('full.tooLarge', { limit }) : t('full.nearLimit', { limit }) }}</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1 px-2 pb-2">
           <ComposerChip
             v-if="mode"
             :icon="SlidersHorizontal"
             :name="t('chip.mode')"
             :value="mode"
+            show-value
             :options="modeOptions"
             :current="model.chrome?.mode"
             :disabled="blocked"
@@ -623,7 +653,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
           <Button
             size="icon"
             class="size-10 rounded-full md:size-8"
-            :disabled="blocked || uploading || (text.trim() === '' && !(busy && model.queue.length)) || sizeState(text) === 'over'"
+            :disabled="blocked || uploading || (text.trim() === '' && !(busy && model.queue.length)) || draftSize === 'over'"
             :aria-busy="sending || uploading || undefined"
             :title="uploading ? t('composer.attach.wait') : undefined"
             :aria-label="text.trim() === '' ? t('composer.queue.release') : t('composer.send')"

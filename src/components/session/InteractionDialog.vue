@@ -19,6 +19,8 @@ import { prettyArguments } from '@/session/blocks'
 import QuestionForm from './QuestionForm.vue'
 
 const props = defineProps<{ interaction: Interaction; waiting: number }>()
+const open = defineModel<boolean>('open', { required: true })
+const emit = defineEmits<{ hidden: [] }>()
 
 const { canOperate, isAdmin } = server
 const busy = ref(false)
@@ -86,8 +88,8 @@ const loginLink = computed(() => {
 </script>
 
 <template>
-  <AlertDialog :open="true">
-    <AlertDialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-xl" @escape-key-down.prevent>
+  <AlertDialog v-model:open="open">
+    <AlertDialogContent class="max-h-[90dvh] overflow-y-auto overscroll-contain sm:max-w-xl" @escape-key-down.prevent="open = false" @close-auto-focus.prevent="emit('hidden')">
       <AlertDialogHeader>
         <AlertDialogTitle>{{ t(title) }}</AlertDialogTitle>
         <AlertDialogDescription v-if="waiting > 0">{{ t('interaction.more', { count: waiting }) }}</AlertDialogDescription>
@@ -212,6 +214,9 @@ const loginLink = computed(() => {
       </div>
 
       <p v-else class="text-sm">{{ t('interaction.unknown', { kind: interaction.kind }) }}</p>
+      <div class="flex justify-end border-t pt-3">
+        <Button variant="ghost" @click="open = false">{{ t('interaction.hide') }}</Button>
+      </div>
     </AlertDialogContent>
   </AlertDialog>
 </template>

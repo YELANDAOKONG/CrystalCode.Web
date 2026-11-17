@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { Button } from '@/components/ui/button'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
@@ -39,6 +40,16 @@ const panelOpen = computed({
   },
 })
 const current = computed(() => model.interactions[0])
+const interactionOpen = ref(false)
+const interactionTrigger = ref<InstanceType<typeof Button> | null>(null)
+const main = ref<HTMLElement | null>(null)
+watch(() => current.value?.id, (id) => { interactionOpen.value = id !== undefined }, { immediate: true })
+function focusInteraction(): void {
+  if (interactionOpen.value && current.value) return
+  const trigger = interactionTrigger.value?.$el as HTMLElement | undefined
+  const target = trigger ?? main.value
+  target?.focus()
+}
 
 function openPursue(): void {
   if (!wide.value) panelOpen.value = false
@@ -71,8 +82,12 @@ const banner = computed(() => {
   <div class="flex h-dvh flex-col overflow-hidden">
     <SessionHeader :panel-open="panelOpen" @toggle-panel="panelOpen = !panelOpen" @open-settings="settingsOpen = true" @open-catalog="catalogOpen = true" />
     <p v-if="banner" role="status" class="bg-muted text-muted-foreground shrink-0 border-b px-4 py-1.5 text-sm">{{ banner }}</p>
+    <div v-if="current" class="bg-muted flex shrink-0 items-center justify-between gap-3 border-b px-4 py-2">
+      <p role="status" class="min-w-0 text-sm">{{ t('interaction.pending') }}</p>
+      <Button ref="interactionTrigger" variant="outline" size="sm" class="shrink-0" @click="interactionOpen = true">{{ t('interaction.open') }}</Button>
+    </div>
     <div class="flex min-h-0 flex-1">
-      <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <main ref="main" tabindex="-1" class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <Transcript />
         <ProgressRow />
         <Composer />
@@ -95,6 +110,6 @@ const banner = computed(() => {
     <SettingsView v-model:open="settingsOpen" />
     <CatalogView v-if="catalogOpen" v-model:open="catalogOpen" />
     <StatsWindow />
-    <InteractionDialog v-if="current" :key="current.id" :interaction="current" :waiting="model.interactions.length - 1" />
+    <InteractionDialog v-if="current" :key="current.id" v-model:open="interactionOpen" :interaction="current" :waiting="model.interactions.length - 1" @hidden="focusInteraction" />
   </div>
 </template>

@@ -13,8 +13,8 @@ import { t } from '@/i18n'
 import type { Option } from '@/session/settings'
 
 // A composer control: a fixed icon for what it sets, then the current value.
-// On a phone only the icon stays, so three of them still fit beside the send
-// button. The value is in the accessible name either way.
+// The primary mode keeps its text on a phone; other values remain in the
+// accessible name and their menus.
 const props = defineProps<{
   icon: Component
   name: string
@@ -23,6 +23,7 @@ const props = defineProps<{
   current: string | undefined
   disabled?: boolean
   note?: string
+  showValue?: boolean
 }>()
 const emit = defineEmits<{ pick: [value: string] }>()
 </script>
@@ -39,7 +40,7 @@ const emit = defineEmits<{ pick: [value: string] }>()
         :aria-label="t('chip.change', { name, value })"
       >
         <component :is="icon" class="size-4 shrink-0" aria-hidden="true" />
-        <span class="hidden sm:inline">{{ value }}</span>
+        <span class="max-w-32 truncate" :class="showValue ? '' : 'hidden sm:inline'">{{ value }}</span>
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="start" side="top" class="min-w-44">
