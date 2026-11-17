@@ -4,7 +4,7 @@ import { ArrowDown, CircleAlert } from '@lucide/vue'
 import { server } from '@/app/server'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import LogoMark from '@/components/common/LogoMark.vue'
+import SpinningPrism from '@/components/common/SpinningPrism.vue'
 import MarkdownView from '@/components/render/MarkdownView.vue'
 import { useStickToBottom } from '@/composables/stick-to-bottom'
 import { useConversationWidth } from '@/composables/conversation-width'
@@ -108,7 +108,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
           {{ t('session.loading') }}
         </p>
         <div v-else-if="isEmpty" class="flex flex-col items-center gap-3 py-16">
-          <LogoMark class="text-muted-foreground size-8" />
+          <SpinningPrism class="text-muted-foreground" />
           <p class="text-muted-foreground text-center text-sm">{{ t('session.empty') }}</p>
         </div>
 
