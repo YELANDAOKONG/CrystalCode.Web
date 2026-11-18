@@ -207,6 +207,8 @@ export function parseItem(value: unknown): ConversationItem {
   switch (o.kind) {
     case 'message':
       return { kind: 'message', role: str(o.role), text: str(o.text), images: numbers(o.images) }
+    case 'turn_failure':
+      return { kind: 'turn_failure', text: str(o.text) }
     case 'reasoning':
       return {
         kind: 'reasoning',

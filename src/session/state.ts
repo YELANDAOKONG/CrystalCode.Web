@@ -317,9 +317,19 @@ export class SessionModel {
       case 'stream.tool-call':
         this.applyStream(event.type, d)
         break
-      case 'note':
       case 'error':
-        this.pushNotice(event, event.type, str(d.text))
+        if (d.turnFailure === true) {
+          this.turnActive = false
+          this.commitRound()
+          this.resetRound(false)
+          this.setStep(null)
+          this.conversation = [...this.conversation, { kind: 'turn_failure', text: str(d.text) }]
+        } else {
+          this.pushNotice(event, 'error', str(d.text))
+        }
+        break
+      case 'note':
+        this.pushNotice(event, 'note', str(d.text))
         break
       case 'interaction.opened': {
         const interaction = parseInteraction(d.interaction)

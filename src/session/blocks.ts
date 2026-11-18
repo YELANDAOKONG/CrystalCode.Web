@@ -25,6 +25,7 @@ export interface ToolResult {
 export type Block =
   | { kind: 'message'; key: string; role: string; text: string; images: number[]; streaming?: boolean }
   | { kind: 'summary'; key: string; text: string }
+  | { kind: 'turn_failure'; key: string; text: string }
   | { kind: 'reasoning'; key: string; text: string; streaming?: boolean }
   | { kind: 'tool'; key: string; call: ToolCall; result: ToolResult | null; running?: boolean }
   | { kind: 'notice'; key: string; notice: Notice }
@@ -126,6 +127,9 @@ export function toBlocks(items: ConversationItem[], notices: Notice[] = []): Blo
         else blocks.push({ kind: 'message', key: `m${index}`, role: item.role, text: item.text, images: item.images })
         break
       }
+      case 'turn_failure':
+        blocks.push({ kind: 'turn_failure', key: `f${index}`, text: item.text })
+        break
       case 'reasoning': {
         const text = item.segments.map((segment) => segment.text).join('\n\n').trim()
         if (text !== '') blocks.push({ kind: 'reasoning', key: `r${index}`, text })

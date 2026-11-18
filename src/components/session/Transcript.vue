@@ -131,16 +131,20 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
 
           <SummaryCard v-else-if="block.kind === 'summary'" :text="block.text" />
 
+          <div
+            v-else-if="block.kind === 'turn_failure' || (block.kind === 'notice' && block.notice.kind === 'error')"
+            role="alert"
+            class="border-destructive/40 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
+          >
+            <CircleAlert class="mt-0.5 size-4 shrink-0" />
+            <span class="wrap-anywhere whitespace-pre-wrap">
+              <strong>{{ t('session.notice.error') }}</strong>
+              {{ block.kind === 'turn_failure' ? block.text : block.notice.text }}
+            </span>
+          </div>
+
           <template v-else-if="block.kind === 'notice'">
-            <div
-              v-if="block.notice.kind === 'error'"
-              role="alert"
-              class="border-destructive/40 text-destructive flex items-start gap-2 rounded-lg border px-3 py-2 text-sm"
-            >
-              <CircleAlert class="mt-0.5 size-4 shrink-0" />
-              <span class="wrap-anywhere whitespace-pre-wrap"><strong>{{ t('session.notice.error') }}</strong> {{ block.notice.text }}</span>
-            </div>
-            <template v-else-if="block.notice.kind === 'note'">
+            <template v-if="block.notice.kind === 'note'">
               <SummaryCard v-if="compactionSummary(block.notice.text) !== null" :text="compactionSummary(block.notice.text)!" />
               <p v-else class="text-muted-foreground text-sm wrap-anywhere whitespace-pre-wrap">{{ block.notice.text }}</p>
             </template>

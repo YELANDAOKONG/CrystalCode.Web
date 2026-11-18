@@ -126,6 +126,7 @@ export interface ToolCall {
 
 export type ConversationItem =
   | { kind: 'message'; role: string; text: string; images: number[] }
+  | { kind: 'turn_failure'; text: string }
   | { kind: 'reasoning'; segments: { kind: string; text: string }[]; hasState: boolean }
   | ({ kind: 'tool_call' } & ToolCall)
   | { kind: 'tool_result'; callId: string; status: string; text: string; images: number[] }

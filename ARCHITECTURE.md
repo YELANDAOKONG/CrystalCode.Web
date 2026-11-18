@@ -328,6 +328,10 @@ The client reports the matching failure; it cannot fix any of them.
   summary display setting says, so a refresh keeps it. The live
   `compaction.finished` event carries `summary` and `shown`; the client draws
   the summary from the `note` the server still sends when the setting shows it.
+- An `error` with `turnFailure: true` appends a `turn_failure` item to the
+  conversation. The snapshot and archive replay supply the same item, so
+  refreshing or resuming shows the error in place without adding a second
+  copy. Ordinary errors and notes use the live notice list.
 - Follow-up queue. `POST /input` returns when the text has been accepted, not
   when the turn ends. Another `POST /input` while a turn or compaction is
   running is queued. Empty text releases the queue. The snapshot and
