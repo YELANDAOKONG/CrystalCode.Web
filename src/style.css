@@ -350,6 +350,43 @@ html:lang(zh-TW) {
     @apply border-border outline-ring/50;
   }
 
+  /* The native overlay scrollbar draws a gray track and a hard black thumb
+     over the palette. Chromium and Safari get a styled one; Firefox, which has
+     no pseudo-elements, gets the standard properties. The two must not mix:
+     in Chromium scrollbar-color replaces the pseudo-elements and made the bar
+     unclickable when it changed on hover. */
+  @supports selector(::-webkit-scrollbar) {
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      min-height: 2rem;
+      border: 3px solid transparent;
+      border-radius: 999px;
+      background-color: color-mix(in srgb, var(--site-ink) 28%, transparent);
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover,
+    ::-webkit-scrollbar-thumb:active {
+      background-color: color-mix(in srgb, var(--site-ink) 48%, transparent);
+    }
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--site-ink) 28%, transparent) transparent;
+    }
+  }
+
   html {
     @apply font-sans;
     font-size: 16px;
