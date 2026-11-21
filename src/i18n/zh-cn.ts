@@ -521,6 +521,7 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.language': '语言',
   'settings.theme': '主题',
   'settings.colorMode': '明暗模式',
+  'settings.palette.group.builtIn': '内置主题',
   'settings.palette.default': '晶体（默认）',
   'settings.palette.ocean': '海洋',
   'settings.palette.forest': '森林',
