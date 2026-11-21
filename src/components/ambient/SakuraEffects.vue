@@ -21,11 +21,12 @@ const idleFront = computed(() => on.value && props.idle && (sakura.placement.val
 const over = computed(() => on.value && sakura.placement.value === 'over')
 
 // A shower is a one-off layer that removes itself once the petals have landed.
-const SHOWER_MS = 6000
-const SHOWER_PETALS = 26
-const showers = ref<number[]>([])
-let showerId = 0
+// The longest petal starts up to 1.2s late and falls up to 4.4s, both at the
+// base pace, so the layer's lifetime scales with the chosen speed.
+const SHOWER_BASE_MS = (4.4 + 1.2) * 1000
 const timers = new Set<ReturnType<typeof setTimeout>>()
+let showerId = 0
+const showers = ref<number[]>([])
 
 watch(
   () => server.model.turnActive,
@@ -35,10 +36,11 @@ watch(
     if (server.model.lastTurn?.reason.toLowerCase() !== 'completed') return
     const id = ++showerId
     showers.value = [...showers.value, id]
+    const lifetime = (SHOWER_BASE_MS * 100) / sakura.showerSpeed.value + 200
     const timer = setTimeout(() => {
       showers.value = showers.value.filter((item) => item !== id)
       timers.delete(timer)
-    }, SHOWER_MS)
+    }, lifetime)
     timers.add(timer)
   },
 )
@@ -52,6 +54,6 @@ onBeforeUnmount(() => timers.forEach(clearTimeout))
   <Teleport to="body">
     <PetalField v-if="behind" :key="`back-${sakura.count.value}-${sakura.speed.value}`" layer="back" :count="sakura.count.value" :speed="sakura.speed.value" />
     <PetalField v-if="over || idleFront" :key="`front-${sakura.count.value}-${sakura.speed.value}`" layer="front" :count="sakura.count.value" :speed="sakura.speed.value" />
-    <PetalField v-for="id in showers" :key="`shower-${id}`" layer="front" :count="SHOWER_PETALS" shower />
+    <PetalField v-for="id in showers" :key="`shower-${id}`" layer="front" :count="sakura.showerCount.value" :speed="sakura.showerSpeed.value" shower />
   </Teleport>
 </template>

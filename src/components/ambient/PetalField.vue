@@ -26,7 +26,7 @@ function random(min: number, max: number): number {
 // Built once per mount. A change to the count remounts the field.
 const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
   const pace = 100 / props.speed
-  const fall = props.shower ? random(2.6, 4.4) : random(13, 26) * pace
+  const fall = props.shower ? random(2.6, 4.4) * pace : random(13, 26) * pace
   const size = random(10, props.layer === 'front' ? 18 : 24)
   return {
     id,
@@ -36,7 +36,7 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
       '--d': `${fall.toFixed(2)}s`,
       '--f': `${random(2.2, 4.6).toFixed(2)}s`,
       // A shower starts together. A drift starts mid-fall so the page is never empty.
-      '--delay': props.shower ? `${random(0, 1.2).toFixed(2)}s` : `${(-random(0, 26) * pace).toFixed(2)}s`,
+      '--delay': props.shower ? `${(random(0, 1.2) * pace).toFixed(2)}s` : `${(-random(0, 26) * pace).toFixed(2)}s`,
       '--drift': `${random(-18, 26).toFixed(1)}vw`,
       '--r0': `${Math.round(random(0, 360))}deg`,
       '--r1': `${Math.round(random(-360, 360))}deg`,

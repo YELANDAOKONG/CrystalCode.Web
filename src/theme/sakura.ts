@@ -9,6 +9,8 @@ const PLACEMENTS: readonly PetalPlacement[] = ['behind', 'idle', 'both', 'over']
 
 export const DEFAULT_PETAL_COUNT = 14
 export const DEFAULT_PETAL_SPEED = 100
+export const DEFAULT_SHOWER_COUNT = 26
+export const DEFAULT_SHOWER_SPEED = 100
 
 function flag(key: string, fallback: boolean): boolean {
   const value = loadPreference(key)
@@ -25,6 +27,8 @@ const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPre
 const count = ref(number('sakura-count', DEFAULT_PETAL_COUNT, 4, 100))
 const speed = ref(number('sakura-speed', DEFAULT_PETAL_SPEED, 50, 250))
 const shower = ref(flag('sakura-shower', true))
+const showerCount = ref(number('sakura-shower-count', DEFAULT_SHOWER_COUNT, 4, 100))
+const showerSpeed = ref(number('sakura-shower-speed', DEFAULT_SHOWER_SPEED, 50, 250))
 const spinner = ref(flag('sakura-spinner', true))
 const artwork = ref(flag('sakura-artwork', true))
 // Off by default: the operator's own picture wins, and the artwork fills in
@@ -49,6 +53,8 @@ export function useSakura() {
     count,
     speed,
     shower,
+    showerCount,
+    showerSpeed,
     spinner,
     artwork,
     artworkFirst,
@@ -72,6 +78,14 @@ export function useSakura() {
     setShower(value: boolean) {
       shower.value = value
       savePreference('sakura-shower', onOff(value))
+    },
+    setShowerCount(value: number) {
+      showerCount.value = Math.min(100, Math.max(4, value))
+      savePreference('sakura-shower-count', String(showerCount.value))
+    },
+    setShowerSpeed(value: number) {
+      showerSpeed.value = Math.min(250, Math.max(50, value))
+      savePreference('sakura-shower-speed', String(showerSpeed.value))
     },
     setSpinner(value: boolean) {
       spinner.value = value

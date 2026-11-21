@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from '@/i18n'
-import { DEFAULT_PETAL_COUNT, DEFAULT_PETAL_SPEED, isPetalPlacement, useSakura } from '@/theme/sakura'
+import { DEFAULT_PETAL_COUNT, DEFAULT_PETAL_SPEED, DEFAULT_SHOWER_COUNT, DEFAULT_SHOWER_SPEED, isPetalPlacement, useSakura } from '@/theme/sakura'
 import { Switch } from '@/components/ui/switch'
 import ChoiceSelect from './ChoiceSelect.vue'
 import RangeSetting from './RangeSetting.vue'
@@ -55,6 +55,10 @@ function setPlacement(value: string): void {
         <Switch id="set-sakura-shower" :model-value="sakura.shower.value" @update:model-value="(value) => sakura.setShower(value === true)" />
       </div>
     </SettingRow>
+    <template v-if="sakura.shower.value">
+      <RangeSetting :label="t('settings.sakura.showerCount')" :help="t('settings.sakura.showerCount.help')" :model-value="sakura.showerCount.value" :default-value="DEFAULT_SHOWER_COUNT" :min="4" :max="100" unit="" @update:model-value="sakura.setShowerCount" />
+      <RangeSetting :label="t('settings.sakura.showerSpeed')" :help="t('settings.sakura.showerSpeed.help')" :model-value="sakura.showerSpeed.value" :default-value="DEFAULT_SHOWER_SPEED" :min="50" :max="250" unit="%" @update:model-value="sakura.setShowerSpeed" />
+    </template>
     <SettingRow :label="t('settings.sakura.spinner')" :help="t('settings.sakura.spinner.help')" label-for="set-sakura-spinner">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-spinner" :model-value="sakura.spinner.value" @update:model-value="(value) => sakura.setSpinner(value === true)" />
