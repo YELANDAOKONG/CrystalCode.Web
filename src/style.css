@@ -216,14 +216,26 @@ body::before {
   --site-field-hover: color-mix(in srgb, var(--pal-field-hover) calc(var(--acrylic-opacity) * 100%), transparent);
 }
 
-:root[data-acrylic='on'] .acrylic-bar {
+:root[data-acrylic='on'] .acrylic-panel {
   background-color: var(--site-bg);
 }
 
-/* Panels, including dialogs and menus that render outside #app. A round
-   element is a control (a switch thumb), not a panel. */
+/* The layout panels do not use backdrop-filter. They sit over one static
+   image, so the image itself is blurred once (see appearance.ts). A backdrop
+   filter on a panel beside the streaming transcript is repainted on every
+   token and flickers. Only popups, which sit over live text, blur what is
+   behind them. */
 @supports (backdrop-filter: blur(1px)) {
-  :root[data-acrylic='on'] :is(.bg-background, .bg-card, .bg-popover, .bg-secondary, .acrylic-bar, .connect-workspace, .command-line):not(.rounded-full) {
+  :root[data-acrylic='on'] :is(
+    [data-slot='dialog-content'],
+    [data-slot='alert-dialog-content'],
+    [data-slot='sheet-content'],
+    [data-slot='popover-content'],
+    [data-slot='select-content'],
+    [data-slot='dropdown-menu-content'],
+    [data-slot='dropdown-menu-sub-content'],
+    [data-slot='command']
+  ) {
     backdrop-filter: blur(var(--acrylic-blur));
   }
 }

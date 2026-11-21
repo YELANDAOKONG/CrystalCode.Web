@@ -57,7 +57,8 @@ function applyBackground(): void {
   const root = document.documentElement
   const background = current.value
   root.style.setProperty('--custom-background-image', background.value ? `url("${background.value.replace(/["\\\n\r]/g, '\\$&')}")` : 'none')
-  root.style.setProperty('--background-blur', `${background.blur}px`)
+  // Panels are translucent over this one layer, so its blur is the panels' blur.
+  root.style.setProperty('--background-blur', `${background.blur + (acrylic.value ? acrylicBlur.value : 0)}px`)
   root.dataset.acrylic = acrylic.value ? 'on' : 'off'
   root.style.setProperty('--acrylic-opacity', `${(BLUR_SUPPORTED ? opacity.value : Math.max(opacity.value, 94)) / 100}`)
   root.style.setProperty('--acrylic-blur', `${acrylicBlur.value}px`)

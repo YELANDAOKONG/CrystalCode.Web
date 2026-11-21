@@ -54,7 +54,7 @@ async function download(format: 'markdown' | 'json'): Promise<void> {
 </script>
 
 <template>
-  <header class="acrylic-bar flex h-12 shrink-0 items-center gap-1 border-b pr-1 pl-3 md:gap-2 md:pr-3">
+  <header class="acrylic-panel flex h-12 shrink-0 items-center gap-1 border-b pr-1 pl-3 md:gap-2 md:pr-3">
     <LogoMark class="mr-2 hidden size-5 shrink-0 sm:block" />
     <div class="min-w-0 flex-1">
       <!-- The topic is the server's text, shown as received and only as text.

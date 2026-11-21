@@ -87,7 +87,7 @@ const banner = computed(() => {
       <Button ref="interactionTrigger" variant="outline" size="sm" class="shrink-0" @click="interactionOpen = true">{{ t('interaction.open') }}</Button>
     </div>
     <div class="flex min-h-0 flex-1">
-      <main ref="main" tabindex="-1" class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <main ref="main" tabindex="-1" class="acrylic-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <Transcript />
         <ProgressRow />
         <Composer />
