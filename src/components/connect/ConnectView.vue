@@ -96,7 +96,7 @@ async function copyServerCommand(): Promise<void> {
       </div>
     </header>
 
-    <main class="connect-layout mx-auto grid w-full flex-1 items-center">
+    <main class="connect-layout mx-auto grid w-full flex-1">
       <section class="connect-intro">
         <div class="connect-title-row flex items-center gap-4">
           <LogoMark class="connect-large-mark shrink-0" />
@@ -259,7 +259,11 @@ async function copyServerCommand(): Promise<void> {
 }
 
 .connect-intro {
+  position: sticky;
+  top: max(1.5rem, calc((100dvh - 18rem) / 2));
   max-width: 33rem;
+  align-self: start;
+  margin-block: 1.5rem;
 }
 
 .connect-large-mark {
@@ -360,7 +364,9 @@ async function copyServerCommand(): Promise<void> {
   }
 
   .connect-intro {
+    position: static;
     max-width: none;
+    margin-block: 0;
   }
 
   .connect-title-row h1 {
