@@ -264,9 +264,9 @@ body::before {
   background-color: var(--site-bg);
 }
 
-/* The connect page header is sticky and the form scrolls under it, so it
+/* The connect page header is clear until the form scrolls up to it; then it
    blurs what is behind it. The page is static, so this does not flicker. */
-:root[data-background='on'] .connect-header {
+:root[data-background='on'] .connect-header.is-lifted {
   backdrop-filter: blur(var(--panel-blur));
 }
 

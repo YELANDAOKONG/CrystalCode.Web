@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { Check, Clipboard, Eye, EyeOff, X } from '@lucide/vue'
 import LogoMark from '@/components/common/LogoMark.vue'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
@@ -35,6 +35,29 @@ const addressError = computed(() => {
   return failure ? t(`address.${failure.error}` as MessageKey) : null
 })
 const origin = window.location.origin
+
+// The header stays clear until the form scrolls up to it, so text under an
+// empty header is not washed out and the form is not covered by a bar.
+const APPROACH_PX = 24
+const headerEl = ref<HTMLElement | null>(null)
+const cardEl = ref<HTMLElement | null>(null)
+const headerLifted = ref(false)
+function measureHeader(): void {
+  if (!headerEl.value || !cardEl.value) return
+  const band = headerEl.value.getBoundingClientRect().bottom + APPROACH_PX
+  const rect = cardEl.value.getBoundingClientRect()
+  headerLifted.value = rect.top < band && rect.bottom > 0
+}
+onMounted(() => {
+  measureHeader()
+  window.addEventListener('scroll', measureHeader, { capture: true, passive: true })
+  window.addEventListener('resize', measureHeader)
+})
+onUpdated(measureHeader)
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', measureHeader, { capture: true })
+  window.removeEventListener('resize', measureHeader)
+})
 // A hosting server fixes the address, so the only thing left to do after a
 // failure is to try again, or to type the token it asked for.
 const retrying = computed(() => host !== null && !tokenNeeded.value && server.diagnosis.value !== null)
@@ -85,7 +108,7 @@ async function copyServerCommand(): Promise<void> {
 
 <template>
   <div class="connect-page flex min-h-full flex-col">
-    <header class="connect-header flex items-center justify-between">
+    <header ref="headerEl" class="connect-header flex items-center justify-between" :class="{ 'is-lifted': headerLifted }">
       <div class="flex items-center gap-2.5">
         <LogoMark />
         <span class="text-[15px] font-semibold">{{ t('app.name') }}</span>
@@ -130,7 +153,7 @@ async function copyServerCommand(): Promise<void> {
         </div>
       </section>
 
-      <section class="connect-workspace" :aria-label="t('connect.title')">
+      <section ref="cardEl" class="connect-workspace" :aria-label="t('connect.title')">
         <div v-if="host && busy && !server.diagnosis.value" class="connecting-state flex items-center gap-3" role="status">
           <Spinner />
           <span>{{ t('connect.connecting') }}</span>
@@ -254,7 +277,17 @@ async function copyServerCommand(): Promise<void> {
   z-index: 20;
   min-height: 4.25rem;
   padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  transition: background-color 160ms ease;
+}
+
+.connect-header.is-lifted {
   background: var(--site-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connect-header {
+    transition: none;
+  }
 }
 
 .connect-layout {
