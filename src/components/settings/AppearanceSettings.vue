@@ -6,8 +6,9 @@ import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/he
 import { useConversationWidth } from '@/composables/conversation-width'
 import { useDisplayStyle } from '@/composables/display-style'
 import { Switch } from '@/components/ui/switch'
-import { useAppearance } from '@/theme/appearance'
+import { useAppearance, DEFAULT_PANEL_BLUR, DEFAULT_PANEL_OPACITY } from '@/theme/appearance'
 import BackgroundEditor from './BackgroundEditor.vue'
+import RangeSetting from './RangeSetting.vue'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 import SettingsGroup from './SettingsGroup.vue'
@@ -57,24 +58,9 @@ const colorModeOptions = () => [
         <BackgroundEditor which="light" />
         <BackgroundEditor which="dark" />
       </template>
-      <SettingRow :label="t('settings.acrylic')" :help="t('settings.acrylic.help')" label-for="set-acrylic">
-        <div class="flex items-center sm:justify-end">
-          <Switch id="set-acrylic" :model-value="appearance.acrylic.value" @update:model-value="(value) => appearance.setAcrylic(value === true)" />
-        </div>
-      </SettingRow>
-      <template v-if="appearance.acrylic.value">
-        <SettingRow :label="t('settings.acrylic.opacity')" :help="t('settings.acrylic.opacity.help')">
-          <div class="flex items-center gap-3">
-            <input type="range" class="w-full accent-primary" :value="appearance.opacity.value" min="50" max="95" step="1" :aria-label="t('settings.acrylic.opacity')" @input="appearance.setOpacity(Number(($event.target as HTMLInputElement).value))">
-            <output class="w-10 text-right text-xs tabular-nums">{{ appearance.opacity.value }}%</output>
-          </div>
-        </SettingRow>
-        <SettingRow :label="t('settings.acrylic.blur')" :help="t('settings.acrylic.blur.help')">
-          <div class="flex items-center gap-3">
-            <input type="range" class="w-full accent-primary" :value="appearance.acrylicBlur.value" min="0" max="32" step="1" :aria-label="t('settings.acrylic.blur')" @input="appearance.setAcrylicBlur(Number(($event.target as HTMLInputElement).value))">
-            <output class="w-10 text-right text-xs tabular-nums">{{ appearance.acrylicBlur.value }}px</output>
-          </div>
-        </SettingRow>
+      <template v-if="appearance.hasBackground.value">
+        <RangeSetting :label="t('settings.panelOpacity')" :help="t('settings.panelOpacity.help')" :model-value="appearance.opacity.value" :default-value="DEFAULT_PANEL_OPACITY" :min="50" :max="95" unit="%" @update:model-value="appearance.setOpacity" />
+        <RangeSetting :label="t('settings.panelBlur')" :help="t('settings.panelBlur.help')" :model-value="appearance.panelBlur.value" :default-value="DEFAULT_PANEL_BLUR" :min="0" :max="32" unit="px" @update:model-value="appearance.setPanelBlur" />
       </template>
       <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">
         <div class="flex items-center sm:justify-end">

@@ -6,7 +6,7 @@ import { useAppearance, type BackgroundSlot } from '@/theme/appearance'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import SettingRow from './SettingRow.vue'
+import RangeSetting from './RangeSetting.vue'
 
 const props = defineProps<{ which: BackgroundSlot }>()
 
@@ -82,11 +82,6 @@ function clear(): void {
     </div>
     <p v-if="error" class="text-destructive text-xs" role="alert">{{ error }}</p>
     <p v-else-if="background.source === 'url'" class="text-muted-foreground text-xs">{{ t('settings.background.urlNotice') }}</p>
-    <SettingRow :label="t('settings.background.blur')" :help="t('settings.background.blur.help')">
-      <div class="flex items-center gap-3">
-        <input type="range" class="accent-primary w-full" :value="background.blur" min="0" max="24" step="1" :aria-label="`${t(TITLES[which])}: ${t('settings.background.blur')}`" @input="appearance.setBackground(which, { blur: Number(($event.target as HTMLInputElement).value) })">
-        <output class="w-10 text-right text-xs tabular-nums">{{ background.blur }}px</output>
-      </div>
-    </SettingRow>
+    <RangeSetting :label="t('settings.background.blur')" :help="t('settings.background.blur.help')" :aria-label="`${t(TITLES[which])}: ${t('settings.background.blur')}`" :model-value="background.blur" :default-value="0" :min="0" :max="24" unit="px" @update:model-value="(blur) => appearance.setBackground(which, { blur })" />
   </div>
 </template>

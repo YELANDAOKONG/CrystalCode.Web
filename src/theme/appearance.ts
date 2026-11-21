@@ -15,6 +15,8 @@ interface BackgroundSettings {
 }
 
 const MAX_IMAGE_BYTES = 50 * 1024 * 1024
+export const DEFAULT_PANEL_OPACITY = 76
+export const DEFAULT_PANEL_BLUR = 16
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 
@@ -51,9 +53,8 @@ const slots: Record<BackgroundSlot, Ref<BackgroundSettings>> = {
 }
 // Object URLs for the stored files. They exist only while the page is open.
 const fileUrls = reactive<Record<BackgroundSlot, string>>({ shared: '', light: '', dark: '' })
-const acrylic = ref(loadPreference('acrylic') === 'on')
-const opacity = ref(readNumber('acrylic-opacity', 76, 50, 95))
-const acrylicBlur = ref(readNumber('acrylic-blur', 16, 0, 32))
+const opacity = ref(readNumber('acrylic-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
+const panelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
 const currentSlot = computed<BackgroundSlot>(() => separate.value ? (isDark.value ? 'dark' : 'light') : 'shared')
 
 function imageOf(slot: BackgroundSlot): string {
@@ -63,14 +64,21 @@ function imageOf(slot: BackgroundSlot): string {
 }
 
 const currentImage = computed(() => imageOf(currentSlot.value))
+// With no image behind them the panels have nothing to show through, so they
+// stay opaque. With one, they turn translucent: an image beside opaque panels
+// looks broken.
+const hasBackground = computed(() => SLOTS.some((slot) => imageOf(slot) !== ''))
 
 function applyBackground(): void {
   const root = document.documentElement
   const image = currentImage.value
   root.style.setProperty('--custom-background-image', image ? `url("${image.replace(/["\\\n\r]/g, '\\$&')}")` : 'none')
-  // Panels are translucent over this one layer, so its blur is the panels' blur.
-  root.style.setProperty('--background-blur', `${slots[currentSlot.value].value.blur + (acrylic.value ? acrylicBlur.value : 0)}px`)
-  root.dataset.acrylic = acrylic.value ? 'on' : 'off'
+  // The panels cover the whole window, so the only thing seen through them is
+  // this one layer. Blurring it by both amounts looks like a blur on each panel
+  // without a backdrop filter, which repaints on every streamed token.
+  root.style.setProperty('--background-blur', `${slots[currentSlot.value].value.blur + (image ? panelBlur.value : 0)}px`)
+  root.style.setProperty('--panel-blur', `${panelBlur.value}px`)
+  root.dataset.background = image ? 'on' : 'off'
   root.style.setProperty('--acrylic-opacity', `${opacity.value / 100}`)
 }
 
@@ -103,32 +111,27 @@ function store(slot: BackgroundSlot, next: BackgroundSettings): boolean {
   return true
 }
 
-watch([currentImage, currentSlot, acrylic, opacity, acrylicBlur, () => slots[currentSlot.value].value.blur], applyBackground, { immediate: true })
+watch([currentImage, currentSlot, opacity, panelBlur, () => slots[currentSlot.value].value.blur], applyBackground, { immediate: true })
 
 export function useAppearance() {
   return {
     separate,
     slots,
-    acrylic,
     opacity,
-    acrylicBlur,
+    panelBlur,    hasBackground,
     /** The address the browser loads for this slot, or an empty string. */
     imageOf,
     setSeparate(value: boolean) {
       separate.value = value
       savePreference('background-separate', value ? 'on' : 'off')
     },
-    setAcrylic(value: boolean) {
-      acrylic.value = value
-      savePreference('acrylic', value ? 'on' : 'off')
-    },
     setOpacity(value: number) {
       opacity.value = Math.min(95, Math.max(50, value))
       savePreference('acrylic-opacity', String(opacity.value))
     },
-    setAcrylicBlur(value: number) {
-      acrylicBlur.value = Math.min(32, Math.max(0, value))
-      savePreference('acrylic-blur', String(acrylicBlur.value))
+    setPanelBlur(value: number) {
+      panelBlur.value = Math.min(32, Math.max(0, value))
+      savePreference('acrylic-blur', String(panelBlur.value))
     },
     setBackground(slot: BackgroundSlot, patch: Partial<BackgroundSettings>): boolean {
       const next = { ...slots[slot].value, ...patch }

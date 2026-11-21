@@ -96,7 +96,7 @@
 
   /* A palette sets the --pal-* fills and the ink, accent, and button colors.
      Everything below derives from them, so a palette cannot leave a line, a
-     hover, or a field in another palette's tint. The acrylic layer reads the
+     hover, or a field in another palette's tint. The background-image layer reads the
      --pal-* fills and makes the --site-* ones translucent. */
   --pal-bg: light-dark(#eef1f4, #171a20);
   --pal-surface: light-dark(#e7ebf0, #1c2027);
@@ -139,6 +139,7 @@
   --custom-background-image: none;
   --background-blur: 0px;
   --acrylic-opacity: 0.76;
+  --panel-blur: 16px;
 
   /* shadcn-vue tokens, mapped onto the site palette. */
   --background: var(--site-bg);
@@ -207,7 +208,7 @@ body::before {
 
 /* Only fills that are panels turn translucent. Text, lines, and the primary
    button keep their colors so they stay readable over any image. */
-:root[data-acrylic='on'] {
+:root[data-background='on'] {
   --site-bg: color-mix(in srgb, var(--pal-bg) calc(var(--acrylic-opacity) * 100%), transparent);
   --site-surface: color-mix(in srgb, var(--pal-surface) calc(var(--acrylic-opacity) * 100%), transparent);
   --site-raised: color-mix(in srgb, var(--pal-raised) calc(var(--acrylic-opacity) * 100%), transparent);
@@ -215,15 +216,21 @@ body::before {
   --site-field-hover: color-mix(in srgb, var(--pal-field-hover) calc(var(--acrylic-opacity) * 100%), transparent);
 }
 
-:root[data-acrylic='on'] .acrylic-panel {
+:root[data-background='on'] .acrylic-panel {
   background-color: var(--site-bg);
+}
+
+/* The connect page header is sticky and the form scrolls under it, so it
+   blurs what is behind it. The page is static, so this does not flicker. */
+:root[data-background='on'] .connect-header {
+  backdrop-filter: blur(var(--panel-blur));
 }
 
 /* A popup sits over a page the overlay has already darkened, so a
    translucent fill reads as muddy gray. Give its content and everything inside
    it the opaque palette. The shadcn tokens are resolved at :root, so they are
    restated here. */
-:root[data-acrylic='on'] :is(
+:root[data-background='on'] :is(
   [data-slot='dialog-content'],
   [data-slot='alert-dialog-content'],
   [data-slot='sheet-content'],
