@@ -597,7 +597,7 @@ export const ja: Record<MessageKey, string> = {
   'settings.panelBlur': 'パネルのぼかし',
   'settings.panelBlur.help': 'パネル越しに見える画像をぼかします。背景のぼかしに加算されます。',
   'settings.pageTitle': 'ブラウザのタブタイトル',
-  'settings.title.help': 'セッションのトピックを表示します。名前がないときは最初のメッセージを表示し、確認が必要かや接続状態も示します。固定のタイトルにすることもできます。',
+  'settings.title.help': 'セッションのトピックを表示します。名前がないときは最初のメッセージを表示し、確認が必要な状態や接続状態も示します。固定のタイトルにすることもできます。',
   'settings.title.session': 'セッションのタイトルと状態',
   'settings.title.fixed': '常に Crystal Code',
   'settings.headerTitle': 'ヘッダーのタイトル',
