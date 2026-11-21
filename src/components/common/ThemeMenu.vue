@@ -10,13 +10,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { t } from '@/i18n'
-import { useTheme, type ThemeSetting } from '@/theme/theme'
+import { useTheme, type ColorMode } from '@/theme/theme'
 
-const { theme, setTheme } = useTheme()
+const { colorMode, setColorMode } = useTheme()
 
 // The trigger shows the setting in force, so the icon is a status as well as a button.
-const icon = computed(() => (theme.value === 'light' ? Sun : theme.value === 'dark' ? Moon : SunMoon))
-const label = computed(() => t(`common.theme.${theme.value}`))
+const icon = computed(() => (colorMode.value === 'light' ? Sun : colorMode.value === 'dark' ? Moon : SunMoon))
+const label = computed(() => t(`common.theme.${colorMode.value}`))
 </script>
 
 <template>
@@ -33,7 +33,7 @@ const label = computed(() => t(`common.theme.${theme.value}`))
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="min-w-40">
-      <DropdownMenuRadioGroup :model-value="theme" @update:model-value="setTheme($event as ThemeSetting)">
+      <DropdownMenuRadioGroup :model-value="colorMode" @update:model-value="setColorMode($event as ColorMode)">
         <DropdownMenuRadioItem value="auto"><SunMoon class="size-4" />{{ t('common.theme.auto') }}</DropdownMenuRadioItem>
         <DropdownMenuRadioItem value="light"><Sun class="size-4" />{{ t('common.theme.light') }}</DropdownMenuRadioItem>
         <DropdownMenuRadioItem value="dark"><Moon class="size-4" />{{ t('common.theme.dark') }}</DropdownMenuRadioItem>

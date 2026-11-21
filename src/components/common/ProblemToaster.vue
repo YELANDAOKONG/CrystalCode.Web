@@ -7,10 +7,10 @@ import { t, type MessageKey } from '@/i18n'
 import { ProtocolError } from '@/protocol/errors'
 import { useTheme } from '@/theme/theme'
 
-const { theme } = useTheme()
+const { colorMode, isDark } = useTheme()
 // The toaster has its own palette, so it must follow the theme the operator
 // picked here, not only the system setting.
-const toasterTheme = computed(() => (theme.value === 'auto' ? 'system' : theme.value))
+const toasterTheme = computed(() => colorMode.value === 'auto' ? 'system' : isDark.value ? 'dark' : 'light')
 
 // A failed action reports here. The server's text is shown as received and
 // follows the interface message, since it is English and may explain the cause.

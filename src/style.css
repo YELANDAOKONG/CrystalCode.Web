@@ -162,6 +162,36 @@
   --sidebar-ring: var(--site-accent);
 }
 
+:root[data-palette='ocean'] {
+  --site-bg: light-dark(#e9f2f5, #142126);
+  --site-surface: light-dark(#dcebef, #1b2b31);
+  --site-raised: light-dark(#cddfe5, #263a41);
+  --site-ink: light-dark(#102027, #e5f0f1);
+  --site-muted: light-dark(#405c67, #adc4c9);
+  --site-faint: light-dark(#607781, #829da4);
+  --site-accent: light-dark(#176b82, #8bd4e3);
+  --site-button-bg: light-dark(#164c5c, #d1edf0);
+  --site-button-ink: light-dark(#f3fbfc, #102126);
+  --site-warn: light-dark(#765314, #e6c38a);
+  --site-error: light-dark(#a8361b, #f0a58f);
+  --site-ok: light-dark(#2d6a4f, #8fcfae);
+}
+
+:root[data-palette='forest'] {
+  --site-bg: light-dark(#edf2eb, #1b211b);
+  --site-surface: light-dark(#e0e9dd, #242d24);
+  --site-raised: light-dark(#d1dfce, #303b30);
+  --site-ink: light-dark(#172017, #e8ede4);
+  --site-muted: light-dark(#4c5c49, #b8c4b2);
+  --site-faint: light-dark(#667362, #909b8b);
+  --site-accent: light-dark(#426d3b, #add39f);
+  --site-button-bg: light-dark(#263d25, #e1edda);
+  --site-button-ink: light-dark(#f4f8f1, #182017);
+  --site-warn: light-dark(#765314, #e6c38a);
+  --site-error: light-dark(#a8361b, #f0a58f);
+  --site-ok: light-dark(#2d6a4f, #8fcfae);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }

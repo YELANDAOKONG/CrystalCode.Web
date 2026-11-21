@@ -1,23 +1,27 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { loadPreference, savePreference } from '@/connection/storage'
 
-export type ThemeSetting = 'auto' | 'light' | 'dark'
+export type ThemeSetting = 'default' | 'ocean' | 'forest'
+export type ColorMode = 'auto' | 'light' | 'dark'
 
-const setting = ref<ThemeSetting>('auto')
+const setting = ref<ThemeSetting>('default')
+const colorMode = ref<ColorMode>('auto')
 const query = window.matchMedia('(prefers-color-scheme: dark)')
+const isDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && query.matches))
 
 function apply(): void {
   const root = document.documentElement
-  const dark = setting.value === 'dark' || (setting.value === 'auto' && query.matches)
-  // `data-theme` drives the CSS palette; `.dark` drives Tailwind's `dark:` variant.
-  if (setting.value === 'auto') root.removeAttribute('data-theme')
-  else root.setAttribute('data-theme', setting.value)
-  root.classList.toggle('dark', dark)
+  root.dataset.palette = setting.value
+  if (colorMode.value === 'auto') root.removeAttribute('data-theme')
+  else root.setAttribute('data-theme', colorMode.value)
+  root.classList.toggle('dark', isDark.value)
 }
 
 export function initTheme(): void {
-  const saved = loadPreference('theme')
-  if (saved === 'light' || saved === 'dark' || saved === 'auto') setting.value = saved
+  const savedPalette = loadPreference('palette')
+  if (savedPalette === 'default' || savedPalette === 'ocean' || savedPalette === 'forest') setting.value = savedPalette
+  const savedMode = loadPreference('color-mode') ?? loadPreference('theme')
+  if (savedMode === 'light' || savedMode === 'dark' || savedMode === 'auto') colorMode.value = savedMode
   query.addEventListener('change', apply)
   apply()
 }
@@ -25,9 +29,16 @@ export function initTheme(): void {
 export function useTheme() {
   return {
     theme: setting,
+    colorMode,
+    isDark,
     setTheme(next: ThemeSetting) {
       setting.value = next
-      savePreference('theme', next)
+      savePreference('palette', next)
+      apply()
+    },
+    setColorMode(next: ColorMode) {
+      colorMode.value = next
+      savePreference('color-mode', next)
       apply()
     },
   }

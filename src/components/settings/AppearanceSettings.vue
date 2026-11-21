@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t, useLocale, type Locale } from '@/i18n'
-import { useTheme, type ThemeSetting } from '@/theme/theme'
+import { useTheme, type ThemeSetting, type ColorMode } from '@/theme/theme'
 import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
 import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/header-title'
 import { useConversationWidth } from '@/composables/conversation-width'
@@ -11,14 +11,19 @@ import SettingRow from './SettingRow.vue'
 import SettingsGroup from './SettingsGroup.vue'
 
 const { locale, setLocale, locales } = useLocale()
-const { theme, setTheme } = useTheme()
+const { theme, colorMode, setTheme, setColorMode } = useTheme()
 const { titleSetting, setTitleSetting } = useTitleSetting()
 const { headerTitle, setHeaderTitle } = useHeaderTitleSetting()
 const { fullWidth, setFullWidth } = useConversationWidth()
 const { fadeIn, setFadeIn } = useDisplayStyle()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
-const themeOptions = (): { value: string; label: string; help: string }[] => [
+const themeOptions = () => [
+  { value: 'default', label: t('settings.palette.default'), help: '' },
+  { value: 'ocean', label: t('settings.palette.ocean'), help: '' },
+  { value: 'forest', label: t('settings.palette.forest'), help: '' },
+]
+const colorModeOptions = () => [
   { value: 'auto', label: t('common.theme.auto'), help: '' },
   { value: 'light', label: t('common.theme.light'), help: '' },
   { value: 'dark', label: t('common.theme.dark'), help: '' },
@@ -33,6 +38,9 @@ const themeOptions = (): { value: string; label: string; help: string }[] => [
       </SettingRow>
       <SettingRow :label="t('settings.theme')" label-for="set-theme">
         <ChoiceSelect id="set-theme" :options="themeOptions()" :model-value="theme" @change="(v) => setTheme(v as ThemeSetting)" />
+      </SettingRow>
+      <SettingRow :label="t('settings.colorMode')" label-for="set-color-mode">
+        <ChoiceSelect id="set-color-mode" :options="colorModeOptions()" :model-value="colorMode" @change="(v) => setColorMode(v as ColorMode)" />
       </SettingRow>
       <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">
         <div class="flex items-center sm:justify-end">
