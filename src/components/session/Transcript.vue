@@ -178,7 +178,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
       v-if="!pinned"
       variant="secondary"
       size="sm"
-      class="absolute bottom-3 left-1/2 -translate-x-1/2 shadow-md"
+      class="acrylic-float absolute bottom-3 left-1/2 -translate-x-1/2 shadow-md"
       @click="toBottom"
     >
       <ArrowDown class="size-4" />

@@ -231,7 +231,7 @@ const activityText = computed(() => {
           v-if="!pinned && running"
           variant="secondary"
           size="sm"
-          class="absolute bottom-3 left-1/2 -translate-x-1/2 shadow-md"
+          class="acrylic-float absolute bottom-3 left-1/2 -translate-x-1/2 shadow-md"
           @click="toBottom"
         >
           <ArrowDown class="size-4" />

@@ -226,6 +226,13 @@ body::before {
   backdrop-filter: blur(var(--panel-blur));
 }
 
+/* A control that floats over live text, such as the jump-to-latest button, is
+   translucent like the panels but blurs what is directly behind it, or the
+   text shows through. It is small, so the repaint cost is negligible. */
+:root[data-background='on'] .acrylic-float {
+  backdrop-filter: blur(var(--panel-blur));
+}
+
 /* A popup sits over a page the overlay has already darkened, so a
    translucent fill reads as muddy gray. Give its content and everything inside
    it the opaque palette. The shadcn tokens are resolved at :root, so they are
