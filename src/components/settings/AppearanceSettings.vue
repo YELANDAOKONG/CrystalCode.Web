@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { t, useLocale, type Locale } from '@/i18n'
-import { useTheme, type ThemeSetting, type ColorMode } from '@/theme/theme'
+import { t, useLocale, type Locale, type MessageKey } from '@/i18n'
+import { THEMES, useTheme, type ThemeGroup, type ThemeSetting, type ColorMode } from '@/theme/theme'
 import { useTitleSetting, type TitleSetting } from '@/composables/page-title'
 import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/header-title'
 import { useConversationWidth } from '@/composables/conversation-width'
@@ -22,13 +22,12 @@ const { fadeIn, setFadeIn } = useDisplayStyle()
 const appearance = useAppearance()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
-const themeOptions = () => [
-  { value: 'default', label: t('settings.palette.default'), help: '', group: t('settings.palette.group.color') },
-  { value: 'ocean', label: t('settings.palette.ocean'), help: '', group: t('settings.palette.group.color') },
-  { value: 'forest', label: t('settings.palette.forest'), help: '', group: t('settings.palette.group.color') },
-  { value: 'crystal-intelligence', label: t('settings.palette.crystalIntelligence'), help: '', group: t('settings.palette.group.product') },
-  { value: 'frontier-intelligence', label: t('settings.palette.frontierIntelligence'), help: '', group: t('settings.palette.group.product') },
-]
+const GROUP_LABELS: Record<ThemeGroup, MessageKey> = {
+  color: 'settings.palette.group.color',
+  combination: 'settings.palette.group.combination',
+  product: 'settings.palette.group.product',
+}
+const themeOptions = () => THEMES.map((item) => ({ value: item.id, label: t(item.label), help: '', group: t(GROUP_LABELS[item.group]) }))
 const colorModeOptions = () => [
   { value: 'auto', label: t('common.theme.auto'), help: '' },
   { value: 'light', label: t('common.theme.light'), help: '' },

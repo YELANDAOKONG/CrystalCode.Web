@@ -1,32 +1,43 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { loadPreference, savePreference } from '@/connection/storage'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { t } from '@/i18n'
+import { t, type MessageKey } from '@/i18n'
+import { useTheme } from '@/theme/theme'
 import AppearanceSettings from './AppearanceSettings.vue'
 import ConversationSettings from './ConversationSettings.vue'
+import SakuraSettings from './SakuraSettings.vue'
 import ServerSettings from './ServerSettings.vue'
 import SessionSettings from './SessionSettings.vue'
 
 const open = defineModel<boolean>('open', { required: true })
 const wide = useMediaQuery('(min-width: 768px)')
+const { theme, themeHasSettings } = useTheme()
 
-const TABS = [
+// The theme tab exists only while the chosen theme has choices of its own.
+const TABS = computed<(readonly [string, MessageKey])[]>(() => [
   ['session', 'settings.tab.session'],
   ['conversation', 'settings.tab.conversation'],
   ['appearance', 'settings.tab.appearance'],
+  ...(themeHasSettings.value ? ([['theme', 'settings.tab.theme']] as const) : []),
   ['server', 'settings.tab.server'],
-] as const
+])
 // Earlier builds saved `display` and `interface`. Their settings now live here.
 const RENAMED: Record<string, string> = { display: 'conversation', interface: 'appearance' }
 const stored = loadPreference('settings-tab')
 const saved = stored === null ? null : (RENAMED[stored] ?? stored)
-const tab = ref(TABS.some(([id]) => id === saved) ? (saved as string) : 'session')
+const tab = ref(TABS.value.some(([id]) => id === saved) ? (saved as string) : 'session')
 const list = ref<{ $el: HTMLElement } | null>(null)
+
+// Leaving a theme with its own tab while that tab is open lands on Appearance,
+// where the theme is chosen.
+watch(themeHasSettings, (has) => {
+  if (!has && tab.value === 'theme') tab.value = 'appearance'
+})
 
 // A phone shows the tabs in a scrolling row, so bring the chosen one into view.
 watch(tab, (id) => {
@@ -71,6 +82,7 @@ watch(tab, (id) => {
           <TabsContent value="session" class="mt-0"><SessionSettings /></TabsContent>
           <TabsContent value="conversation" class="mt-0"><ConversationSettings /></TabsContent>
           <TabsContent value="appearance" class="mt-0"><AppearanceSettings /></TabsContent>
+          <TabsContent v-if="theme === 'sakura'" value="theme" class="mt-0"><SakuraSettings /></TabsContent>
           <TabsContent value="server" class="mt-0"><ServerSettings @leave="open = false" /></TabsContent>
         </div>
       </Tabs>

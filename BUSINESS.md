@@ -207,10 +207,23 @@ Interface:
   palettes: Crystal (default), Ocean, and Forest.
 - The theme picker is grouped. Color holds Crystal (default), Ocean, and
   Forest. Product holds Crystal Intelligence (the Crystal palette under the
-  product's name) and Frontier Intelligence (warm ivory and clay). A
-  Combination group is planned; custom themes may follow. Themes set colors
-  only; the bundled fonts do not change.
-- Settings have four tabs: Session and Server settings change the server, Conversation
+  product's name) and Frontier Intelligence (warm ivory and clay). Color and
+  Product themes set colors only; the bundled fonts do not change. Custom
+  themes may follow.
+- Combination themes bring more than colors. Sakura is the first: a blossom
+  palette for day and night, built-in artwork (an SVG per mode, bundled, never
+  fetched), a softer radius and rose-tinted shadows, drifting petals, a petal
+  shower when a turn completes, a petal in place of the progress spinner, and a
+  blossom mark and tab icon. The operator's own background image replaces the
+  artwork. Petals can sit behind the panels, in front on idle screens (connect
+  page, empty session), or over everything, and never take a click. Reduced
+  motion leaves the petals still and skips the shower. The effects are
+  decorative: hidden from assistive technology and paused in a hidden tab.
+- A theme with choices of its own gets a Theme tab in Settings. The tab exists
+  only while such a theme is selected. Its choices are browser-only and are
+  kept when the operator switches away and back.
+- Settings have four tabs, and a fifth Theme tab while the chosen theme has
+  choices. Session and Server settings change the server, Conversation
   holds the server's verbose switches and the browser's layout choices, and Appearance
   holds language, theme, width, and title choices. Each group says whether it applies
   on the server or only in this browser.

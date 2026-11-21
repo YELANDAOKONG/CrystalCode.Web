@@ -3,11 +3,14 @@ import { computed, watchEffect } from 'vue'
 import { server } from '@/app/server'
 import ProblemToaster from '@/components/common/ProblemToaster.vue'
 import ConnectView from '@/components/connect/ConnectView.vue'
+import SakuraEffects from '@/components/ambient/SakuraEffects.vue'
 import SessionView from '@/components/session/SessionView.vue'
 import { useTitleSetting } from '@/composables/page-title'
 import { t } from '@/i18n'
 
 const showSession = computed(() => ['live', 'reconnecting', 'closed'].includes(server.phase.value))
+// Nothing to read yet: the connect page, or a session with no conversation.
+const idle = computed(() => !showSession.value || (server.model.loaded && server.model.conversation.length === 0))
 const { titleSetting } = useTitleSetting()
 
 const TITLE_TEXT_LIMIT = 80
@@ -61,4 +64,5 @@ watchEffect(() => {
   <SessionView v-if="showSession" />
   <ConnectView v-else-if="!server.starting.value" />
   <ProblemToaster />
+  <SakuraEffects :idle="idle" />
 </template>

@@ -1,0 +1,54 @@
+<script setup lang="ts">
+import { t } from '@/i18n'
+import { DEFAULT_PETAL_COUNT, DEFAULT_PETAL_SPEED, isPetalPlacement, useSakura } from '@/theme/sakura'
+import { Switch } from '@/components/ui/switch'
+import ChoiceSelect from './ChoiceSelect.vue'
+import RangeSetting from './RangeSetting.vue'
+import SettingRow from './SettingRow.vue'
+import SettingsGroup from './SettingsGroup.vue'
+
+const sakura = useSakura()
+
+const placementOptions = () => [
+  { value: 'behind', label: t('settings.sakura.placement.behind'), help: t('settings.sakura.placement.behind.help') },
+  { value: 'idle', label: t('settings.sakura.placement.idle'), help: t('settings.sakura.placement.idle.help') },
+  { value: 'both', label: t('settings.sakura.placement.both'), help: t('settings.sakura.placement.both.help') },
+  { value: 'over', label: t('settings.sakura.placement.over'), help: t('settings.sakura.placement.over.help') },
+]
+
+function setPlacement(value: string): void {
+  if (isPetalPlacement(value)) sakura.setPlacement(value)
+}
+</script>
+
+<template>
+  <SettingsGroup :title="t('settings.sakura.title')" scope="browser">
+    <SettingRow :label="t('settings.sakura.artwork')" :help="t('settings.sakura.artwork.help')" label-for="set-sakura-artwork">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-artwork" :model-value="sakura.artwork.value" @update:model-value="(value) => sakura.setArtwork(value === true)" />
+      </div>
+    </SettingRow>
+    <SettingRow :label="t('settings.sakura.petals')" :help="t('settings.sakura.petals.help')" label-for="set-sakura-petals">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-petals" :model-value="sakura.petals.value" @update:model-value="(value) => sakura.setPetals(value === true)" />
+      </div>
+    </SettingRow>
+    <template v-if="sakura.petals.value">
+      <SettingRow :label="t('settings.sakura.placement')" label-for="set-sakura-placement">
+        <ChoiceSelect id="set-sakura-placement" :options="placementOptions()" :model-value="sakura.placement.value" @change="setPlacement" />
+      </SettingRow>
+      <RangeSetting :label="t('settings.sakura.count')" :help="t('settings.sakura.count.help')" :model-value="sakura.count.value" :default-value="DEFAULT_PETAL_COUNT" :min="4" :max="30" unit="" @update:model-value="sakura.setCount" />
+      <RangeSetting :label="t('settings.sakura.speed')" :help="t('settings.sakura.speed.help')" :model-value="sakura.speed.value" :default-value="DEFAULT_PETAL_SPEED" :min="50" :max="150" unit="%" @update:model-value="sakura.setSpeed" />
+    </template>
+    <SettingRow :label="t('settings.sakura.shower')" :help="t('settings.sakura.shower.help')" label-for="set-sakura-shower">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-shower" :model-value="sakura.shower.value" @update:model-value="(value) => sakura.setShower(value === true)" />
+      </div>
+    </SettingRow>
+    <SettingRow :label="t('settings.sakura.spinner')" :help="t('settings.sakura.spinner.help')" label-for="set-sakura-spinner">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-spinner" :model-value="sakura.spinner.value" @update:model-value="(value) => sakura.setSpinner(value === true)" />
+      </div>
+    </SettingRow>
+  </SettingsGroup>
+</template>

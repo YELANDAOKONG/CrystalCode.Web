@@ -306,6 +306,37 @@ body::before {
   --site-button-ink: light-dark(#faf9f5, #141413);
 }
 
+/* Sakura. Day is blossom paper under plum-brown ink; night is an aubergine
+   dusk with lit pink. Every text pair holds 4.5:1 on the raised surface, and
+   the accent holds 5.2:1 on it by day. The finish below the palette is part
+   of the theme: a softer radius, rose-tinted shadows, a petal-colored
+   selection and scrollbar. */
+:root[data-palette='sakura'] {
+  --pal-bg: light-dark(#fdf4f6, #1e111b);
+  --pal-surface: light-dark(#faecef, #281824);
+  --pal-raised: light-dark(#f6e2e6, #31202d);
+  --pal-field: light-dark(transparent, #2a1a27);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #31202d);
+  --site-ink: light-dark(#2c1822, #f4e8e9);
+  --site-muted: light-dark(#6a4f5a, #c8b4bd);
+  --site-faint: light-dark(#765a66, #ae97a1);
+  --site-accent: light-dark(#a4345b, #f7a0bd);
+  --site-button-bg: light-dark(#962750, #f7a0bd);
+  --site-button-ink: light-dark(#fdf4f6, #1e111b);
+
+  --radius: 0.875rem;
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(164 52 91 / 0.18), rgb(0 0 0 / 0.5));
+  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--site-accent) 14%, transparent);
+  --shadow-sm: 0 1px 3px 0 color-mix(in srgb, var(--site-accent) 18%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--site-accent) 14%, transparent);
+  --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--site-accent) 20%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--site-accent) 14%, transparent);
+  --petal-a: light-dark(#fbd3de, #f7a0bd);
+  --petal-b: light-dark(#f2a6bd, #d9729a);
+}
+
+:root[data-palette='sakura'] ::selection {
+  background: color-mix(in srgb, var(--site-accent) 30%, transparent);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }

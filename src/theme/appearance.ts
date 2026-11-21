@@ -1,6 +1,9 @@
 import { computed, reactive, ref, watch, type Ref } from 'vue'
 import { deleteBlob, loadBlob, loadPreference, saveBlob, savePreference } from '@/connection/storage'
-import { isDark } from './theme'
+import { isDark, useTheme } from './theme'
+import { useSakura } from './sakura'
+import sakuraDay from '@/assets/sakura/day.svg'
+import sakuraNight from '@/assets/sakura/night.svg'
 
 export type BackgroundSource = 'none' | 'url' | 'file'
 export type BackgroundSlot = 'shared' | 'light' | 'dark'
@@ -65,13 +68,23 @@ function imageOf(slot: BackgroundSlot): string {
   return background.source === 'url' ? background.value : ''
 }
 
-const currentImage = computed(() => enabled.value ? imageOf(currentSlot.value) : '')
-// Something is saved, whether or not it is shown.
-const hasSavedImage = computed(() => SLOTS.some((slot) => slots[slot].value.source !== 'none'))
+// A theme can bring its own artwork. It is shown only while the operator has
+// no image of their own on screen, so a chosen picture always wins.
+const { theme } = useTheme()
+const sakura = useSakura()
+const themeArtwork = computed(() => {
+  if (theme.value !== 'sakura' || !sakura.artwork.value) return ''
+  return isDark.value ? sakuraNight : sakuraDay
+})
+
+const operatorImage = computed(() => imageOf(currentSlot.value))
+const currentImage = computed(() => enabled.value ? operatorImage.value || themeArtwork.value : '')
+// Something is saved or supplied, whether or not it is shown.
+const hasSavedImage = computed(() => themeArtwork.value !== '' || SLOTS.some((slot) => slots[slot].value.source !== 'none'))
 // With no image behind them the panels have nothing to show through, so they
 // stay opaque. With one, they turn translucent: an image beside opaque panels
 // looks broken.
-const hasBackground = computed(() => enabled.value && SLOTS.some((slot) => imageOf(slot) !== ''))
+const hasBackground = computed(() => enabled.value && (themeArtwork.value !== '' || SLOTS.some((slot) => imageOf(slot) !== '')))
 
 function applyBackground(): void {
   const root = document.documentElement
@@ -79,8 +92,10 @@ function applyBackground(): void {
   root.style.setProperty('--custom-background-image', image ? `url("${image.replace(/["\\\n\r]/g, '\\$&')}")` : 'none')
   // The panels cover the whole window, so the only thing seen through them is
   // this one layer. Blurring it by both amounts looks like a blur on each panel
-  // without a backdrop filter, which repaints on every streamed token.
-  root.style.setProperty('--background-blur', `${slots[currentSlot.value].value.blur + (image ? panelBlur.value : 0)}px`)
+  // without a backdrop filter, which repaints on every streamed token. The
+  // per-image blur belongs to the operator's picture, not to theme artwork.
+  const imageBlur = operatorImage.value && enabled.value ? slots[currentSlot.value].value.blur : 0
+  root.style.setProperty('--background-blur', `${imageBlur + (image ? panelBlur.value : 0)}px`)
   root.style.setProperty('--panel-blur', `${panelBlur.value}px`)
   root.dataset.background = image ? 'on' : 'off'
   root.style.setProperty('--acrylic-opacity', `${opacity.value / 100}`)
