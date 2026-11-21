@@ -205,7 +205,10 @@ Interface:
   the browser contacts a host the operator did not name as a server. Built-in
   palettes: Crystal (default), Ocean, and Forest.
 - The theme picker is grouped. Color holds Crystal (default), Ocean, and
-  Forest. Combination and Product groups are planned; custom themes may follow.
+  Forest. Product holds Crystal Intelligence (the Crystal palette under the
+  product's name) and Frontier Intelligence (warm ivory and clay). A
+  Combination group is planned; custom themes may follow. Themes set colors
+  only; the bundled fonts do not change.
 - Settings have four tabs: Session and Server settings change the server, Conversation
   holds the server's verbose switches and the browser's layout choices, and Appearance
   holds language, theme, width, and title choices. Each group says whether it applies

@@ -26,6 +26,8 @@ const themeOptions = () => [
   { value: 'default', label: t('settings.palette.default'), help: '', group: t('settings.palette.group.color') },
   { value: 'ocean', label: t('settings.palette.ocean'), help: '', group: t('settings.palette.group.color') },
   { value: 'forest', label: t('settings.palette.forest'), help: '', group: t('settings.palette.group.color') },
+  { value: 'crystal-intelligence', label: t('settings.palette.crystalIntelligence'), help: '', group: t('settings.palette.group.product') },
+  { value: 'frontier-intelligence', label: t('settings.palette.frontierIntelligence'), help: '', group: t('settings.palette.group.product') },
 ]
 const colorModeOptions = () => [
   { value: 'auto', label: t('common.theme.auto'), help: '' },

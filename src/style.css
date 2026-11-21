@@ -281,6 +281,24 @@ body::before {
   --site-button-ink: light-dark(#ecf3ed, #090f0a);
 }
 
+/* Product themes. Crystal Intelligence is the Crystal palette under the
+   product's name, so it sets nothing and takes the :root values. Frontier
+   Intelligence is a warm ivory and clay look. The accent holds 4.5:1 on the
+   raised surface in both modes, and the button text holds 4.5:1 on its fill. */
+:root[data-palette='frontier-intelligence'] {
+  --pal-bg: light-dark(#faf9f5, #1f1e1d);
+  --pal-surface: light-dark(#f2f0e9, #262624);
+  --pal-raised: light-dark(#e8e6dc, #30302e);
+  --pal-field: light-dark(transparent, #2a2927);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #30302e);
+  --site-ink: light-dark(#141413, #faf9f5);
+  --site-muted: light-dark(#5c5a54, #c2c0b6);
+  --site-faint: light-dark(#68665f, #9c9a91);
+  --site-accent: light-dark(#a84b2a, #e08b6d);
+  --site-button-bg: light-dark(#a84b2a, #d97757);
+  --site-button-ink: light-dark(#faf9f5, #141413);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }
