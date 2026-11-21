@@ -86,7 +86,7 @@
 - All controls are keyboard reachable with visible focus. Dialogs trap focus
   and return it on close. Streaming text does not steal focus or scroll the
   reader away from earlier content.
-- i18n is hand-written. English is the source. `zh-cn` and `zh-tw` mirror it
+- i18n is hand-written. English is the source. `zh-cn`, `zh-tw`, and `ja` mirror it
   page by page. Do not machine-translate and publish as final. Do not add an
   i18n library. Missing keys fall back to English.
 - Interface text says "Crystal Code", not "Crystal Code Web".
@@ -129,8 +129,8 @@ Fonts are local files in `src/assets/fonts`, wired in `src/style.css`.
 Archivo and IBM Plex Mono (copied from `../CrystalCode.Website`, licenses
 alongside) come first. The Noto Sans files are the fallback, and the owner
 wants them kept: `Noto Sans` for Latin gaps, `Noto Sans Mono`, and
-`Noto Sans SC`, `TC`, `HK`, `JP` for Han and kana. `html:lang(zh-CN)` and
-`html:lang(zh-TW)` reorder the stack so each locale gets its own glyph forms.
+`Noto Sans SC`, `TC`, `HK`, `JP` for Han and kana. `html:lang(zh-CN)`,
+`html:lang(zh-TW)`, and `html:lang(ja)` reorder the stack so each locale gets its own glyph forms.
 Do not delete these files or reintroduce a remote font.
 
 Sakura also bundles Resource Han Rounded, one variable WOFF2 per region under

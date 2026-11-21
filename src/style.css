@@ -398,6 +398,12 @@ html:lang(zh-TW) {
     ui-monospace, monospace;
 }
 
+html:lang(ja) {
+  --sans: 'Archivo', 'Noto Sans', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC',
+    system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans JP', ui-monospace, monospace;
+}
+
 /* Sakura's stack. Each region's face covers Latin, kana, and Han in its own
    glyph forms, so the page language picks the first one and the rest follow as
    fallbacks. English starts with the smallest face that has Latin, KR, so a
@@ -410,6 +416,10 @@ html:lang(zh-TW) {
 
 :root[data-palette='sakura'][data-sakura-font='on']:lang(zh-CN) {
   --sans: 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
+}
+
+:root[data-palette='sakura'][data-sakura-font='on']:lang(ja) {
+  --sans: 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', system-ui, sans-serif;
 }
 
 :root[data-palette='sakura'][data-sakura-font='on']:lang(zh-TW) {

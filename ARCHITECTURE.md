@@ -52,7 +52,7 @@ binding.
 | `session` | The reducer that applies snapshot and events to view state, `lastSeq`, interaction queue, pending requests, per-scope capability flags from `GET /info` | Any decision the server makes (approval, trust, classification, budgets) |
 | `render` | Markdown to safe output, code highlighting, link handling, image policy | Fetching remote content |
 | `components` | Layout, composer, transcript, cards, dialogs, shadcn-vue UI primitives under `components/ui`, decorative theme effects under `components/ambient` | Network calls, storage |
-| `i18n` | Hand-written message tables for `en`, `zh-cn`, `zh-tw`, the lookup, and the fallback to English | Server-authored text |
+| `i18n` | Hand-written message tables for `en`, `zh-cn`, `zh-tw`, `ja`, the lookup, and the fallback to English | Server-authored text |
 | `theme` | Design tokens, fonts, light, dark, and auto themes, the theme registry, bundled theme artwork, theme preferences | Behavior |
 
 ## Runtime flow

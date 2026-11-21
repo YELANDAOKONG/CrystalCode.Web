@@ -3,16 +3,18 @@ import { loadPreference, savePreference } from '@/connection/storage'
 import { en, type MessageKey } from './en'
 import { zhCn } from './zh-cn'
 import { zhTw } from './zh-tw'
+import { ja } from './ja'
 
-export type Locale = 'en' | 'zh-cn' | 'zh-tw'
+export type Locale = 'en' | 'zh-cn' | 'zh-tw' | 'ja'
 
 export const LOCALES: { id: Locale; label: string; htmlLang: string }[] = [
   { id: 'en', label: 'English', htmlLang: 'en' },
   { id: 'zh-cn', label: '简体中文', htmlLang: 'zh-CN' },
   { id: 'zh-tw', label: '繁體中文', htmlLang: 'zh-TW' },
+  { id: 'ja', label: '日本語', htmlLang: 'ja' },
 ]
 
-const tables: Record<Locale, Partial<Record<MessageKey, string>>> = { en, 'zh-cn': zhCn, 'zh-tw': zhTw }
+const tables: Record<Locale, Partial<Record<MessageKey, string>>> = { en, 'zh-cn': zhCn, 'zh-tw': zhTw, ja }
 
 const locale = ref<Locale>('en')
 
@@ -23,6 +25,7 @@ function detect(): Locale {
       return /^zh-(tw|hk|mo|hant)/.test(lower) ? 'zh-tw' : 'zh-cn'
     }
 
+    if (lower.startsWith('ja')) return 'ja'
     if (lower.startsWith('en')) return 'en'
   }
 

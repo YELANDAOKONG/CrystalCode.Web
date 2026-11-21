@@ -188,7 +188,7 @@ Session:
 
 Interface:
 
-- English is the source language. `zh-cn` and `zh-tw` are written by hand,
+- English is the source language. `zh-cn`, `zh-tw`, and `ja` are written by hand,
   page by page. Missing translations fall back to English.
 - Visual language follows `../CrystalCode.Website`: Archivo and IBM Plex Mono,
   the cool ivory, blue-gray, and ice palette, light, dark, and auto themes,
@@ -389,7 +389,7 @@ client. Their wording lags the product. Do not copy their feature claims.
 
 ## Runtime language
 
-Interface text is English by default and localized to `zh-cn` and `zh-tw`
+Interface text is English by default and localized to `zh-cn`, `zh-tw`, and `ja`
 through hand-written resources. Text produced by the server (problem details,
 notes, errors, tool output, slash command reports) is shown exactly as
 received and is not translated. Interface text contains no emoji.
