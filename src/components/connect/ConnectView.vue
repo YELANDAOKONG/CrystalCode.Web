@@ -81,38 +81,6 @@ async function copyServerCommand(): Promise<void> {
     commandCopied.value = false
   }
 }
-
-function scrollSavedServers(event: KeyboardEvent): void {
-  const list = event.currentTarget
-  if (!(list instanceof HTMLElement)) return
-
-  let offset: number
-  switch (event.key) {
-    case 'ArrowDown':
-      offset = 48
-      break
-    case 'ArrowUp':
-      offset = -48
-      break
-    case 'PageDown':
-      offset = list.clientHeight
-      break
-    case 'PageUp':
-      offset = -list.clientHeight
-      break
-    case 'Home':
-      offset = -list.scrollTop
-      break
-    case 'End':
-      offset = list.scrollHeight - list.clientHeight - list.scrollTop
-      break
-    default:
-      return
-  }
-
-  event.preventDefault()
-  list.scrollTop += offset
-}
 </script>
 
 <template>
@@ -251,7 +219,7 @@ function scrollSavedServers(event: KeyboardEvent): void {
 
         <section v-if="host === null && server.savedServers.value.length > 0" class="saved-servers" aria-labelledby="saved-title">
           <h2 id="saved-title" class="text-sm font-semibold">{{ t('connect.saved') }}</h2>
-          <ul class="saved-server-list mt-2" tabindex="0" :aria-label="t('connect.saved')" @keydown="scrollSavedServers">
+          <ul class="mt-2">
             <li v-for="item in server.savedServers.value" :key="item.url" class="saved-server flex items-center gap-2">
               <button type="button" class="hover:text-foreground min-w-0 flex-1 truncate text-left font-mono text-sm" @click="pick(item.url)">
                 {{ item.url }}
@@ -371,13 +339,6 @@ function scrollSavedServers(event: KeyboardEvent): void {
   border-top: 1px solid var(--site-line);
 }
 
-.saved-server-list {
-  max-height: min(40dvh, 20rem);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 0.25rem;
-}
-
 .saved-server {
   min-height: 2.875rem;
   color: var(--site-muted);
@@ -437,10 +398,6 @@ function scrollSavedServers(event: KeyboardEvent): void {
 
   .connect-workspace {
     padding: 1.25rem;
-  }
-
-  .saved-server-list {
-    max-height: 32dvh;
   }
 }
 </style>
