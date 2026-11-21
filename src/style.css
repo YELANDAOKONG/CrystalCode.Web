@@ -85,6 +85,50 @@
   font-display: swap;
 }
 
+/* Resource Han Rounded, for the Sakura theme only. The faces are declared here
+   but the browser fetches one only when a page shows a character it covers, and
+   the theme stacks them only while Sakura is selected. Each region is a variable
+   font covering weights 200 to 900; ROND 100 selects the rounded forms. */
+@font-face {
+  font-family: 'Resource Han Rounded CN';
+  src: url('./assets/fonts/resource-han-rounded/cn.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Resource Han Rounded TW';
+  src: url('./assets/fonts/resource-han-rounded/tw.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Resource Han Rounded HK';
+  src: url('./assets/fonts/resource-han-rounded/hk.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Resource Han Rounded JP';
+  src: url('./assets/fonts/resource-han-rounded/jp.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Resource Han Rounded KR';
+  src: url('./assets/fonts/resource-han-rounded/kr.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* Palette from ../CrystalCode.Website, except the dark backgrounds (bg,
@@ -352,6 +396,24 @@ html:lang(zh-TW) {
     'Noto Sans JP', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans TC', 'Noto Sans SC',
     ui-monospace, monospace;
+}
+
+/* Sakura's stack. Each region's face covers Latin, kana, and Han in its own
+   glyph forms, so the page language picks the first one and the rest follow as
+   fallbacks. English starts with the smallest face that has Latin, KR, so a
+   first English page does not download the largest file. A later face is
+   fetched only for a character the earlier ones lack. */
+:root[data-palette='sakura'] {
+  --sans: 'Resource Han Rounded KR', 'Resource Han Rounded JP', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
+  font-variation-settings: 'ROND' 100;
+}
+
+:root[data-palette='sakura']:lang(zh-CN) {
+  --sans: 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
+}
+
+:root[data-palette='sakura']:lang(zh-TW) {
+  --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
 @theme inline {

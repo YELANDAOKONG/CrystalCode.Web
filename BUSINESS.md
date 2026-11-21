@@ -208,8 +208,12 @@ Interface:
 - The theme picker is grouped. Color holds Crystal (default), Ocean, and
   Forest. Product holds Crystal Intelligence (the Crystal palette under the
   product's name) and Frontier Intelligence (warm ivory and clay). Color and
-  Product themes set colors only; the bundled fonts do not change. Custom
-  themes may follow.
+  Product themes set colors only. Sakura is the one theme that also sets a
+  font: Resource Han Rounded (SIL OFL 1.1), all five regions (CN, TW, HK, JP,
+  KR), each a variable font of weights 200 to 900 with the rounded axis on.
+  Only a Sakura page downloads them, and a region's file is fetched when a
+  character needs it. Other themes keep the bundled Archivo and Noto faces.
+  Custom themes may follow.
 - Combination themes bring more than colors. Sakura is the first: a blossom
   palette for day and night, built-in artwork (an SVG per mode, bundled, never
   fetched), a softer radius and rose-tinted shadows, drifting petals, a petal
