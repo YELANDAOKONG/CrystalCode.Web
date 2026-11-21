@@ -6,6 +6,8 @@ import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/he
 import { useConversationWidth } from '@/composables/conversation-width'
 import { useDisplayStyle } from '@/composables/display-style'
 import { Switch } from '@/components/ui/switch'
+import { useAppearance } from '@/theme/appearance'
+import BackgroundEditor from './BackgroundEditor.vue'
 import ChoiceSelect from './ChoiceSelect.vue'
 import SettingRow from './SettingRow.vue'
 import SettingsGroup from './SettingsGroup.vue'
@@ -16,6 +18,7 @@ const { titleSetting, setTitleSetting } = useTitleSetting()
 const { headerTitle, setHeaderTitle } = useHeaderTitleSetting()
 const { fullWidth, setFullWidth } = useConversationWidth()
 const { fadeIn, setFadeIn } = useDisplayStyle()
+const appearance = useAppearance()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = () => [
@@ -28,6 +31,8 @@ const colorModeOptions = () => [
   { value: 'light', label: t('common.theme.light'), help: '' },
   { value: 'dark', label: t('common.theme.dark'), help: '' },
 ]
+
+
 </script>
 
 <template>
@@ -42,6 +47,35 @@ const colorModeOptions = () => [
       <SettingRow :label="t('settings.colorMode')" label-for="set-color-mode">
         <ChoiceSelect id="set-color-mode" :options="colorModeOptions()" :model-value="colorMode" @change="(v) => setColorMode(v as ColorMode)" />
       </SettingRow>
+      <SettingRow :label="t('settings.background.separate')" :help="t('settings.background.separate.help')" label-for="set-background-separate">
+        <div class="flex items-center sm:justify-end">
+          <Switch id="set-background-separate" :model-value="appearance.separate.value" @update:model-value="(value) => appearance.setSeparate(value === true)" />
+        </div>
+      </SettingRow>
+      <BackgroundEditor v-if="!appearance.separate.value" which="shared" />
+      <template v-else>
+        <BackgroundEditor which="light" />
+        <BackgroundEditor which="dark" />
+      </template>
+      <SettingRow :label="t('settings.acrylic')" :help="t('settings.acrylic.help')" label-for="set-acrylic">
+        <div class="flex items-center sm:justify-end">
+          <Switch id="set-acrylic" :model-value="appearance.acrylic.value" @update:model-value="(value) => appearance.setAcrylic(value === true)" />
+        </div>
+      </SettingRow>
+      <template v-if="appearance.acrylic.value">
+        <SettingRow :label="t('settings.acrylic.opacity')" :help="t('settings.acrylic.opacity.help')">
+          <div class="flex items-center gap-3">
+            <input type="range" class="w-full accent-primary" :value="appearance.opacity.value" min="50" max="95" step="1" :aria-label="t('settings.acrylic.opacity')" @input="appearance.setOpacity(Number(($event.target as HTMLInputElement).value))">
+            <output class="w-10 text-right text-xs tabular-nums">{{ appearance.opacity.value }}%</output>
+          </div>
+        </SettingRow>
+        <SettingRow :label="t('settings.acrylic.blur')" :help="t('settings.acrylic.blur.help')">
+          <div class="flex items-center gap-3">
+            <input type="range" class="w-full accent-primary" :value="appearance.acrylicBlur.value" min="0" max="32" step="1" :aria-label="t('settings.acrylic.blur')" @input="appearance.setAcrylicBlur(Number(($event.target as HTMLInputElement).value))">
+            <output class="w-10 text-right text-xs tabular-nums">{{ appearance.acrylicBlur.value }}px</output>
+          </div>
+        </SettingRow>
+      </template>
       <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">
         <div class="flex items-center sm:justify-end">
           <Switch id="set-conversation-width" :model-value="fullWidth" @update:model-value="(value) => setFullWidth(value === true)" />

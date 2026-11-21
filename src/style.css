@@ -94,28 +94,38 @@
 :root {
   color-scheme: light dark;
 
-  --site-bg: light-dark(#eef1f4, #171a20);
-  --site-surface: light-dark(#e7ebf0, #1c2027);
-  --site-raised: light-dark(#dfe5eb, #232831);
+  /* A palette sets the --pal-* fills and the ink, accent, and button colors.
+     Everything below derives from them, so a palette cannot leave a line, a
+     hover, or a field in another palette's tint. The acrylic layer reads the
+     --pal-* fills and makes the --site-* ones translucent. */
+  --pal-bg: light-dark(#eef1f4, #171a20);
+  --pal-surface: light-dark(#e7ebf0, #1c2027);
+  --pal-raised: light-dark(#dfe5eb, #232831);
+  /* Form control fill. The shadcn default put the border color at 30% over the
+     page, which reads as flat gray on the blue-black background. */
+  --pal-field: light-dark(transparent, #1d2128);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #252a33);
+
+  --site-bg: var(--pal-bg);
+  --site-surface: var(--pal-surface);
+  --site-raised: var(--pal-raised);
+  --site-field: var(--pal-field);
+  --site-field-hover: var(--pal-field-hover);
   --site-ink: light-dark(#10151c, #ebe8e3);
   --site-muted: light-dark(#4f5c6b, #b7b3ac);
   --site-faint: light-dark(#66717d, #8b929d);
-  --site-line: light-dark(rgb(16 21 28 / 12%), rgb(235 232 227 / 14%));
-  --site-line-strong: light-dark(rgb(16 21 28 / 22%), rgb(235 232 227 / 24%));
+  --site-line: light-dark(color-mix(in srgb, var(--site-ink) 12%, transparent), color-mix(in srgb, var(--site-ink) 14%, transparent));
+  --site-line-strong: light-dark(color-mix(in srgb, var(--site-ink) 22%, transparent), color-mix(in srgb, var(--site-ink) 24%, transparent));
   /* Edge of an input or checkbox. WCAG 1.4.11 wants 3:1 against the page; the
      decorative lines above are deliberately fainter. */
-  --site-control-line: light-dark(rgb(16 21 28 / 50%), rgb(235 232 227 / 42%));
+  --site-control-line: light-dark(color-mix(in srgb, var(--site-ink) 50%, transparent), color-mix(in srgb, var(--site-ink) 42%, transparent));
   --site-accent: light-dark(#2f628d, #a9c9e8);
   --site-button-bg: light-dark(#10151c, #ebe8e3);
   --site-button-ink: light-dark(#eef1f4, #0c0d10);
-  --site-tint: light-dark(rgb(16 21 28 / 3%), rgb(255 255 255 / 2%));
-  --site-hover: light-dark(rgb(16 21 28 / 6%), rgb(255 255 255 / 6%));
-  /* Form control fill. The shadcn default put the border color at 30% over the
-     page, which reads as flat gray on the blue-black background. */
-  --site-field: light-dark(transparent, #1d2128);
-  --site-field-hover: light-dark(rgb(16 21 28 / 4%), #252a33);
+  --site-tint: light-dark(color-mix(in srgb, var(--site-ink) 3%, transparent), color-mix(in srgb, var(--site-ink) 2%, transparent));
+  --site-hover: color-mix(in srgb, var(--site-ink) 6%, transparent);
   --site-warn: light-dark(#7a5314, #e6c38a);
-  --site-warn-line: light-dark(rgb(122 83 20 / 45%), rgb(230 195 138 / 45%));
+  --site-warn-line: color-mix(in srgb, var(--site-warn) 45%, transparent);
   --site-error: light-dark(#a8361b, #f0a58f);
   --site-ok: light-dark(#2d6a4f, #8fcfae);
   --site-menu-shadow: 0 18px 40px light-dark(rgb(38 55 74 / 0.18), rgb(0 0 0 / 0.45));
@@ -126,6 +136,10 @@
     ui-monospace, monospace;
 
   --radius: 0.5rem;
+  --custom-background-image: none;
+  --background-blur: 0px;
+  --acrylic-opacity: 0.76;
+  --acrylic-blur: 16px;
 
   /* shadcn-vue tokens, mapped onto the site palette. */
   --background: var(--site-bg);
@@ -162,10 +176,64 @@
   --sidebar-ring: var(--site-accent);
 }
 
+/* The canvas stays opaque. A translucent page color would blend with the
+   browser's default white and wash out the dark theme. */
+html {
+  background-color: var(--pal-bg);
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: calc(-1 * var(--background-blur));
+  background-image: var(--custom-background-image);
+  background-position: center;
+  background-size: cover;
+  filter: blur(var(--background-blur));
+  pointer-events: none;
+  content: '';
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Only fills that are panels turn translucent. Text, lines, and the primary
+   button keep their colors so they stay readable over any image. */
+:root[data-acrylic='on'] {
+  --site-bg: color-mix(in srgb, var(--pal-bg) calc(var(--acrylic-opacity) * 100%), transparent);
+  --site-surface: color-mix(in srgb, var(--pal-surface) calc(var(--acrylic-opacity) * 100%), transparent);
+  --site-raised: color-mix(in srgb, var(--pal-raised) calc(var(--acrylic-opacity) * 100%), transparent);
+  --site-field: color-mix(in srgb, var(--pal-field) calc(var(--acrylic-opacity) * 100%), transparent);
+  --site-field-hover: color-mix(in srgb, var(--pal-field-hover) calc(var(--acrylic-opacity) * 100%), transparent);
+}
+
+:root[data-acrylic='on'] .acrylic-bar {
+  background-color: var(--site-bg);
+}
+
+/* Panels, including dialogs and menus that render outside #app. A round
+   element is a control (a switch thumb), not a panel. */
+@supports (backdrop-filter: blur(1px)) {
+  :root[data-acrylic='on'] :is(.bg-background, .bg-card, .bg-popover, .bg-secondary, .acrylic-bar, .connect-workspace, .command-line):not(.rounded-full) {
+    backdrop-filter: blur(var(--acrylic-blur));
+  }
+}
+
 :root[data-palette='ocean'] {
-  --site-bg: light-dark(#e9f2f5, #142126);
-  --site-surface: light-dark(#dcebef, #1b2b31);
-  --site-raised: light-dark(#cddfe5, #263a41);
+  --pal-bg: light-dark(#e9f2f5, #142126);
+  --pal-surface: light-dark(#dcebef, #1b2b31);
+  --pal-raised: light-dark(#cddfe5, #263a41);
+  --pal-field: light-dark(transparent, #1d2d33);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #263a41);
   --site-ink: light-dark(#102027, #e5f0f1);
   --site-muted: light-dark(#405c67, #adc4c9);
   --site-faint: light-dark(#607781, #829da4);
@@ -178,9 +246,11 @@
 }
 
 :root[data-palette='forest'] {
-  --site-bg: light-dark(#edf2eb, #1b211b);
-  --site-surface: light-dark(#e0e9dd, #242d24);
-  --site-raised: light-dark(#d1dfce, #303b30);
+  --pal-bg: light-dark(#edf2eb, #1b211b);
+  --pal-surface: light-dark(#e0e9dd, #242d24);
+  --pal-raised: light-dark(#d1dfce, #303b30);
+  --pal-field: light-dark(transparent, #242d24);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #303b30);
   --site-ink: light-dark(#172017, #e8ede4);
   --site-muted: light-dark(#4c5c49, #b8c4b2);
   --site-faint: light-dark(#667362, #909b8b);

@@ -49,7 +49,8 @@ them. The two sites lag the product; the product repository wins.
 - The client holds no product logic. It does not decide approval, trust, risk,
   or budgets, and it offers only the choices the server sent.
 - No request goes anywhere but the server the operator entered and the site
-  that served the page. No CDN,
+  that served the page, except a background image URL the operator typed in
+  Appearance settings. No CDN,
   web font, analytics, or icon service. Do not embed an address, origin, or
   token in the build.
 - Do not work around the browser's mixed-content block with a proxy or a

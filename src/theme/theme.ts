@@ -7,7 +7,8 @@ export type ColorMode = 'auto' | 'light' | 'dark'
 const setting = ref<ThemeSetting>('default')
 const colorMode = ref<ColorMode>('auto')
 const query = window.matchMedia('(prefers-color-scheme: dark)')
-const isDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && query.matches))
+const systemDark = ref(query.matches)
+export const isDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && systemDark.value))
 
 function apply(): void {
   const root = document.documentElement
@@ -22,7 +23,10 @@ export function initTheme(): void {
   if (savedPalette === 'default' || savedPalette === 'ocean' || savedPalette === 'forest') setting.value = savedPalette
   const savedMode = loadPreference('color-mode') ?? loadPreference('theme')
   if (savedMode === 'light' || savedMode === 'dark' || savedMode === 'auto') colorMode.value = savedMode
-  query.addEventListener('change', apply)
+  query.addEventListener('change', (event) => {
+    systemDark.value = event.matches
+    apply()
+  })
   apply()
 }
 

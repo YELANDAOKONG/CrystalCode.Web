@@ -195,6 +195,12 @@ Interface:
   the crystal mark. Planned; the current stylesheet is still the starter.
 - Rounded corners use continuous curvature (`corner-shape: squircle`) where the
   browser supports it, and circular arcs elsewhere. It is not a setting.
+- Appearance settings let the operator pick a background image (uploaded, or
+  by HTTP or HTTPS URL), one shared or one each for light and dark, and a
+  full-acrylic mode: translucent panels, the session header, and the status
+  bar over the image, with blur. A background URL is the one place the browser
+  contacts a host the operator did not name as a server. Built-in palettes:
+  Crystal (default), Ocean, and Forest.
 - Settings have four tabs: Session and Server settings change the server, Conversation
   holds the server's verbose switches and the browser's layout choices, and Appearance
   holds language, theme, width, and title choices. Each group says whether it applies
@@ -310,8 +316,9 @@ Forbidden:
 - Fetching remote images named in model Markdown automatically.
 - Automatic requests to a host other than the server the operator entered and
   the site that served the page. This includes web fonts, analytics, and icon
-  CDNs. A user-initiated navigation to a server-provided sign-in link is the
-  sole exception.
+  CDNs. The only exceptions are a user-initiated navigation to a
+  server-provided sign-in link, and a background image URL the operator typed
+  in Appearance settings (the page discloses this next to the field).
 - Connecting, or filling an address or token, from the page URL.
 - Changing `../CrystalCode` from this repository.
 
