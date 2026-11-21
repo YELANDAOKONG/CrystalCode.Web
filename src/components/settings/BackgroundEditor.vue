@@ -23,9 +23,19 @@ const error = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const urlId = `background-url-${props.which}`
 const image = computed(() => appearance.imageOf(props.which))
+// Long names are cut in the middle so a file's extension stays visible. The
+// full text is in the title attribute.
+function shorten(text: string, max: number): string {
+  if (text.length <= max) return text
+  const extension = /\.[^./\\]{1,8}$/.exec(text)?.[0] ?? ''
+  const head = max - extension.length - 1
+  return head > 8 ? `${text.slice(0, head)}…${extension}` : `${text.slice(0, max - 1)}…`
+}
+
+const source = computed(() => background.value.source === 'file' ? background.value.name : background.value.value)
 const status = computed(() => {
-  if (background.value.source === 'file') return t('settings.background.file', { name: background.value.name })
-  if (background.value.source === 'url') return t('settings.background.url', { url: background.value.value })
+  if (background.value.source === 'file') return t('settings.background.file', { name: shorten(source.value, 40) })
+  if (background.value.source === 'url') return t('settings.background.url', { url: shorten(source.value, 60) })
   return t('settings.background.none')
 })
 
@@ -74,7 +84,7 @@ function clear(): void {
         <img v-if="image" :src="image" alt="" class="size-full object-cover">
         <ImageOff v-else class="text-muted-foreground size-5" aria-hidden="true" />
       </div>
-      <p class="text-muted-foreground min-w-0 text-xs break-all" role="status">{{ status }}</p>
+      <p class="text-muted-foreground min-w-0 text-xs break-all" role="status" :title="source || undefined">{{ status }}</p>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row">
       <Input :id="urlId" v-model="url" type="url" inputmode="url" autocomplete="off" :placeholder="t('settings.background.urlPlaceholder')" @keydown.enter.prevent="applyUrl" />
