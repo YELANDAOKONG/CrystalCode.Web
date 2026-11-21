@@ -336,6 +336,7 @@ The client stores in the browser only:
 
 - the list of server addresses the operator saved, in `localStorage`;
 - interface preferences such as theme and language, in `localStorage`;
+- background images the operator uploaded (up to 50 MB each), in IndexedDB;
 - optionally, one token per address in `sessionStorage` when the operator ticks
   the box. It is cleared with the tab.
 

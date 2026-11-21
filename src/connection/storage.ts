@@ -88,3 +88,45 @@ export function loadPreference(name: string): string | null {
 export function savePreference(name: string, value: string): void {
   safeLocal()?.setItem('crystalcode.pref.' + name, value)
 }
+
+// Images the operator chose are too large for localStorage (about 5 MB for the
+// whole origin), so they live in IndexedDB as Blobs. Nothing else is kept here.
+const BLOB_DB = 'crystalcode'
+const BLOB_STORE = 'blobs'
+
+function openBlobDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(BLOB_DB, 1)
+    request.onupgradeneeded = () => request.result.createObjectStore(BLOB_STORE)
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+async function blobRequest<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  const db = await openBlobDb()
+  try {
+    return await new Promise<T>((resolve, reject) => {
+      const transaction = db.transaction(BLOB_STORE, mode)
+      const request = run(transaction.objectStore(BLOB_STORE))
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () => reject(transaction.error)
+    })
+  } finally {
+    db.close()
+  }
+}
+
+export async function saveBlob(key: string, blob: Blob): Promise<void> {
+  await blobRequest('readwrite', (store) => store.put(blob, key))
+}
+
+export async function loadBlob(key: string): Promise<Blob | null> {
+  const value = await blobRequest<unknown>('readonly', (store) => store.get(key))
+  return value instanceof Blob ? value : null
+}
+
+export async function deleteBlob(key: string): Promise<void> {
+  await blobRequest('readwrite', (store) => store.delete(key))
+}

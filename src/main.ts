@@ -7,7 +7,7 @@ import { initTheme } from './theme/theme'
 import { initAppearance } from './theme/appearance'
 
 initTheme()
-initAppearance()
+void initAppearance()
 initI18n()
 createApp(App).mount('#app')
 void server.start()

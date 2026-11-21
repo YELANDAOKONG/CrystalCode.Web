@@ -139,7 +139,6 @@
   --custom-background-image: none;
   --background-blur: 0px;
   --acrylic-opacity: 0.76;
-  --acrylic-blur: 16px;
 
   /* shadcn-vue tokens, mapped onto the site palette. */
   --background: var(--site-bg);
@@ -220,24 +219,27 @@ body::before {
   background-color: var(--site-bg);
 }
 
-/* The layout panels do not use backdrop-filter. They sit over one static
-   image, so the image itself is blurred once (see appearance.ts). A backdrop
-   filter on a panel beside the streaming transcript is repainted on every
-   token and flickers. Only popups, which sit over live text, blur what is
-   behind them. */
-@supports (backdrop-filter: blur(1px)) {
-  :root[data-acrylic='on'] :is(
-    [data-slot='dialog-content'],
-    [data-slot='alert-dialog-content'],
-    [data-slot='sheet-content'],
-    [data-slot='popover-content'],
-    [data-slot='select-content'],
-    [data-slot='dropdown-menu-content'],
-    [data-slot='dropdown-menu-sub-content'],
-    [data-slot='command']
-  ) {
-    backdrop-filter: blur(var(--acrylic-blur));
-  }
+/* A popup sits over a page the overlay has already darkened, so a
+   translucent fill reads as muddy gray. Give its content and everything inside
+   it the opaque palette. The shadcn tokens are resolved at :root, so they are
+   restated here. */
+:root[data-acrylic='on'] :is(
+  [data-slot='dialog-content'],
+  [data-slot='alert-dialog-content'],
+  [data-slot='sheet-content'],
+  [data-slot='popover-content'],
+  [data-slot='select-content'],
+  [data-slot='dropdown-menu-content'],
+  [data-slot='dropdown-menu-sub-content'],
+  [data-slot='command']
+) {
+  --background: var(--pal-bg);
+  --card: var(--pal-surface);
+  --muted: var(--pal-surface);
+  --popover: var(--pal-raised);
+  --secondary: var(--pal-raised);
+  --site-field: var(--pal-field);
+  --site-field-hover: var(--pal-field-hover);
 }
 
 :root[data-palette='ocean'] {

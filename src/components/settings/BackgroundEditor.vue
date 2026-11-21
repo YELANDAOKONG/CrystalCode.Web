@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ImagePlus, RotateCcw } from '@lucide/vue'
+import { ImageOff, ImagePlus, RotateCcw } from '@lucide/vue'
 import { t, type MessageKey } from '@/i18n'
 import { useAppearance, type BackgroundSlot } from '@/theme/appearance'
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,12 @@ const url = ref(background.value.source === 'url' ? background.value.value : '')
 const error = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const urlId = `background-url-${props.which}`
+const image = computed(() => appearance.imageOf(props.which))
+const status = computed(() => {
+  if (background.value.source === 'file') return t('settings.background.file', { name: background.value.name })
+  if (background.value.source === 'url') return t('settings.background.url', { url: background.value.value })
+  return t('settings.background.none')
+})
 
 watch(background, (value) => { url.value = value.source === 'url' ? value.value : '' })
 
@@ -60,8 +66,15 @@ function clear(): void {
       <div class="flex gap-2">
         <input ref="fileInput" class="sr-only" type="file" accept="image/*" tabindex="-1" @change="readFile">
         <Button type="button" variant="outline" size="sm" @click="fileInput?.click()"><ImagePlus class="size-4" />{{ t('settings.background.upload') }}</Button>
-        <Button type="button" variant="ghost" size="icon" :aria-label="t('settings.background.clear')" :title="t('settings.background.clear')" @click="clear"><RotateCcw class="size-4" /></Button>
+        <Button type="button" variant="ghost" size="icon" :disabled="background.source === 'none'" :aria-label="t('settings.background.clear')" :title="t('settings.background.clear')" @click="clear"><RotateCcw class="size-4" /></Button>
       </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="bg-muted flex h-14 w-24 shrink-0 items-center justify-center overflow-hidden rounded-md border" :class="!image && 'border-dashed'">
+        <img v-if="image" :src="image" alt="" class="size-full object-cover">
+        <ImageOff v-else class="text-muted-foreground size-5" aria-hidden="true" />
+      </div>
+      <p class="text-muted-foreground min-w-0 text-xs break-all" role="status">{{ status }}</p>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row">
       <Input :id="urlId" v-model="url" type="url" inputmode="url" autocomplete="off" :placeholder="t('settings.background.urlPlaceholder')" @keydown.enter.prevent="applyUrl" />
