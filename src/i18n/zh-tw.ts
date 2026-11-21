@@ -521,7 +521,7 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.language': '語言',
   'settings.theme': '主題',
   'settings.colorMode': '明暗模式',
-  'settings.palette.default': '水晶',
+  'settings.palette.default': '水晶（預設）',
   'settings.palette.ocean': '海洋',
   'settings.palette.forest': '森林',
   'settings.pageTitle': '瀏覽器分頁標題',
