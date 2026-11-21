@@ -26,7 +26,7 @@ export const zhTw: Record<MessageKey, string> = {
   'connect.lead.hosted': '這個頁面由 Crystal Code 伺服器提供。',
   'connect.token.required': '這個伺服器需要 Token。',
   'connect.title': '連線到伺服器',
-  'connect.lead': '輸入執行中的 crystal server 位址。此頁面只會與該伺服器通訊。',
+  'connect.lead': '輸入執行中的 Crystal Server 位址。此頁面只會與該伺服器通訊。',
   'connect.address': '伺服器位址',
   'connect.address.hint': '主機與連接埠，或完整 URL。伺服器設定了 --api-base 時，請把它寫成路徑。例如 192.168.1.20:7788',
   'connect.token': 'Token',

@@ -25,7 +25,7 @@ export const en = {
   'connect.lead.hosted': 'This page is served by a Crystal Code server.',
   'connect.token.required': 'This server requires a token.',
   'connect.title': 'Connect to a server',
-  'connect.lead': 'Enter the address of a running crystal server. This page talks to that server only.',
+  'connect.lead': 'Enter the address of a running Crystal Server. This page talks to that server only.',
   'connect.address': 'Server address',
   'connect.address.hint': 'Host and port, or a full URL. Add the server\'s --api-base as a path if it has one. Example: 192.168.1.20:7788',
   'connect.token': 'Token',

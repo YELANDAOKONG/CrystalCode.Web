@@ -26,7 +26,7 @@ export const zhCn: Record<MessageKey, string> = {
   'connect.lead.hosted': '这个页面由 Crystal Code 服务端提供。',
   'connect.token.required': '这个服务端需要 Token。',
   'connect.title': '连接服务端',
-  'connect.lead': '输入正在运行的 crystal server 的地址。此页面只与该服务端通信。',
+  'connect.lead': '输入正在运行的 Crystal Server 的地址。此页面只与该服务端通信。',
   'connect.address': '服务端地址',
   'connect.address.hint': '主机和端口，或完整 URL。服务端设置了 --api-base 时，把它写成路径。例如 192.168.1.20:7788',
   'connect.token': 'Token',
