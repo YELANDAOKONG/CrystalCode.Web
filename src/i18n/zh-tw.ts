@@ -534,7 +534,7 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.sakura.artworkFirst': '主題插畫優先於自訂背景',
   'settings.sakura.artworkFirst.help': '即使已選擇背景圖片，也顯示內建插畫。關閉時，你選擇的圖片優先。',
   'settings.sakura.font': '圓體字型',
-  'settings.sakura.font.help': '文字使用 Resource Han Rounded。關閉後恢復頁面原有字型。開啟時才會下載字型。',
+  'settings.sakura.font.help': '文字使用圓體顯示。',
   'settings.sakura.petals': '飄落的花瓣',
   'settings.sakura.petals.help': '花瓣在頁面上飄落。系統要求減少動態效果時，花瓣會靜止。',
   'settings.sakura.placement': '花瓣飄落的位置',

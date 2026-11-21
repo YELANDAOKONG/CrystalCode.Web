@@ -533,7 +533,7 @@ export const en = {
   'settings.sakura.artworkFirst': 'Artwork before my picture',
   'settings.sakura.artworkFirst.help': 'Show the built-in artwork even when you have chosen a background image. Off keeps your picture in front.',
   'settings.sakura.font': 'Rounded font',
-  'settings.sakura.font.help': 'Use Resource Han Rounded for text. Off returns to the page\'s own fonts. The font downloads only while this is on.',
+  'settings.sakura.font.help': 'Show text in a rounded typeface.',
   'settings.sakura.petals': 'Falling petals',
   'settings.sakura.petals.help': 'Petals drift across the page. They stand still when your system asks for reduced motion.',
   'settings.sakura.placement': 'Where petals fall',
