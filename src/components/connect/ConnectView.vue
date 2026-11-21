@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { Eye, EyeOff, X } from '@lucide/vue'
+import { Check, Clipboard, Eye, EyeOff, X } from '@lucide/vue'
 import LogoMark from '@/components/common/LogoMark.vue'
 import LanguageMenu from '@/components/common/LanguageMenu.vue'
 import ThemeMenu from '@/components/common/ThemeMenu.vue'
@@ -38,6 +38,9 @@ const origin = window.location.origin
 // A hosting server fixes the address, so the only thing left to do after a
 // failure is to try again, or to type the token it asked for.
 const retrying = computed(() => host !== null && !tokenNeeded.value && server.diagnosis.value !== null)
+const serverCommand = `crystal server --allow-origin '${origin}'`
+const commandCopied = ref(false)
+let copyReset: ReturnType<typeof setTimeout> | undefined
 watch(
   tokenNeeded,
   async (needed) => {
@@ -67,140 +70,334 @@ function pick(url: string): void {
   const saved = server.savedServers.value.find((item) => item.url === url)
   space.value = saved?.addressSpace ?? 'unknown'
 }
+
+async function copyServerCommand(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(serverCommand)
+    commandCopied.value = true
+    clearTimeout(copyReset)
+    copyReset = setTimeout(() => (commandCopied.value = false), 2000)
+  } catch {
+    commandCopied.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="flex min-h-full flex-col">
-    <header class="flex items-center justify-between px-6 py-4">
-      <div class="flex items-center gap-2">
+  <div class="connect-page flex min-h-full flex-col">
+    <header class="connect-header flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
         <LogoMark />
-        <span class="text-sm font-medium tracking-wide">{{ t('app.name') }}</span>
+        <span class="text-[15px] font-semibold">{{ t('app.name') }}</span>
       </div>
-      <div class="flex items-center">
+      <div class="flex items-center gap-1">
         <LanguageMenu />
         <ThemeMenu />
       </div>
     </header>
 
-    <main class="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6 px-6 pb-16">
-      <div class="space-y-2">
-        <h1 class="text-2xl font-semibold tracking-tight">{{ t('connect.title') }}</h1>
-        <p class="text-muted-foreground text-sm">{{ host ? t('connect.lead.hosted') : t('connect.lead') }}</p>
-      </div>
-
-      <p v-if="host && busy && !server.diagnosis.value" class="text-muted-foreground flex items-center gap-2 text-sm" role="status">
-        <Spinner />
-        {{ t('connect.connecting') }}
-      </p>
-      <form v-else class="space-y-5" novalidate @submit.prevent="submit">
-        <div v-if="host === null" class="space-y-2">
-          <Label for="address">{{ t('connect.address') }}</Label>
-          <Input
-            id="address"
-            v-model="address"
-            class="font-mono"
-            inputmode="url"
-            autocomplete="off"
-            autocapitalize="off"
-            spellcheck="false"
-            placeholder="192.168.1.20:7788"
-            :aria-invalid="addressError !== null"
-            :aria-describedby="addressError ? 'address-error' : 'address-hint'"
-          />
-          <p v-if="addressError" id="address-error" class="text-destructive text-sm" role="alert">
-            {{ addressError }}
-          </p>
-          <p v-else id="address-hint" class="text-muted-foreground text-xs">{{ t('connect.address.hint') }}</p>
+    <main class="connect-layout mx-auto grid w-full flex-1 items-center">
+      <section class="connect-intro">
+        <div class="connect-title-row flex items-center gap-4">
+          <LogoMark class="connect-large-mark shrink-0" />
+          <h1 class="text-[2.5rem] leading-[1.08] font-semibold">{{ t('connect.title') }}</h1>
         </div>
+        <p class="connect-lead text-muted-foreground text-base leading-7">
+          {{ host ? t('connect.lead.hosted') : t('connect.lead') }}
+        </p>
 
-        <div v-if="tokenNeeded" class="space-y-2">
-          <Label for="token">{{ t('connect.token') }}</Label>
-          <div class="relative">
+        <div v-if="host === null" class="server-command">
+          <h2 class="text-sm font-semibold">{{ t('connect.serverCommand.title') }}</h2>
+          <p class="text-muted-foreground mt-1 text-sm leading-6">{{ t('connect.serverCommand.hint') }}</p>
+          <div class="command-line mt-4 flex items-center gap-3">
+            <code class="min-w-0 flex-1 break-all font-mono text-[13px] leading-6">{{ serverCommand }}</code>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              class="size-9 shrink-0"
+              :aria-label="commandCopied ? t('connect.serverCommand.copied') : t('connect.serverCommand.copy')"
+              :title="commandCopied ? t('connect.serverCommand.copied') : t('connect.serverCommand.copy')"
+              @click="copyServerCommand"
+            >
+              <Check v-if="commandCopied" class="size-4" />
+              <Clipboard v-else class="size-4" />
+            </Button>
+          </div>
+          <p class="text-muted-foreground mt-3 text-xs leading-5">{{ t('connect.serverCommand.origin', { origin }) }}</p>
+        </div>
+      </section>
+
+      <section class="connect-workspace" :aria-label="t('connect.title')">
+        <div v-if="host && busy && !server.diagnosis.value" class="connecting-state flex items-center gap-3" role="status">
+          <Spinner />
+          <span>{{ t('connect.connecting') }}</span>
+        </div>
+        <form v-else class="connect-form" novalidate @submit.prevent="submit">
+          <div v-if="host === null" class="field-block">
+            <Label for="address">{{ t('connect.address') }}</Label>
             <Input
-              id="token"
-              v-model="token"
-              class="pr-10 font-mono"
-              :type="showToken ? 'text' : 'password'"
+              id="address"
+              v-model="address"
+              class="mt-2 font-mono"
+              inputmode="url"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
-              aria-describedby="token-hint"
+              placeholder="192.168.1.20:7788"
+              :aria-invalid="addressError !== null"
+              :aria-describedby="addressError ? 'address-error' : 'address-hint'"
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              class="absolute top-0 right-0 size-9"
-              :aria-label="showToken ? t('common.hide') : t('common.show')"
-              :aria-pressed="showToken"
-              @click="showToken = !showToken"
-            >
-              <EyeOff v-if="showToken" class="size-4" />
-              <Eye v-else class="size-4" />
-            </Button>
+            <p v-if="addressError" id="address-error" class="text-destructive mt-2 text-sm" role="alert">
+              {{ addressError }}
+            </p>
+            <p v-else id="address-hint" class="text-muted-foreground mt-2 text-xs leading-5">{{ t('connect.address.hint') }}</p>
           </div>
-          <p id="token-hint" class="text-muted-foreground text-xs">{{ host ? t('connect.token.required') : t('connect.token.hint') }}</p>
-        </div>
 
-        <div class="space-y-3">
-          <div v-if="tokenNeeded" class="flex items-center gap-2">
-            <Checkbox id="keep-token" v-model="keepToken" />
-            <Label for="keep-token" class="font-normal">{{ t('connect.keepToken') }}</Label>
-          </div>
-          <div v-if="host === null" class="flex items-center gap-2">
-            <Checkbox id="remember" v-model="remember" />
-            <Label for="remember" class="font-normal">{{ t('connect.remember') }}</Label>
-          </div>
-        </div>
-
-        <AdvisoryNotice v-if="advisory" :advisory="advisory" />
-
-        <fieldset v-if="advisory?.canDeclareAddressSpace" class="space-y-2">
-          <legend class="text-sm font-medium">{{ t('connect.space.title') }}</legend>
-          <p class="text-muted-foreground text-xs">{{ t('connect.space.lead') }}</p>
-          <RadioGroup v-model="space" class="gap-2">
-            <div v-for="option in ['unknown', 'local', 'loopback'] as const" :key="option" class="flex items-center gap-2">
-              <RadioGroupItem :id="`space-${option}`" :value="option" />
-              <Label :for="`space-${option}`" class="font-normal">
-                {{ t(`connect.space.${option}` as MessageKey) }}
-              </Label>
+          <div v-if="tokenNeeded" class="field-block">
+            <Label for="token">{{ t('connect.token') }}</Label>
+            <div class="relative mt-2">
+              <Input
+                id="token"
+                v-model="token"
+                class="h-11 pr-11 font-mono"
+                :type="showToken ? 'text' : 'password'"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-describedby="token-hint"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                class="absolute top-1 right-1 size-9"
+                :aria-label="showToken ? t('common.hide') : t('common.show')"
+                :aria-pressed="showToken"
+                @click="showToken = !showToken"
+              >
+                <EyeOff v-if="showToken" class="size-4" />
+                <Eye v-else class="size-4" />
+              </Button>
             </div>
-          </RadioGroup>
-        </fieldset>
+            <p id="token-hint" class="text-muted-foreground mt-2 text-xs leading-5">{{ host ? t('connect.token.required') : t('connect.token.hint') }}</p>
+          </div>
 
-        <DiagnosisPanel v-if="server.diagnosis.value" :diagnosis="server.diagnosis.value" :origin="origin" />
+          <div v-if="tokenNeeded || host === null" class="preferences">
+            <div v-if="tokenNeeded" class="flex items-center gap-2.5">
+              <Checkbox id="keep-token" v-model="keepToken" />
+              <Label for="keep-token" class="font-normal">{{ t('connect.keepToken') }}</Label>
+            </div>
+            <div v-if="host === null" class="flex items-center gap-2.5">
+              <Checkbox id="remember" v-model="remember" />
+              <Label for="remember" class="font-normal">{{ t('connect.remember') }}</Label>
+            </div>
+          </div>
 
-        <Button type="submit" class="w-full" :disabled="busy">
-          <Spinner v-if="busy" />
-          {{ busy ? t('connect.connecting') : retrying ? t('connect.retry') : t('connect.submit') }}
-        </Button>
-      </form>
+          <AdvisoryNotice v-if="advisory" :advisory="advisory" />
 
-      <section v-if="host === null && server.savedServers.value.length > 0" class="space-y-2" aria-labelledby="saved-title">
-        <h2 id="saved-title" class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          {{ t('connect.saved') }}
-        </h2>
-        <ul class="divide-y rounded-lg border">
-          <li v-for="item in server.savedServers.value" :key="item.url" class="flex items-center">
-            <button
-              type="button"
-              class="hover:bg-accent min-w-0 flex-1 truncate px-3 py-2 text-left font-mono text-sm"
-              @click="pick(item.url)"
-            >
-              {{ item.url }}
-            </button>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="size-8"
-              :aria-label="t('connect.forget', { address: item.url })"
-              @click="server.forget(item.url)"
-            >
-              <X class="size-4" />
-            </Button>
-          </li>
-        </ul>
+          <fieldset v-if="advisory?.canDeclareAddressSpace" class="space-y-2">
+            <legend class="text-sm font-medium">{{ t('connect.space.title') }}</legend>
+            <p class="text-muted-foreground text-xs">{{ t('connect.space.lead') }}</p>
+            <RadioGroup v-model="space" class="gap-2">
+              <div v-for="option in ['unknown', 'local', 'loopback'] as const" :key="option" class="flex items-center gap-2">
+                <RadioGroupItem :id="`space-${option}`" :value="option" />
+                <Label :for="`space-${option}`" class="font-normal">
+                  {{ t(`connect.space.${option}` as MessageKey) }}
+                </Label>
+              </div>
+            </RadioGroup>
+          </fieldset>
+
+          <DiagnosisPanel v-if="server.diagnosis.value" :diagnosis="server.diagnosis.value" :origin="origin" />
+
+          <Button type="submit" class="connect-submit h-11 w-full text-[15px]" :disabled="busy">
+            <Spinner v-if="busy" />
+            {{ busy ? t('connect.connecting') : retrying ? t('connect.retry') : t('connect.submit') }}
+          </Button>
+        </form>
+
+        <section v-if="host === null && server.savedServers.value.length > 0" class="saved-servers" aria-labelledby="saved-title">
+          <h2 id="saved-title" class="text-sm font-semibold">{{ t('connect.saved') }}</h2>
+          <ul class="mt-2">
+            <li v-for="item in server.savedServers.value" :key="item.url" class="saved-server flex items-center gap-2">
+              <button type="button" class="hover:text-foreground min-w-0 flex-1 truncate text-left font-mono text-sm" @click="pick(item.url)">
+                {{ item.url }}
+              </button>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="size-9 shrink-0"
+                :aria-label="t('connect.forget', { address: item.url })"
+                @click="server.forget(item.url)"
+              >
+                <X class="size-4" />
+              </Button>
+            </li>
+          </ul>
+        </section>
       </section>
     </main>
   </div>
 </template>
+
+<style scoped>
+.connect-page {
+  background: var(--site-bg);
+}
+
+.connect-header {
+  min-height: 4.25rem;
+  padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.connect-layout {
+  max-width: 75rem;
+  grid-template-columns: minmax(0, 0.9fr) minmax(26rem, 1fr);
+  gap: clamp(3rem, 8vw, 8rem);
+  padding: 3.5rem clamp(1.25rem, 4vw, 3.5rem) 5rem;
+}
+
+.connect-intro {
+  max-width: 33rem;
+}
+
+.connect-large-mark {
+  width: 3.25rem;
+  height: 3.25rem;
+  color: var(--site-accent);
+}
+
+.connect-title-row h1 {
+  text-wrap: balance;
+}
+
+.connect-lead {
+  max-width: 31rem;
+  margin-top: 1.5rem;
+}
+
+.server-command {
+  max-width: 31rem;
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--site-line-strong);
+}
+
+.command-line {
+  min-height: 3.5rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+  border-radius: var(--radius);
+  background: var(--site-raised);
+  color: var(--site-ink);
+}
+
+.command-line code {
+  overflow-wrap: anywhere;
+}
+
+.connect-workspace {
+  min-width: 0;
+  padding: clamp(1.5rem, 3.5vw, 2.75rem);
+  border: 1px solid var(--site-line);
+  border-radius: calc(var(--radius) + 0.25rem);
+  background: var(--site-surface);
+}
+
+.connect-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.field-block label {
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.field-block > [data-slot='input'] {
+  height: 2.875rem;
+}
+
+.preferences {
+  display: grid;
+  gap: 0.875rem;
+  padding-block: 0.125rem;
+}
+
+.preferences label {
+  cursor: pointer;
+}
+
+.connect-submit {
+  margin-top: 0.125rem;
+}
+
+.saved-servers {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--site-line);
+}
+
+.saved-server {
+  min-height: 2.875rem;
+  color: var(--site-muted);
+}
+
+.connecting-state {
+  min-height: 8rem;
+  justify-content: center;
+}
+
+@media (max-width: 800px) {
+  .connect-layout {
+    max-width: 38rem;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 2.5rem;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .connect-intro {
+    max-width: none;
+  }
+
+  .connect-title-row h1 {
+    font-size: 2rem;
+  }
+
+  .connect-lead {
+    margin-top: 1rem;
+  }
+
+  .server-command {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .connect-layout {
+    gap: 1.75rem;
+    padding-inline: 1rem;
+    padding-top: 1.5rem;
+  }
+
+  .connect-header {
+    padding-inline: 1rem;
+  }
+
+  .connect-large-mark {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .connect-title-row h1 {
+    font-size: 1.75rem;
+  }
+
+  .connect-workspace {
+    padding: 1.25rem;
+  }
+}
+</style>

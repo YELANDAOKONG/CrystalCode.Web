@@ -42,6 +42,11 @@ export const en = {
   'connect.space.unknown': 'I do not know',
   'connect.space.local': 'A device on my local network',
   'connect.space.loopback': 'This computer',
+  'connect.serverCommand.title': 'Start the server',
+  'connect.serverCommand.hint': 'Allow this site to connect to your server.',
+  'connect.serverCommand.origin': 'Required for this site: {origin}',
+  'connect.serverCommand.copy': 'Copy server command',
+  'connect.serverCommand.copied': 'Server command copied',
 
   'address.empty': 'Enter a server address.',
   'address.invalid': 'This is not a valid address.',

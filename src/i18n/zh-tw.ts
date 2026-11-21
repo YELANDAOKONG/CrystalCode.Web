@@ -43,6 +43,11 @@ export const zhTw: Record<MessageKey, string> = {
   'connect.space.unknown': '我不確定',
   'connect.space.local': '區域網路內的裝置',
   'connect.space.loopback': '這台電腦',
+  'connect.serverCommand.title': '啟動伺服器',
+  'connect.serverCommand.hint': '允許此網站連線到你的伺服器。',
+  'connect.serverCommand.origin': '此網站需要這個參數：{origin}',
+  'connect.serverCommand.copy': '複製伺服器命令',
+  'connect.serverCommand.copied': '已複製伺服器命令',
 
   'address.empty': '請輸入伺服器位址。',
   'address.invalid': '這不是有效的位址。',

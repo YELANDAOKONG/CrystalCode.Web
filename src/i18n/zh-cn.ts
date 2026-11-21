@@ -43,6 +43,11 @@ export const zhCn: Record<MessageKey, string> = {
   'connect.space.unknown': '我不确定',
   'connect.space.local': '局域网内的设备',
   'connect.space.loopback': '这台电脑',
+  'connect.serverCommand.title': '启动服务端',
+  'connect.serverCommand.hint': '允许此网站连接到你的服务端。',
+  'connect.serverCommand.origin': '此网站需要此参数：{origin}',
+  'connect.serverCommand.copy': '复制服务端命令',
+  'connect.serverCommand.copied': '已复制服务端命令',
 
   'address.empty': '请输入服务端地址。',
   'address.invalid': '这不是有效的地址。',
