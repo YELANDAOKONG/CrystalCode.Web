@@ -99,7 +99,9 @@ async function copyServerCommand(): Promise<void> {
     <main class="connect-layout mx-auto grid w-full flex-1">
       <section class="connect-intro">
         <div class="connect-title-row flex items-center gap-4">
-          <LogoMark class="connect-large-mark shrink-0" />
+          <span class="connect-mark-motion shrink-0" aria-hidden="true">
+            <LogoMark class="connect-large-mark" />
+          </span>
           <h1 class="text-[2.5rem] leading-[1.08] font-semibold">{{ t('connect.title') }}</h1>
         </div>
         <p class="connect-lead text-muted-foreground text-base leading-7">
@@ -274,6 +276,28 @@ async function copyServerCommand(): Promise<void> {
   width: 3.25rem;
   height: 3.25rem;
   color: var(--site-accent);
+}
+
+.connect-mark-motion {
+  display: inline-flex;
+  animation: connect-mark-turn 1.8s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+@keyframes connect-mark-turn {
+  0%,
+  83.333333% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connect-mark-motion {
+    animation: none;
+  }
 }
 
 .connect-title-row h1 {
