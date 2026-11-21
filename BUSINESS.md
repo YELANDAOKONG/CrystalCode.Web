@@ -215,7 +215,7 @@ Interface:
   fetched), a softer radius and rose-tinted shadows, drifting petals, a petal
   shower when a turn completes, a petal in place of the progress spinner, and a
   blossom mark and tab icon. The operator's own background image replaces the
-  artwork. Petals can sit behind the panels, in front on idle screens (connect
+  artwork by default; a switch puts the artwork in front instead. Petals can sit behind the panels, in front on idle screens (connect
   page, empty session), or over everything, and never take a click. Reduced
   motion leaves the petals still and skips the shower. The effects are
   decorative: hidden from assistive technology and paused in a hidden tab.

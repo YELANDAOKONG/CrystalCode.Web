@@ -531,6 +531,8 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.sakura.title': 'Sakura（櫻花）',
   'settings.sakura.artwork': '內建插畫',
   'settings.sakura.artwork.help': '介面後方的櫻花場景，白天與夜晚各一幅。你自己選擇的背景圖片會取代它。',
+  'settings.sakura.artworkFirst': '主題插畫優先於自訂背景',
+  'settings.sakura.artworkFirst.help': '即使已選擇背景圖片，也顯示內建插畫。關閉時，你選擇的圖片優先。',
   'settings.sakura.petals': '飄落的花瓣',
   'settings.sakura.petals.help': '花瓣在頁面上飄落。系統要求減少動態效果時，花瓣會靜止。',
   'settings.sakura.placement': '花瓣飄落的位置',

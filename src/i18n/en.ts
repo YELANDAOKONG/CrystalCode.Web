@@ -530,6 +530,8 @@ export const en = {
   'settings.sakura.title': 'Sakura',
   'settings.sakura.artwork': 'Built-in artwork',
   'settings.sakura.artwork.help': 'A day or night scene of blossoms behind the interface. A background image you choose replaces it.',
+  'settings.sakura.artworkFirst': 'Artwork before my picture',
+  'settings.sakura.artworkFirst.help': 'Show the built-in artwork even when you have chosen a background image. Off keeps your picture in front.',
   'settings.sakura.petals': 'Falling petals',
   'settings.sakura.petals.help': 'Petals drift across the page. They stand still when your system asks for reduced motion.',
   'settings.sakura.placement': 'Where petals fall',

@@ -78,7 +78,16 @@ const themeArtwork = computed(() => {
 })
 
 const operatorImage = computed(() => imageOf(currentSlot.value))
-const currentImage = computed(() => enabled.value ? operatorImage.value || themeArtwork.value : '')
+// The picture on screen. Which of the two wins is the operator's choice.
+const shownOperator = computed(() => {
+  if (!enabled.value) return false
+  if (!operatorImage.value) return false
+  return !sakura.artworkFirst.value || themeArtwork.value === ''
+})
+const currentImage = computed(() => {
+  if (!enabled.value) return ''
+  return shownOperator.value ? operatorImage.value : themeArtwork.value
+})
 // Something is saved or supplied, whether or not it is shown.
 const hasSavedImage = computed(() => themeArtwork.value !== '' || SLOTS.some((slot) => slots[slot].value.source !== 'none'))
 // With no image behind them the panels have nothing to show through, so they
@@ -94,7 +103,7 @@ function applyBackground(): void {
   // this one layer. Blurring it by both amounts looks like a blur on each panel
   // without a backdrop filter, which repaints on every streamed token. The
   // per-image blur belongs to the operator's picture, not to theme artwork.
-  const imageBlur = operatorImage.value && enabled.value ? slots[currentSlot.value].value.blur : 0
+  const imageBlur = shownOperator.value ? slots[currentSlot.value].value.blur : 0
   root.style.setProperty('--background-blur', `${imageBlur + (image ? panelBlur.value : 0)}px`)
   root.style.setProperty('--panel-blur', `${panelBlur.value}px`)
   root.dataset.background = image ? 'on' : 'off'

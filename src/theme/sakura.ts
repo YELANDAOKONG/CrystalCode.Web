@@ -27,6 +27,9 @@ const speed = ref(number('sakura-speed', DEFAULT_PETAL_SPEED, 50, 150))
 const shower = ref(flag('sakura-shower', true))
 const spinner = ref(flag('sakura-spinner', true))
 const artwork = ref(flag('sakura-artwork', true))
+// Off by default: the operator's own picture wins, and the artwork fills in
+// when there is none.
+const artworkFirst = ref(flag('sakura-artwork-first', false))
 
 function onOff(value: boolean): string {
   return value ? 'on' : 'off'
@@ -41,6 +44,7 @@ export function useSakura() {
     shower,
     spinner,
     artwork,
+    artworkFirst,
     setPetals(value: boolean) {
       petals.value = value
       savePreference('sakura-petals', onOff(value))
@@ -64,6 +68,10 @@ export function useSakura() {
     setSpinner(value: boolean) {
       spinner.value = value
       savePreference('sakura-spinner', onOff(value))
+    },
+    setArtworkFirst(value: boolean) {
+      artworkFirst.value = value
+      savePreference('sakura-artwork-first', onOff(value))
     },
     setArtwork(value: boolean) {
       artwork.value = value

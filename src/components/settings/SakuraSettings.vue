@@ -28,6 +28,11 @@ function setPlacement(value: string): void {
         <Switch id="set-sakura-artwork" :model-value="sakura.artwork.value" @update:model-value="(value) => sakura.setArtwork(value === true)" />
       </div>
     </SettingRow>
+    <SettingRow :label="t('settings.sakura.artworkFirst')" :help="t('settings.sakura.artworkFirst.help')" label-for="set-sakura-artwork-first">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-artwork-first" :model-value="sakura.artworkFirst.value" :disabled="!sakura.artwork.value" @update:model-value="(value) => sakura.setArtworkFirst(value === true)" />
+      </div>
+    </SettingRow>
     <SettingRow :label="t('settings.sakura.petals')" :help="t('settings.sakura.petals.help')" label-for="set-sakura-petals">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-petals" :model-value="sakura.petals.value" @update:model-value="(value) => sakura.setPetals(value === true)" />
