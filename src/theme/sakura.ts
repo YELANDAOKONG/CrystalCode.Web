@@ -22,8 +22,8 @@ function number(key: string, fallback: number, min: number, max: number): number
 
 const petals = ref(flag('sakura-petals', true))
 const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPreference('sakura-placement')) ?? 'both')
-const count = ref(number('sakura-count', DEFAULT_PETAL_COUNT, 4, 30))
-const speed = ref(number('sakura-speed', DEFAULT_PETAL_SPEED, 50, 150))
+const count = ref(number('sakura-count', DEFAULT_PETAL_COUNT, 4, 100))
+const speed = ref(number('sakura-speed', DEFAULT_PETAL_SPEED, 50, 250))
 const shower = ref(flag('sakura-shower', true))
 const spinner = ref(flag('sakura-spinner', true))
 const artwork = ref(flag('sakura-artwork', true))
@@ -62,11 +62,11 @@ export function useSakura() {
       savePreference('sakura-placement', value)
     },
     setCount(value: number) {
-      count.value = Math.min(30, Math.max(4, value))
+      count.value = Math.min(100, Math.max(4, value))
       savePreference('sakura-count', String(count.value))
     },
     setSpeed(value: number) {
-      speed.value = Math.min(150, Math.max(50, value))
+      speed.value = Math.min(250, Math.max(50, value))
       savePreference('sakura-speed', String(speed.value))
     },
     setShower(value: boolean) {

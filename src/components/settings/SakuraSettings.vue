@@ -47,8 +47,8 @@ function setPlacement(value: string): void {
       <SettingRow :label="t('settings.sakura.placement')" label-for="set-sakura-placement">
         <ChoiceSelect id="set-sakura-placement" :options="placementOptions()" :model-value="sakura.placement.value" @change="setPlacement" />
       </SettingRow>
-      <RangeSetting :label="t('settings.sakura.count')" :help="t('settings.sakura.count.help')" :model-value="sakura.count.value" :default-value="DEFAULT_PETAL_COUNT" :min="4" :max="30" unit="" @update:model-value="sakura.setCount" />
-      <RangeSetting :label="t('settings.sakura.speed')" :help="t('settings.sakura.speed.help')" :model-value="sakura.speed.value" :default-value="DEFAULT_PETAL_SPEED" :min="50" :max="150" unit="%" @update:model-value="sakura.setSpeed" />
+      <RangeSetting :label="t('settings.sakura.count')" :help="t('settings.sakura.count.help')" :model-value="sakura.count.value" :default-value="DEFAULT_PETAL_COUNT" :min="4" :max="100" unit="" @update:model-value="sakura.setCount" />
+      <RangeSetting :label="t('settings.sakura.speed')" :help="t('settings.sakura.speed.help')" :model-value="sakura.speed.value" :default-value="DEFAULT_PETAL_SPEED" :min="50" :max="250" unit="%" @update:model-value="sakura.setSpeed" />
     </template>
     <SettingRow :label="t('settings.sakura.shower')" :help="t('settings.sakura.shower.help')" label-for="set-sakura-shower">
       <div class="flex items-center sm:justify-end">

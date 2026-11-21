@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{
   /** `back` sits under the panels and shows through them; `front` sits over the page. */
   layer: 'back' | 'front'
   count: number
-  /** 50 to 150, where 100 is the normal pace. */
+  /** 50 to 250, where 100 is the normal pace. */
   speed?: number
   /** One quick fall that ends, instead of an endless drift. */
   shower?: boolean
