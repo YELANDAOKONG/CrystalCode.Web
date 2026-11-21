@@ -92,8 +92,12 @@ const banner = computed(() => {
         <ProgressRow />
         <Composer />
       </main>
-      <aside v-if="panelOpen && wide" class="bg-card w-80 min-h-0 shrink-0 overflow-y-auto border-l p-4">
-        <SidePanel @open-pursue="openPursue" />
+      <!-- Kept mounted so the width can animate. Closed, it is inert: out of the
+           tab order and the accessibility tree. -->
+      <aside v-if="wide" class="bg-card box-content min-h-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-out" :class="panelOpen ? 'w-80 border-l' : 'w-0'" :inert="!panelOpen">
+        <div class="h-full w-80 overflow-y-auto p-4">
+          <SidePanel @open-pursue="openPursue" />
+        </div>
       </aside>
     </div>
     <StatusBar />
