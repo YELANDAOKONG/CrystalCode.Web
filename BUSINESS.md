@@ -204,9 +204,9 @@ Interface:
   image they are opaque. An image beside opaque panels looks broken, so that
   state does not exist. Popups stay opaque. A background URL is the one place
   the browser contacts a host the operator did not name as a server. Built-in
-  palettes: Crystal (default), Ocean, and Forest.
-- The theme picker is grouped. Color holds Crystal (default), Ocean, and
-  Forest. Product holds Crystal Intelligence (the Crystal palette under the
+  palettes: Crystal (default), Ocean, Forest, and Graphite.
+- The theme picker is grouped. Color holds Crystal (default), Ocean, Forest, and
+  Graphite. Product holds Crystal Intelligence (the Crystal palette under the
   product's name) and Frontier Intelligence (warm ivory and clay). Color and
   Product themes set colors only. Sakura is the one theme that also sets a
   font: Resource Han Rounded (SIL OFL 1.1), all five regions (CN, TW, HK, JP,

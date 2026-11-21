@@ -525,6 +525,7 @@ export const ja: Record<MessageKey, string> = {
   'settings.palette.default': 'Crystal（既定）',
   'settings.palette.ocean': 'Ocean',
   'settings.palette.forest': 'Forest',
+  'settings.palette.graphite': 'Graphite',
   'settings.tab.theme': 'テーマ',
   'settings.palette.group.combination': '組み合わせ',
   'settings.palette.sakura': 'Sakura（桜）',

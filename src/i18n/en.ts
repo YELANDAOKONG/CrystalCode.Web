@@ -524,6 +524,7 @@ export const en = {
   'settings.palette.default': 'Crystal (default)',
   'settings.palette.ocean': 'Ocean',
   'settings.palette.forest': 'Forest',
+  'settings.palette.graphite': 'Graphite',
   'settings.tab.theme': 'Theme',
   'settings.palette.group.combination': 'Combination',
   'settings.palette.sakura': 'Sakura',

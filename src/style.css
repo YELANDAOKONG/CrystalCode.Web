@@ -332,6 +332,22 @@ body::before {
   --site-button-ink: light-dark(#ecf3ed, #090f0a);
 }
 
+/* Graphite is neutral gray with no hue, so its accent is the only tint and
+   reads as the ink color itself. */
+:root[data-palette='graphite'] {
+  --pal-bg: light-dark(#f1f2f3, #16181b);
+  --pal-surface: light-dark(#e6e8ea, #1c1e22);
+  --pal-raised: light-dark(#dbdee1, #24272c);
+  --pal-field: light-dark(transparent, #1e2125);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #282b31);
+  --site-ink: light-dark(#141517, #e8e8e6);
+  --site-muted: light-dark(#4f5257, #b3b5b8);
+  --site-faint: light-dark(#62666c, #8e9196);
+  --site-accent: light-dark(#444b55, #bcc4cf);
+  --site-button-bg: light-dark(#141517, #e8e8e6);
+  --site-button-ink: light-dark(#f1f2f3, #0d0e10);
+}
+
 /* Product themes. Crystal Intelligence is the Crystal palette under the
    product's name, so it sets nothing and takes the :root values. Frontier
    Intelligence is a warm ivory and clay look. The accent holds 4.5:1 on the

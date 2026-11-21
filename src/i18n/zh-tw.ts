@@ -525,6 +525,7 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.palette.default': '晶體（預設）',
   'settings.palette.ocean': '海洋',
   'settings.palette.forest': '森林',
+  'settings.palette.graphite': '石墨',
   'settings.tab.theme': '主題',
   'settings.palette.group.combination': '組合',
   'settings.palette.sakura': 'Sakura（櫻花）',

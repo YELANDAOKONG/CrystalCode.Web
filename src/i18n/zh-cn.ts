@@ -525,6 +525,7 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.palette.default': '晶体（默认）',
   'settings.palette.ocean': '海洋',
   'settings.palette.forest': '森林',
+  'settings.palette.graphite': '石墨',
   'settings.tab.theme': '主题',
   'settings.palette.group.combination': '组合',
   'settings.palette.sakura': 'Sakura（樱花）',
