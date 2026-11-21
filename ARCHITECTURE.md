@@ -358,6 +358,15 @@ The client reports the matching failure; it cannot fix any of them.
   what waits. The settings page keeps showing the active value and adds the
   waiting one as a note. It no longer disables model, context, or thinking
   during a turn. The status bar lists the waiting values.
+- Full `report.status` displays the optional `status.requestUsage` groups
+  from the server. It shows HTTP attempts, request and report counts, token
+  totals, per-field coverage, and cache writes by lifetime. Explicit zero is
+  displayed as zero. Missing token values are unknown. Older servers that
+  omit the array keep the existing report layout.
+- `report.stats` displays server-supplied token coverage and optional cache
+  data. The server supplies the read percentage, per-field coverage, write
+  lifetimes, and any request time window. Nullable token counts remain
+  unknown; an explicit zero remains zero.
 - `report.document` carries a titled document with `paragraph`, `keyValues`,
   `table`, and `list` blocks (for example `/skills` and plugin commands). Every
   cell is drawn as text; an unknown block type falls back to its lines.

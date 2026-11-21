@@ -5,6 +5,7 @@ import { parseStatusReport } from '@/protocol/parse'
 import { displayToken } from '@/session/display-case'
 import { modeLabel } from '@/session/mode'
 import ReportRows from './ReportRows.vue'
+import RequestUsageReport from './RequestUsageReport.vue'
 
 const props = defineProps<{ data: Record<string, unknown> }>()
 
@@ -110,6 +111,7 @@ const tools = computed(() =>
       <h4 class="mb-1.5 text-xs font-medium">{{ t('report.field.lastRequest') }}</h4>
       <ReportRows :rows="usageRows(report.usage)" />
     </section>
+    <RequestUsageReport v-if="report.full && report.requestUsage.length" :groups="report.requestUsage" />
     <section>
       <h4 class="mb-1.5 text-xs font-medium">{{ t('report.section.options') }}</h4>
       <ReportRows :rows="options" />

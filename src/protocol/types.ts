@@ -383,6 +383,22 @@ export interface ProblemDetails {
   detail: string
 }
 
+export const REQUEST_USAGE_TOKEN_FIELDS = [
+  'inputTokens', 'uncachedInputTokens', 'cacheReadTokens', 'cacheWriteTokens', 'outputTokens', 'reasoningTokens',
+] as const
+
+export interface RequestUsage {
+  scope: string
+  provider: string
+  model: string
+  httpAttempts: number
+  requestCount: number | null
+  usageReports: number
+  tokens: Record<(typeof REQUEST_USAGE_TOKEN_FIELDS)[number], number | null>
+  coverage: Record<(typeof REQUEST_USAGE_TOKEN_FIELDS)[number], number | null>
+  cacheWritesByLifetime: { lifetimeSeconds: number; tokens: number; reports: number | null }[]
+}
+
 export interface StatusReport {
   full: boolean
   sessionId: string
@@ -399,9 +415,21 @@ export interface StatusReport {
   speed: string
   usage: Usage | null
   cumulativeUsage: Usage | null
+  requestUsage: RequestUsage[]
   counts: Record<string, number>
   flags: Record<string, boolean>
   slots: Record<string, string>
+}
+
+export interface StatsCacheUsage {
+  requestCount: number
+  readTokens: number | null
+  writeTokens: number | null
+  readReports: number
+  writeReports: number
+  comparableRequests: number
+  readRatePercent: number | null
+  writesByLifetime: { lifetimeSeconds: number; tokens: number; reports: number }[]
 }
 
 export interface StatsReport {
@@ -410,13 +438,18 @@ export interface StatsReport {
   userTurns: number
   modelCalls: number
   toolCalls: number
-  inputTokens: number
-  outputTokens: number
-  reasoningTokens: number
-  totalTokens: number
-  averageTokensPerSession: number
-  medianTokensPerSession: number
+  inputTokens: number | null
+  outputTokens: number | null
+  reasoningTokens: number | null
+  totalTokens: number | null
+  averageTokensPerSession: number | null
+  medianTokensPerSession: number | null
   windowDays: number
+  tokenTrackedSessions: number | null
+  reasoningTrackedSessions: number | null
+  cacheTrackedSessions: number | null
+  cacheWindowDays: number | null
+  cacheUsage: StatsCacheUsage | null
   earliest: string | null
   latest: string | null
   topTools: { name: string; count: number }[]

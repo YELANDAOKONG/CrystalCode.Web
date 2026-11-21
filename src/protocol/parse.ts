@@ -1,4 +1,5 @@
 import { arr, asObject, bool, isObject, num, optNum, optStr, str, strings, type JsonObject } from './json'
+import { REQUEST_USAGE_TOKEN_FIELDS } from './types'
 import type {
   BuildIdentity,
   Chrome,
@@ -28,6 +29,7 @@ import type {
   Usage,
   Verdict,
   StatusReport,
+  RequestUsage,
   StatsReport,
   ToolDefinitionInfo,
   ToolsReport,
@@ -554,6 +556,33 @@ const STATUS_SLOTS = [
   'extendedApprovalTrigger', 'compactionModel', 'microCompaction', 'retry', 'approvalRetry',
 ] as const
 
+function parseRequestUsage(value: unknown): RequestUsage[] {
+  return arr(value).filter(isObject).map((entry) => {
+    const coverage = asObject(entry.coverage)
+    const tokenCounts = (source: JsonObject) => Object.fromEntries(
+      REQUEST_USAGE_TOKEN_FIELDS.map((field) => [field, optNum(source[field])]),
+    ) as RequestUsage['tokens']
+
+    return {
+      scope: str(entry.scope),
+      provider: str(entry.provider),
+      model: str(entry.model),
+      httpAttempts: num(entry.httpAttempts),
+      requestCount: optNum(entry.requestCount),
+      usageReports: num(entry.usageReports),
+      tokens: tokenCounts(entry),
+      coverage: tokenCounts(coverage),
+      cacheWritesByLifetime: arr(entry.cacheWritesByLifetime).filter(isObject).flatMap((item) => {
+        const lifetimeSeconds = optNum(item.lifetimeSeconds)
+        const tokens = optNum(item.tokens)
+        return lifetimeSeconds === null || tokens === null
+          ? []
+          : [{ lifetimeSeconds, tokens, reports: optNum(item.reports) }]
+      }),
+    }
+  })
+}
+
 export function parseStatusReport(data: unknown): StatusReport {
   const root = asObject(data)
   const o = asObject(root.status)
@@ -583,6 +612,7 @@ export function parseStatusReport(data: unknown): StatusReport {
     speed: str(o.speed),
     usage: parseUsage(o.usage),
     cumulativeUsage: parseUsage(o.cumulativeUsage),
+    requestUsage: parseRequestUsage(o.requestUsage),
     counts,
     flags,
     slots,
@@ -592,19 +622,42 @@ export function parseStatusReport(data: unknown): StatusReport {
 export function parseStatsReport(data: unknown): StatsReport {
   const root = asObject(data)
   const o = asObject(root.report)
+  const cache = asObject(o.cacheUsage)
   return {
     allWorkspaces: bool(root.allWorkspaces),
     sessions: num(o.sessions),
     userTurns: num(o.userTurns),
     modelCalls: num(o.modelCalls),
     toolCalls: num(o.toolCalls),
-    inputTokens: num(o.inputTokens),
-    outputTokens: num(o.outputTokens),
-    reasoningTokens: num(o.reasoningTokens),
-    totalTokens: num(o.totalTokens),
-    averageTokensPerSession: num(o.averageTokensPerSession),
-    medianTokensPerSession: num(o.medianTokensPerSession),
+    inputTokens: optNum(o.inputTokens),
+    outputTokens: optNum(o.outputTokens),
+    reasoningTokens: optNum(o.reasoningTokens),
+    totalTokens: optNum(o.totalTokens),
+    averageTokensPerSession: optNum(o.averageTokensPerSession),
+    medianTokensPerSession: optNum(o.medianTokensPerSession),
     windowDays: num(o.windowDays),
+    tokenTrackedSessions: optNum(o.tokenTrackedSessions),
+    reasoningTrackedSessions: optNum(o.reasoningTrackedSessions),
+    cacheTrackedSessions: optNum(o.cacheTrackedSessions),
+    cacheWindowDays: optNum(o.cacheWindowDays),
+    cacheUsage: o.cacheUsage !== null && typeof o.cacheUsage === 'object' && !Array.isArray(o.cacheUsage) ? {
+      requestCount: num(cache.requestCount),
+      readTokens: optNum(cache.readTokens),
+      writeTokens: optNum(cache.writeTokens),
+      readReports: num(cache.readReports),
+      writeReports: num(cache.writeReports),
+      comparableRequests: num(cache.comparableRequests),
+      readRatePercent: optNum(cache.readRatePercent),
+      writesByLifetime: arr(cache.writesByLifetime).flatMap((item) => {
+        const write = asObject(item)
+        const lifetimeSeconds = optNum(write.lifetimeSeconds)
+        const tokens = optNum(write.tokens)
+        const reports = optNum(write.reports)
+        return lifetimeSeconds === null || tokens === null || reports === null
+          ? []
+          : [{ lifetimeSeconds, tokens, reports }]
+      }),
+    } : null,
     earliest: optStr(o.earliest),
     latest: optStr(o.latest),
     topTools: arr(o.topTools).map((item) => {

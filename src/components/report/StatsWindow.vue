@@ -19,6 +19,10 @@ const report = computed(() => (page.value ? parseStatsReport(page.value.data) : 
 
 const number = new Intl.NumberFormat()
 const n = (value: number) => number.format(value)
+const unknown = () => t('stats.unknown')
+const count = (value: number | null | undefined) => value == null ? unknown() : n(value)
+const percent = new Intl.NumberFormat(undefined, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 })
+const sessions = (tracked: number, total: number) => `${n(tracked)} / ${n(total)}`
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : t('stats.none'))
 
 const overview = computed(() => {
@@ -39,12 +43,44 @@ const tokens = computed(() => {
   const r = report.value
   if (!r) return []
   return [
-    { label: t('report.field.inputTokens'), value: n(r.inputTokens) },
-    { label: t('report.field.outputTokens'), value: n(r.outputTokens) },
-    { label: t('report.field.reasoningTokens'), value: n(r.reasoningTokens) },
-    { label: t('report.field.totalTokens'), value: n(r.totalTokens) },
-    { label: t('stats.field.average'), value: n(r.averageTokensPerSession) },
-    { label: t('stats.field.median'), value: n(r.medianTokensPerSession) },
+    ...(r.tokenTrackedSessions === null ? [] : [
+      { label: t('stats.field.tokenSessions'), value: sessions(r.tokenTrackedSessions, r.sessions) },
+    ]),
+    ...(r.reasoningTrackedSessions === null ? [] : [
+      { label: t('stats.field.reasoningSessions'), value: sessions(r.reasoningTrackedSessions, r.sessions) },
+    ]),
+    { label: t('report.field.inputTokens'), value: count(r.inputTokens) },
+    { label: t('report.field.outputTokens'), value: count(r.outputTokens) },
+    { label: t('report.field.reasoningTokens'), value: count(r.reasoningTokens) },
+    { label: t('report.field.totalTokens'), value: count(r.totalTokens) },
+    { label: t('stats.field.average'), value: count(r.averageTokensPerSession) },
+    { label: t('stats.field.median'), value: count(r.medianTokensPerSession) },
+  ]
+})
+
+const cache = computed(() => {
+  const r = report.value
+  if (!r || r.cacheTrackedSessions === null) return []
+  const usage = r.cacheUsage
+  const requests = usage?.requestCount ?? 0
+  const covered = (value: string, reports: number) => reports > 0 && reports < requests
+    ? t('stats.cache.coverage', { value, reports: n(reports), requests: n(requests) })
+    : value
+  const rate = usage?.readRatePercent
+  return [
+    ...(r.cacheWindowDays === null ? [] : [
+      { label: t('stats.cache.window'), value: n(r.cacheWindowDays) },
+    ]),
+    { label: t('stats.field.cacheSessions'), value: r.cacheWindowDays === null
+      ? sessions(r.cacheTrackedSessions, r.sessions) : n(r.cacheTrackedSessions) },
+    { label: t('stats.cache.reads'), value: covered(count(usage?.readTokens), usage?.readReports ?? 0) },
+    { label: t('stats.cache.writes'), value: covered(count(usage?.writeTokens), usage?.writeReports ?? 0) },
+    { label: t('stats.cache.rate'), value: covered(rate == null ? unknown() : percent.format(rate / 100),
+      usage?.comparableRequests ?? 0) },
+    ...(usage?.writesByLifetime ?? []).map((write) => ({
+      label: t('stats.cache.lifetime', { seconds: n(write.lifetimeSeconds) }),
+      value: covered(n(write.tokens), write.reports),
+    })),
   ]
 })
 
@@ -79,6 +115,11 @@ function close(): void {
         <section class="space-y-2">
           <h3 class="text-sm font-medium">{{ t('stats.tokens') }}</h3>
           <ReportRows :rows="tokens" />
+        </section>
+
+        <section v-if="cache.length" class="space-y-2">
+          <h3 class="text-sm font-medium">{{ t('stats.cache') }}</h3>
+          <ReportRows :rows="cache" />
         </section>
 
         <section class="space-y-2">

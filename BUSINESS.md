@@ -115,7 +115,10 @@ Session:
 - Toggle verbose targets and report draft changes, as the terminal does.
 - Run every slash command the server lists. Reports (`report.help`,
   `report.status`, `report.stats`, `report.tools`, `report.todos`) are shown
-  to the client that asked.
+  to the client that asked. The full status report shows per-group request
+  diagnostics when the server supplies them, including cache usage and
+  reporting coverage. The stats report shows historical cache totals, read
+  rate, coverage, and the request time window when the server supplies them.
 - Settings that the server defers during a turn show the active value and what
   waits. Pursue configuration changes are refused while a turn or compaction runs.
 - Show the approval and extended approval reviewers.
