@@ -527,6 +527,8 @@ export const en = {
   'settings.palette.group.product': 'Product',
   'settings.palette.crystalIntelligence': 'Crystal Intelligence',
   'settings.palette.frontierIntelligence': 'Frontier Intelligence',
+  'settings.background.enabled': 'Show background image',
+  'settings.background.enabled.help': 'Turn off to hide the background without deleting the saved images. Turn on to bring them back.',
   'settings.background.separate': 'Separate light and dark backgrounds',
   'settings.background.separate.help': 'Keep a different background image and blur amount for each color mode.',
   'settings.background.image': 'Background image',

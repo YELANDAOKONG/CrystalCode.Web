@@ -50,6 +50,11 @@ const colorModeOptions = () => [
       <SettingRow :label="t('settings.colorMode')" label-for="set-color-mode">
         <ChoiceSelect id="set-color-mode" :options="colorModeOptions()" :model-value="colorMode" @change="(v) => setColorMode(v as ColorMode)" />
       </SettingRow>
+      <SettingRow v-if="appearance.hasSavedImage.value" :label="t('settings.background.enabled')" :help="t('settings.background.enabled.help')" label-for="set-background-enabled">
+        <div class="flex items-center sm:justify-end">
+          <Switch id="set-background-enabled" :model-value="appearance.enabled.value" @update:model-value="(value) => appearance.setEnabled(value === true)" />
+        </div>
+      </SettingRow>
       <SettingRow :label="t('settings.background.separate')" :help="t('settings.background.separate.help')" label-for="set-background-separate">
         <div class="flex items-center sm:justify-end">
           <Switch id="set-background-separate" :model-value="appearance.separate.value" @update:model-value="(value) => appearance.setSeparate(value === true)" />

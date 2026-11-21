@@ -46,6 +46,8 @@ function readBackground(key: string): BackgroundSettings {
 }
 
 const separate = ref(loadPreference('background-separate') === 'on')
+// Off keeps the saved images but shows none of them.
+const enabled = ref(loadPreference('background-enabled') !== 'off')
 const slots: Record<BackgroundSlot, Ref<BackgroundSettings>> = {
   shared: ref(readBackground('background-shared')),
   light: ref(readBackground('background-light')),
@@ -63,11 +65,13 @@ function imageOf(slot: BackgroundSlot): string {
   return background.source === 'url' ? background.value : ''
 }
 
-const currentImage = computed(() => imageOf(currentSlot.value))
+const currentImage = computed(() => enabled.value ? imageOf(currentSlot.value) : '')
+// Something is saved, whether or not it is shown.
+const hasSavedImage = computed(() => SLOTS.some((slot) => slots[slot].value.source !== 'none'))
 // With no image behind them the panels have nothing to show through, so they
 // stay opaque. With one, they turn translucent: an image beside opaque panels
 // looks broken.
-const hasBackground = computed(() => SLOTS.some((slot) => imageOf(slot) !== ''))
+const hasBackground = computed(() => enabled.value && SLOTS.some((slot) => imageOf(slot) !== ''))
 
 function applyBackground(): void {
   const root = document.documentElement
@@ -118,7 +122,14 @@ export function useAppearance() {
     separate,
     slots,
     opacity,
-    panelBlur,    hasBackground,
+    panelBlur,
+    hasBackground,
+    hasSavedImage,
+    enabled,
+    setEnabled(value: boolean) {
+      enabled.value = value
+      savePreference('background-enabled', value ? 'on' : 'off')
+    },
     /** The address the browser loads for this slot, or an empty string. */
     imageOf,
     setSeparate(value: boolean) {

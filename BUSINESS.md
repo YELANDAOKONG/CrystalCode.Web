@@ -197,7 +197,8 @@ Interface:
   browser supports it, and circular arcs elsewhere. It is not a setting.
 - Appearance settings let the operator pick a background image (uploaded, or
   by HTTP or HTTPS URL), one shared or one each for light and dark, with a blur
-  amount per image. There is no acrylic switch: while an image is set, the
+  amount per image. A show switch hides the background without deleting the
+  saved images. There is no acrylic switch: while an image is set, the
   panels are translucent over it and panel opacity and panel blur sliders
   appear; with no
   image they are opaque. An image beside opaque panels looks broken, so that

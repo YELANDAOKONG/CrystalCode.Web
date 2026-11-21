@@ -528,6 +528,8 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.palette.group.product': '产品',
   'settings.palette.crystalIntelligence': '晶体智能',
   'settings.palette.frontierIntelligence': '前沿智能',
+  'settings.background.enabled': '显示背景图片',
+  'settings.background.enabled.help': '关闭后隐藏背景，但不会删除已保存的图片。再次开启即可恢复。',
   'settings.background.separate': '亮色和暗色分别设置背景',
   'settings.background.separate.help': '为两种明暗模式分别保存背景图片和模糊程度。',
   'settings.background.image': '背景图片',
