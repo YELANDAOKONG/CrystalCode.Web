@@ -247,8 +247,12 @@ async function copyServerCommand(): Promise<void> {
 }
 
 .connect-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   min-height: 4.25rem;
   padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  background: var(--site-bg);
 }
 
 .connect-layout {
