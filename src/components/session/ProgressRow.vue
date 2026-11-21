@@ -60,7 +60,7 @@ const elapsed = computed(() => formatElapsed(now.value - since.value))
        Only the text is a live region. The timer sits outside it so a screen
        reader is not told the time every second. -->
   <div v-if="progress" class="conv-column text-muted-foreground flex w-full shrink-0 items-center gap-2 overflow-hidden py-1 text-sm" :data-full="fullWidth ? '' : undefined">
-    <PetalSpinner v-if="petalSpinner" class="size-4 shrink-0" />
+    <PetalSpinner v-if="petalSpinner" :variant="sakura.spinnerStyle.value" class="size-4 shrink-0" />
     <Loader2 v-else class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
     <span role="status" aria-live="polite" class="min-w-0 flex-1 truncate" :title="text">{{ text }}</span>
     <span class="shrink-0 font-mono text-xs tabular-nums" :title="t('progress.elapsed')">{{ elapsed }}</span>

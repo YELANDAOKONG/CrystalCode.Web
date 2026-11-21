@@ -7,6 +7,10 @@ import { loadPreference, savePreference } from '@/connection/storage'
 export type PetalPlacement = 'behind' | 'idle' | 'both' | 'over'
 const PLACEMENTS: readonly PetalPlacement[] = ['behind', 'idle', 'both', 'over']
 
+// The working indicator. `spin` is the original turning petal and the default.
+export type SpinnerStyle = 'spin' | 'blossom' | 'orbit' | 'breathe'
+const SPINNER_STYLES: readonly SpinnerStyle[] = ['spin', 'blossom', 'orbit', 'breathe']
+
 export const DEFAULT_PETAL_COUNT = 14
 export const DEFAULT_PETAL_SPEED = 100
 export const DEFAULT_SHOWER_COUNT = 26
@@ -30,6 +34,7 @@ const shower = ref(flag('sakura-shower', true))
 const showerCount = ref(number('sakura-shower-count', DEFAULT_SHOWER_COUNT, 4, 100))
 const showerSpeed = ref(number('sakura-shower-speed', DEFAULT_SHOWER_SPEED, 50, 250))
 const spinner = ref(flag('sakura-spinner', true))
+const spinnerStyle = ref<SpinnerStyle>(SPINNER_STYLES.find((item) => item === loadPreference('sakura-spinner-style')) ?? 'spin')
 const artwork = ref(flag('sakura-artwork', true))
 // Off by default: the operator's own picture wins, and the artwork fills in
 // when there is none.
@@ -56,6 +61,7 @@ export function useSakura() {
     showerCount,
     showerSpeed,
     spinner,
+    spinnerStyle,
     artwork,
     artworkFirst,
     roundedFont,
@@ -91,6 +97,10 @@ export function useSakura() {
       spinner.value = value
       savePreference('sakura-spinner', onOff(value))
     },
+    setSpinnerStyle(value: SpinnerStyle) {
+      spinnerStyle.value = value
+      savePreference('sakura-spinner-style', value)
+    },
     setRoundedFont(value: boolean) {
       roundedFont.value = value
       savePreference('sakura-font', onOff(value))
@@ -108,4 +118,8 @@ export function useSakura() {
 
 export function isPetalPlacement(value: string): value is PetalPlacement {
   return PLACEMENTS.some((item) => item === value)
+}
+
+export function isSpinnerStyle(value: string): value is SpinnerStyle {
+  return SPINNER_STYLES.some((item) => item === value)
 }

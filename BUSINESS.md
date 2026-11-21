@@ -219,7 +219,7 @@ Interface:
 - Combination themes bring more than colors. Sakura is the first: a blossom
   palette for day and night, built-in artwork (an SVG per mode, bundled, never
   fetched), a softer radius and rose-tinted shadows, drifting petals, a petal
-  shower when a turn completes, a petal in place of the progress spinner, and a
+  shower when a turn completes, a petal in place of the progress spinner (the operator picks one of four shapes, the turning petal by default), and a
   blossom mark and tab icon. The operator's own background image replaces the
   artwork by default; a switch puts the artwork in front instead. Petals can sit behind the panels, in front on idle screens (connect
   page, empty session), or over everything, and never take a click. Reduced

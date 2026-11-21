@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from '@/i18n'
-import { DEFAULT_PETAL_COUNT, DEFAULT_PETAL_SPEED, DEFAULT_SHOWER_COUNT, DEFAULT_SHOWER_SPEED, isPetalPlacement, useSakura } from '@/theme/sakura'
+import { DEFAULT_PETAL_COUNT, DEFAULT_PETAL_SPEED, DEFAULT_SHOWER_COUNT, DEFAULT_SHOWER_SPEED, isPetalPlacement, isSpinnerStyle, useSakura } from '@/theme/sakura'
 import { Switch } from '@/components/ui/switch'
 import ChoiceSelect from './ChoiceSelect.vue'
 import RangeSetting from './RangeSetting.vue'
@@ -16,8 +16,19 @@ const placementOptions = () => [
   { value: 'over', label: t('settings.sakura.placement.over'), help: t('settings.sakura.placement.over.help') },
 ]
 
+const spinnerOptions = () => [
+  { value: 'spin', label: t('settings.sakura.spinnerStyle.spin'), help: t('settings.sakura.spinnerStyle.spin.help') },
+  { value: 'blossom', label: t('settings.sakura.spinnerStyle.blossom'), help: t('settings.sakura.spinnerStyle.blossom.help') },
+  { value: 'orbit', label: t('settings.sakura.spinnerStyle.orbit'), help: t('settings.sakura.spinnerStyle.orbit.help') },
+  { value: 'breathe', label: t('settings.sakura.spinnerStyle.breathe'), help: t('settings.sakura.spinnerStyle.breathe.help') },
+]
+
 function setPlacement(value: string): void {
   if (isPetalPlacement(value)) sakura.setPlacement(value)
+}
+
+function setSpinnerStyle(value: string): void {
+  if (isSpinnerStyle(value)) sakura.setSpinnerStyle(value)
 }
 </script>
 
@@ -63,6 +74,9 @@ function setPlacement(value: string): void {
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-spinner" :model-value="sakura.spinner.value" @update:model-value="(value) => sakura.setSpinner(value === true)" />
       </div>
+    </SettingRow>
+    <SettingRow v-if="sakura.spinner.value" :label="t('settings.sakura.spinnerStyle')" :help="t('settings.sakura.spinnerStyle.help')" label-for="set-sakura-spinner-style">
+      <ChoiceSelect id="set-sakura-spinner-style" :options="spinnerOptions()" :model-value="sakura.spinnerStyle.value" @change="setSpinnerStyle" />
     </SettingRow>
   </SettingsGroup>
 </template>
