@@ -23,6 +23,11 @@ function setPlacement(value: string): void {
 
 <template>
   <SettingsGroup :title="t('settings.sakura.title')" scope="browser">
+    <SettingRow :label="t('settings.sakura.font')" :help="t('settings.sakura.font.help')" label-for="set-sakura-font">
+      <div class="flex items-center sm:justify-end">
+        <Switch id="set-sakura-font" :model-value="sakura.roundedFont.value" @update:model-value="(value) => sakura.setRoundedFont(value === true)" />
+      </div>
+    </SettingRow>
     <SettingRow :label="t('settings.sakura.artwork')" :help="t('settings.sakura.artwork.help')" label-for="set-sakura-artwork">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-artwork" :model-value="sakura.artwork.value" @update:model-value="(value) => sakura.setArtwork(value === true)" />

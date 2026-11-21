@@ -403,16 +403,16 @@ html:lang(zh-TW) {
    fallbacks. English starts with the smallest face that has Latin, KR, so a
    first English page does not download the largest file. A later face is
    fetched only for a character the earlier ones lack. */
-:root[data-palette='sakura'] {
+:root[data-palette='sakura'][data-sakura-font='on'] {
   --sans: 'Resource Han Rounded KR', 'Resource Han Rounded JP', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
   font-variation-settings: 'ROND' 100;
 }
 
-:root[data-palette='sakura']:lang(zh-CN) {
+:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-CN) {
   --sans: 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
-:root[data-palette='sakura']:lang(zh-TW) {
+:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-TW) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 

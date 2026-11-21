@@ -533,6 +533,8 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.sakura.artwork.help': '界面后方的樱花场景，白天和夜晚各一幅。你自己选择的背景图片会取代它。',
   'settings.sakura.artworkFirst': '主题插画优先于自定义背景',
   'settings.sakura.artworkFirst.help': '即使已选择背景图片，也显示内置插画。关闭时，你选择的图片优先。',
+  'settings.sakura.font': '圆体字体',
+  'settings.sakura.font.help': '文字使用 Resource Han Rounded。关闭后恢复页面原有字体。开启时才会下载字体。',
   'settings.sakura.petals': '飘落的花瓣',
   'settings.sakura.petals.help': '花瓣在页面上飘落。系统要求减少动态效果时，花瓣会静止。',
   'settings.sakura.placement': '花瓣飘落的位置',

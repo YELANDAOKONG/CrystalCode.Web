@@ -212,7 +212,9 @@ Interface:
   font: Resource Han Rounded (SIL OFL 1.1), all five regions (CN, TW, HK, JP,
   KR), each a variable font of weights 200 to 900 with the rounded axis on.
   Only a Sakura page downloads them, and a region's file is fetched when a
-  character needs it. Other themes keep the bundled Archivo and Noto faces.
+  character needs it. A switch in the Theme tab turns the rounded face off,
+  which restores the page's own faces and downloads nothing. Other themes keep
+  the bundled Archivo and Noto faces.
   Custom themes may follow.
 - Combination themes bring more than colors. Sakura is the first: a blossom
   palette for day and night, built-in artwork (an SVG per mode, bundled, never

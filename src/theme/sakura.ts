@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { loadPreference, savePreference } from '@/connection/storage'
 
 // Choices that belong to the Sakura theme alone. The page holds them whether or
@@ -30,6 +30,13 @@ const artwork = ref(flag('sakura-artwork', true))
 // Off by default: the operator's own picture wins, and the artwork fills in
 // when there is none.
 const artworkFirst = ref(flag('sakura-artwork-first', false))
+// On by default: the rounded face is the theme. Off keeps the page's own faces.
+const roundedFont = ref(flag('sakura-font', true))
+
+// The page marks whether Sakura's face is in use, so the stylesheet can pick the stack.
+watchEffect(() => {
+  document.documentElement.dataset.sakuraFont = roundedFont.value ? 'on' : 'off'
+})
 
 function onOff(value: boolean): string {
   return value ? 'on' : 'off'
@@ -45,6 +52,7 @@ export function useSakura() {
     spinner,
     artwork,
     artworkFirst,
+    roundedFont,
     setPetals(value: boolean) {
       petals.value = value
       savePreference('sakura-petals', onOff(value))
@@ -68,6 +76,10 @@ export function useSakura() {
     setSpinner(value: boolean) {
       spinner.value = value
       savePreference('sakura-spinner', onOff(value))
+    },
+    setRoundedFont(value: boolean) {
+      roundedFont.value = value
+      savePreference('sakura-font', onOff(value))
     },
     setArtworkFirst(value: boolean) {
       artworkFirst.value = value
