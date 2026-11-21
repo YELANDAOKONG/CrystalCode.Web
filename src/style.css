@@ -249,38 +249,36 @@ body::before {
   --site-field-hover: var(--pal-field-hover);
 }
 
+/* Color palettes. Each follows the Crystal ladder: three surface steps about
+   2 to 3 lightness points apart, near-black ink on light and a tinted
+   near-white on dark, and an accent that holds 4.5:1 on the raised surface.
+   Warning, error, and ok colors come from :root. */
 :root[data-palette='ocean'] {
-  --pal-bg: light-dark(#e9f2f5, #142126);
-  --pal-surface: light-dark(#dcebef, #1b2b31);
-  --pal-raised: light-dark(#cddfe5, #263a41);
-  --pal-field: light-dark(transparent, #1d2d33);
-  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #263a41);
-  --site-ink: light-dark(#102027, #e5f0f1);
-  --site-muted: light-dark(#405c67, #adc4c9);
-  --site-faint: light-dark(#607781, #829da4);
-  --site-accent: light-dark(#176b82, #8bd4e3);
-  --site-button-bg: light-dark(#164c5c, #d1edf0);
-  --site-button-ink: light-dark(#f3fbfc, #102126);
-  --site-warn: light-dark(#765314, #e6c38a);
-  --site-error: light-dark(#a8361b, #f0a58f);
-  --site-ok: light-dark(#2d6a4f, #8fcfae);
+  --pal-bg: light-dark(#e8f3f5, #111d1e);
+  --pal-surface: light-dark(#e0eeef, #162325);
+  --pal-raised: light-dark(#d7e8ea, #1c2b2d);
+  --pal-field: light-dark(transparent, #162425);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #1c2b2d);
+  --site-ink: light-dark(#08181a, #e1eaeb);
+  --site-muted: light-dark(#476063, #abb7b8);
+  --site-faint: light-dark(#52686a, #8b9c9e);
+  --site-accent: light-dark(#00696f, #8dd2d6);
+  --site-button-bg: light-dark(#08181a, #e1eaeb);
+  --site-button-ink: light-dark(#e8f3f5, #050f11);
 }
 
 :root[data-palette='forest'] {
-  --pal-bg: light-dark(#edf2eb, #1b211b);
-  --pal-surface: light-dark(#e0e9dd, #242d24);
-  --pal-raised: light-dark(#d1dfce, #303b30);
-  --pal-field: light-dark(transparent, #242d24);
-  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #303b30);
-  --site-ink: light-dark(#172017, #e8ede4);
-  --site-muted: light-dark(#4c5c49, #b8c4b2);
-  --site-faint: light-dark(#667362, #909b8b);
-  --site-accent: light-dark(#426d3b, #add39f);
-  --site-button-bg: light-dark(#263d25, #e1edda);
-  --site-button-ink: light-dark(#f4f8f1, #182017);
-  --site-warn: light-dark(#765314, #e6c38a);
-  --site-error: light-dark(#a8361b, #f0a58f);
-  --site-ok: light-dark(#2d6a4f, #8fcfae);
+  --pal-bg: light-dark(#ecf3ed, #161d17);
+  --pal-surface: light-dark(#e4ede6, #1b231c);
+  --pal-raised: light-dark(#dde8df, #222b24);
+  --pal-field: light-dark(transparent, #1c231d);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #222b24);
+  --site-ink: light-dark(#0e1810, #e3eae4);
+  --site-muted: light-dark(#4f6052, #aeb7b0);
+  --site-faint: light-dark(#59685c, #909c92);
+  --site-accent: light-dark(#33683d, #a6d1ab);
+  --site-button-bg: light-dark(#0e1810, #e3eae4);
+  --site-button-ink: light-dark(#ecf3ed, #090f0a);
 }
 
 :root[data-theme='light'] {

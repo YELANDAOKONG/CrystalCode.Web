@@ -520,7 +520,7 @@ export const en = {
   'settings.language': 'Language',
   'settings.theme': 'Theme',
   'settings.colorMode': 'Color mode',
-  'settings.palette.group.builtIn': 'Built-in themes',
+  'settings.palette.group.color': 'Color',
   'settings.palette.default': 'Crystal (default)',
   'settings.palette.ocean': 'Ocean',
   'settings.palette.forest': 'Forest',

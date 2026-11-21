@@ -23,9 +23,9 @@ const appearance = useAppearance()
 
 const localeOptions = locales.map((item) => ({ value: item.id, label: item.label, help: '' }))
 const themeOptions = () => [
-  { value: 'default', label: t('settings.palette.default'), help: '', group: t('settings.palette.group.builtIn') },
-  { value: 'ocean', label: t('settings.palette.ocean'), help: '', group: t('settings.palette.group.builtIn') },
-  { value: 'forest', label: t('settings.palette.forest'), help: '', group: t('settings.palette.group.builtIn') },
+  { value: 'default', label: t('settings.palette.default'), help: '', group: t('settings.palette.group.color') },
+  { value: 'ocean', label: t('settings.palette.ocean'), help: '', group: t('settings.palette.group.color') },
+  { value: 'forest', label: t('settings.palette.forest'), help: '', group: t('settings.palette.group.color') },
 ]
 const colorModeOptions = () => [
   { value: 'auto', label: t('common.theme.auto'), help: '' },
