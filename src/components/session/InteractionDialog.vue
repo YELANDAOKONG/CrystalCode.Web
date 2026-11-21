@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { ArrowUpRight, ExternalLink, ShieldCheck } from '@lucide/vue'
 import { server } from '@/app/server'
 import {
   AlertDialog,
@@ -197,16 +198,40 @@ const loginLink = computed(() => {
         </div>
       </div>
 
-      <div v-else-if="login" class="space-y-3 text-sm">
-        <p class="font-medium break-words">{{ login.provider }}</p>
-        <p v-for="(step, index) in login.steps" :key="index" class="wrap-anywhere whitespace-pre-wrap">{{ step }}</p>
-        <a v-if="loginLink && allowed" :href="loginLink" target="_blank" rel="noopener noreferrer" class="text-primary block break-all underline underline-offset-4">{{ login.linkLabel || loginLink }}</a>
-        <p v-else-if="login.link && !loginLink" class="text-destructive">{{ t('interaction.login.invalidLink') }}</p>
-        <p class="text-muted-foreground">{{ t('interaction.login.hint') }}</p>
-        <form class="space-y-3" @submit.prevent="answer({ address: loginAddress.trim() })">
-          <label for="login-address" class="block wrap-anywhere whitespace-pre-wrap">{{ login.prompt || t('interaction.login.address') }}</label>
-          <Input id="login-address" v-model="loginAddress" type="url" autocomplete="off" :disabled="disabled" />
-          <div class="flex justify-end gap-2">
+      <div v-else-if="login" class="login-flow">
+        <p class="login-provider text-base font-semibold break-words">{{ login.provider }}</p>
+
+        <ol v-if="login.steps.length" class="login-steps" :aria-label="t('interaction.login.steps')">
+          <li v-for="(step, index) in login.steps" :key="index" class="login-step wrap-anywhere whitespace-pre-wrap">{{ step }}</li>
+        </ol>
+
+        <a
+          v-if="loginLink && allowed"
+          :href="loginLink"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="login-link"
+        >
+          <span class="login-link-icon"><ExternalLink class="size-4" /></span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold">{{ login.linkLabel || t('interaction.login.openLink') }}</span>
+            <span class="text-muted-foreground mt-1 block break-all font-mono text-xs">{{ loginLink }}</span>
+          </span>
+          <ArrowUpRight class="mt-0.5 size-4 shrink-0" />
+        </a>
+        <p v-else-if="login.link && !loginLink" class="text-destructive text-sm" role="alert">{{ t('interaction.login.invalidLink') }}</p>
+        <p v-else-if="!allowed" class="text-muted-foreground text-sm">{{ t('interaction.login.hint') }}</p>
+
+        <div class="login-security" role="note">
+          <ShieldCheck class="mt-0.5 size-4 shrink-0" />
+          <p>{{ t('interaction.login.hint') }}</p>
+        </div>
+
+        <form class="login-return" @submit.prevent="answer({ address: loginAddress.trim() })">
+          <label for="login-address" class="block text-sm font-medium wrap-anywhere whitespace-pre-wrap">{{ login.prompt || t('interaction.login.address') }}</label>
+          <p class="text-muted-foreground mt-1.5 text-xs leading-5">{{ t('interaction.login.addressHint') }}</p>
+          <Input id="login-address" v-model="loginAddress" class="mt-3 h-11 font-mono text-sm" type="url" autocomplete="off" :disabled="disabled" />
+          <div class="mt-4 flex flex-wrap justify-end gap-2">
             <Button type="button" variant="outline" :disabled="disabled" @click="answer({ cancelled: true })">{{ t('common.cancel') }}</Button>
             <Button type="submit" :disabled="disabled || !loginAddress.trim()">{{ t('interaction.login.submit') }}</Button>
           </div>
@@ -220,3 +245,83 @@ const loginLink = computed(() => {
     </AlertDialogContent>
   </AlertDialog>
 </template>
+
+<style scoped>
+.login-flow {
+  display: grid;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.login-provider {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--site-line);
+}
+
+.login-steps {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: decimal;
+}
+
+.login-step {
+  line-height: 1.5rem;
+  padding-left: 0.25rem;
+}
+
+.login-link {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem;
+  border: 1px solid var(--site-line-strong);
+  border-radius: var(--radius);
+  color: var(--site-ink);
+  text-decoration: none;
+}
+
+.login-link:hover {
+  background: var(--site-hover);
+}
+
+.login-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.login-link-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  place-items: center;
+  border-radius: calc(var(--radius) - 0.125rem);
+  background: var(--site-raised);
+  color: var(--site-accent);
+}
+
+.login-security {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  color: var(--site-muted);
+  font-size: 0.8125rem;
+  line-height: 1.375rem;
+}
+
+.login-security p {
+  overflow-wrap: anywhere;
+}
+
+.login-security svg {
+  color: var(--site-accent);
+}
+
+.login-return {
+  padding-top: 1rem;
+  border-top: 1px solid var(--site-line);
+}
+</style>
