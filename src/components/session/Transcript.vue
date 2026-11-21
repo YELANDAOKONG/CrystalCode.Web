@@ -102,7 +102,7 @@ const isEmpty = computed(() => model.loaded && blocks.value.length === 0 && !liv
        size, which stretches the column and traps the scroll position. -->
   <div class="relative min-h-0 flex-1 overflow-hidden">
     <div :ref="bind" class="absolute inset-0 overflow-y-auto [overflow-anchor:none]" tabindex="0" :aria-label="t('session.transcript')" @scroll.passive="onScroll">
-      <div class="mx-auto flex flex-col gap-5 px-4 py-6" :class="fullWidth ? 'md:px-8 lg:px-12' : 'max-w-3xl'">
+      <div class="conv-column flex flex-col gap-5 py-6" :data-full="fullWidth ? '' : undefined">
         <p v-if="!model.loaded" class="text-muted-foreground flex items-center justify-center gap-2 py-12 text-sm">
           <Spinner />
           {{ t('session.loading') }}

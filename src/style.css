@@ -405,6 +405,40 @@ html:lang(zh-TW) {
 /* Rendered Markdown. The tree is drawn with Vue elements, so these rules are
    the only styling the text gets. */
 @layer components {
+  /* Conversation width. The column is centered by its side padding rather than
+     by max-width and auto margins, because padding can be transitioned and
+     max-width cannot go to none. The contained column is 48rem wide. */
+  .conv-column {
+    --pad: 1rem;
+    padding-inline: max(var(--pad), calc((100% - 48rem) / 2 + var(--pad)));
+    transition: padding-inline 0.25s ease;
+  }
+
+  .conv-composer {
+    --pad: 0.75rem;
+    padding-inline: max(var(--pad), calc((100% - 48rem) / 2));
+    transition: padding-inline 0.25s ease;
+  }
+
+  .conv-composer:not([data-full]) {
+    @media (min-width: 768px) {
+      --pad: 1rem;
+    }
+  }
+
+  .conv-column[data-full],
+  .conv-composer[data-full] {
+    padding-inline: var(--pad);
+
+    @media (min-width: 768px) {
+      --pad: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+      --pad: 3rem;
+    }
+  }
+
   .md {
     overflow-wrap: anywhere;
     line-height: 1.75;

@@ -478,8 +478,8 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
 </script>
 
 <template>
-  <div class="shrink-0 px-3 pt-2 pb-2 md:px-4 md:pt-3 md:pb-3" :class="fullWidth && 'md:px-8 lg:px-12'" @dragover.prevent @dragenter="onDragEnter" @dragleave="onDragLeave" @drop="onDrop">
-    <div class="relative mx-auto" :class="fullWidth ? '' : 'max-w-3xl'">
+  <div class="conv-composer shrink-0 pt-2 pb-2 md:pt-3 md:pb-3" :data-full="fullWidth ? '' : undefined" @dragover.prevent @dragenter="onDragEnter" @dragleave="onDragLeave" @drop="onDrop">
+    <div class="relative">
       <ul
         v-if="suggestions.length"
         :id="commandsId"

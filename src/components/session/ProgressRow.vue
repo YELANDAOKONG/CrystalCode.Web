@@ -52,7 +52,7 @@ const elapsed = computed(() => formatElapsed(now.value - since.value))
        line is in the tooltip. A long retry reason also stays on the live round.
        Only the text is a live region. The timer sits outside it so a screen
        reader is not told the time every second. -->
-  <div v-if="progress" class="text-muted-foreground mx-auto flex w-full shrink-0 items-center gap-2 overflow-hidden px-4 py-1 text-sm md:px-5" :class="fullWidth ? 'md:px-8 lg:px-12' : 'max-w-3xl'">
+  <div v-if="progress" class="conv-column text-muted-foreground flex w-full shrink-0 items-center gap-2 overflow-hidden py-1 text-sm" :data-full="fullWidth ? '' : undefined">
     <Loader2 class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
     <span role="status" aria-live="polite" class="min-w-0 flex-1 truncate" :title="text">{{ text }}</span>
     <span class="shrink-0 font-mono text-xs tabular-nums" :title="t('progress.elapsed')">{{ elapsed }}</span>
