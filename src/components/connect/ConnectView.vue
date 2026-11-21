@@ -13,6 +13,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { server } from '@/app/server'
 import { inspectAddress } from '@/connection/page'
 import { t, type MessageKey } from '@/i18n'
+import { useTheme } from '@/theme/theme'
 import AdvisoryNotice from './AdvisoryNotice.vue'
 import DiagnosisPanel from './DiagnosisPanel.vue'
 
@@ -30,6 +31,8 @@ const remember = ref(true)
 const space = ref<'unknown' | 'local' | 'loopback'>('unknown')
 
 const busy = computed(() => server.phase.value === 'connecting')
+const { theme } = useTheme()
+const sakuraActive = computed(() => theme.value === 'sakura')
 const addressError = computed(() => {
   const failure = server.formError.value
   return failure ? t(`address.${failure.error}` as MessageKey) : null
@@ -99,7 +102,7 @@ async function copyServerCommand(): Promise<void> {
     <main class="connect-layout mx-auto grid w-full flex-1">
       <section class="connect-intro">
         <div class="connect-title-row flex items-center gap-4">
-          <span class="connect-mark-motion shrink-0" aria-hidden="true">
+          <span class="connect-mark-motion shrink-0" :class="{ 'connect-mark-still': sakuraActive }" aria-hidden="true">
             <LogoMark class="connect-large-mark" />
           </span>
           <h1 class="text-[2.5rem] leading-[1.08] font-semibold">{{ t('connect.title') }}</h1>
@@ -281,6 +284,13 @@ async function copyServerCommand(): Promise<void> {
 .connect-mark-motion {
   display: inline-flex;
   animation: connect-mark-turn 1.8s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+/* The diamond turns a quarter at a time, which reads as a mechanism. A blossom
+   is radially symmetric and would look wrong turning, so under Sakura it stays
+   put. */
+.connect-mark-still {
+  animation: none;
 }
 
 @keyframes connect-mark-turn {
