@@ -216,6 +216,8 @@ Interface:
   which restores the page's own faces and downloads nothing. Other themes keep
   the bundled Archivo and Noto faces.
   Custom themes may follow.
+- Changes to the palette or the effective light/dark mode crossfade on
+  browsers that support it. First load and reduced motion apply them directly.
 - Combination themes bring more than colors. Sakura is the first: a blossom
   palette for day and night, built-in artwork (an SVG per mode, bundled, never
   fetched), a softer radius and rose-tinted shadows, drifting petals, a petal

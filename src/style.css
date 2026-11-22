@@ -133,8 +133,8 @@
 
 /* Palette from ../CrystalCode.Website, except the dark backgrounds (bg,
    surface, raised, field), which are lifted so a long session is not read on
-   near-black. With no data-theme the browser decides through color-scheme; the
-   theme setting forces one side. */
+   near-black. Before theme initialization the browser decides through
+   color-scheme; data-theme then pins the resolved scheme for each snapshot. */
 :root {
   color-scheme: light dark;
 
@@ -403,6 +403,21 @@ body::before {
 
 :root[data-theme='dark'] {
   color-scheme: dark;
+}
+
+::view-transition-group(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root) {
+    animation-duration: 0s;
+  }
 }
 
 /* Han characters share code points across Chinese variants. Put the face for

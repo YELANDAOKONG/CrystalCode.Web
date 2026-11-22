@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { loadPreference, savePreference } from '@/connection/storage'
 import type { MessageKey } from '@/i18n'
 import { applyFavicon } from './favicon'
@@ -28,6 +28,7 @@ export const THEMES: readonly ThemeInfo[] = [
 const setting = ref<ThemeSetting>('default')
 const colorMode = ref<ColorMode>('auto')
 const query = window.matchMedia('(prefers-color-scheme: dark)')
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 const systemDark = ref(query.matches)
 export const isDark = computed(() => colorMode.value === 'dark' || (colorMode.value === 'auto' && systemDark.value))
 const themeHasSettings = computed(() => THEMES.find((theme) => theme.id === setting.value)?.hasSettings === true)
@@ -35,10 +36,49 @@ const themeHasSettings = computed(() => THEMES.find((theme) => theme.id === sett
 function apply(): void {
   const root = document.documentElement
   root.dataset.palette = setting.value
-  if (colorMode.value === 'auto') root.removeAttribute('data-theme')
-  else root.setAttribute('data-theme', colorMode.value)
+  root.dataset.theme = isDark.value ? 'dark' : 'light'
   root.classList.toggle('dark', isDark.value)
   applyFavicon(setting.value)
+}
+
+interface AppearanceChange {
+  palette?: ThemeSetting
+  mode?: ColorMode
+  systemDark?: boolean
+}
+
+let pendingChange: AppearanceChange | undefined
+
+function changeAppearance(change: AppearanceChange): void {
+  if (pendingChange) {
+    Object.assign(pendingChange, change)
+    return
+  }
+
+  const commit = () => {
+    const latest = pendingChange ?? change
+    pendingChange = undefined
+    setting.value = latest.palette ?? setting.value
+    colorMode.value = latest.mode ?? colorMode.value
+    systemDark.value = latest.systemDark ?? systemDark.value
+    apply()
+  }
+
+  const nextMode = change.mode ?? colorMode.value
+  const nextDark = nextMode === 'dark' || (nextMode === 'auto' && (change.systemDark ?? systemDark.value))
+  const changesLook = (change.palette !== undefined && change.palette !== setting.value) || nextDark !== isDark.value
+  if (!changesLook || reducedMotion.matches || document.hidden || !document.startViewTransition) {
+    commit()
+    return
+  }
+
+  pendingChange = change
+  const transition = document.startViewTransition(() => {
+    commit()
+    return nextTick()
+  })
+  // The browser can skip a superseded or hidden transition; its update still runs.
+  void transition.ready.catch(() => {})
 }
 
 export function initTheme(): void {
@@ -47,8 +87,7 @@ export function initTheme(): void {
   const savedMode = loadPreference('color-mode') ?? loadPreference('theme')
   if (savedMode === 'light' || savedMode === 'dark' || savedMode === 'auto') colorMode.value = savedMode
   query.addEventListener('change', (event) => {
-    systemDark.value = event.matches
-    apply()
+    changeAppearance({ systemDark: event.matches })
   })
   apply()
 }
@@ -60,14 +99,12 @@ export function useTheme() {
     isDark,
     themeHasSettings,
     setTheme(next: ThemeSetting) {
-      setting.value = next
       savePreference('palette', next)
-      apply()
+      changeAppearance({ palette: next })
     },
     setColorMode(next: ColorMode) {
-      colorMode.value = next
       savePreference('color-mode', next)
-      apply()
+      changeAppearance({ mode: next })
     },
   }
 }
