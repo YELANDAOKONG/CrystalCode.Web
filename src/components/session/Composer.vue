@@ -485,7 +485,7 @@ const currentThinking = computed(() => currentByLabel(thinkingOptions.value, thi
         :id="commandsId"
         role="listbox"
         :aria-label="t('composer.commands')"
-        class="bg-popover text-popover-foreground absolute right-0 bottom-full left-0 z-10 mb-2 max-h-64 overflow-auto rounded-lg border p-1 shadow-md"
+        class="bg-popover text-popover-foreground acrylic-float absolute right-0 bottom-full left-0 z-10 mb-2 max-h-64 overflow-auto rounded-lg border p-1 shadow-md"
       >
         <li
           v-for="(command, index) in suggestions"
