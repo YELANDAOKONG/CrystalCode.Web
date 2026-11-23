@@ -400,8 +400,8 @@ body::before {
 /* Pride. Pearl and lilac surfaces carry the ribbon palette into the UI.
    Rose anchors actions in both modes, and blue trims the artwork and mark. */
 :root[data-palette='pride'] {
-  --pal-bg: light-dark(#f8f5fc, #191b30);
-  --pal-surface: light-dark(#f2ecf8, #22243d);
+  --pal-bg: light-dark(#fbf5fb, #201b33);
+  --pal-surface: light-dark(#f7edf7, #2a2340);
   --pal-raised: light-dark(#e9eaf7, #2b2e49);
   --pal-field: light-dark(transparent, #23263e);
   --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #2b2e49);
@@ -419,9 +419,8 @@ body::before {
   --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--pride-blue) 28%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--pride-pink) 24%, transparent);
   --pride-blue: light-dark(#629fc7, #a4d8f1);
   --pride-pink: light-dark(#ce77a0, #ffc1d7);
-  --pride-white: #fff5fc;
-  --pride-rim: light-dark(#527fa6, #8fc7e8);
-  --pride-swirl: #aa3e75;
+  --pride-swirl: light-dark(#b7467c, #f49cc2);
+  --pride-swirl-outline: light-dark(#fff3fb, #3f244b);
 }
 
 :root[data-palette='pride'] ::selection {

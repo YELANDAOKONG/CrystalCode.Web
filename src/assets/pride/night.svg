@@ -19,6 +19,17 @@
     <filter id="fold-shadow" x="-.1" y="-.6" width="1.2" height="2.2">
       <feDropShadow dx="0" dy="17" stdDeviation="26" flood-color="#100f24" flood-opacity=".68"/>
     </filter>
+    <linearGradient id="bow-satin" x2=".7" y2="1">
+      <stop stop-color="#f6b7d5"/>
+      <stop offset="1" stop-color="#c47ca9"/>
+    </linearGradient>
+    <g id="bow" fill="url(#bow-satin)" stroke="#f3a9cd" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M-4 2C-6 10-11 15-14 22L-5 19L-1 24C1 16 4 11 4 4ZM3 3C8 10 12 16 19 19L13 20L12 25C6 19 1 13-1 6Z"/>
+      <path d="M0 0C-9-11-21-14-23-7C-25 2-21 10-15 10C-10 10-5 6 0 3C7 7 17 12 22 6C27 1 26-9 20-11C14-12 7-7 0 0Z"/>
+      <path d="M-5 0C-4-4 3-5 6-2C8 1 6 6 3 7C-1 8-6 5-5 0Z"/>
+      <path d="M-8 0C-13-5-17-6-20-5M8 1C13-4 17-5 21-4" fill="none" stroke="#f6b7d5" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <path id="heart" d="M0 5C-1 4-7 0-7-3C-7-7-2-8 0-4C2-8 7-7 7-3C7 0 1 4 0 5Z"/>
     <path id="star" d="M0-9Q1-1 9 0Q1 1 0 9Q-1 1-9 0Q-1-1 0-9Z"/>
   </defs>
 
@@ -70,5 +81,16 @@
     <circle cx="252" cy="737" r="2"/>
     <circle cx="684" cy="832" r="2.3"/>
     <circle cx="1409" cy="615" r="2"/>
+  </g>
+
+  <g opacity=".80">
+    <use href="#bow" transform="translate(719 124) rotate(12) scale(1.55)"/>
+    <use href="#bow" transform="translate(505 844) rotate(17) scale(1.3)"/>
+    <g fill="#d289b5">
+      <use href="#heart" transform="translate(673 73) rotate(-18) scale(.8)"/>
+      <use href="#heart" transform="translate(792 95) rotate(14) scale(.65)"/>
+      <use href="#heart" transform="translate(429 801) rotate(-20) scale(.68)"/>
+      <use href="#heart" transform="translate(553 804) rotate(14) scale(.6)"/>
+    </g>
   </g>
 </svg>

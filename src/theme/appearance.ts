@@ -23,7 +23,7 @@ interface BackgroundSettings {
 const MAX_IMAGE_BYTES = 50 * 1024 * 1024
 export const DEFAULT_PANEL_OPACITY = 76
 const DEFAULT_PANEL_BLUR = 16
-const PRIDE_ARTWORK_PANEL_BLUR = 3
+const PRIDE_ARTWORK_PANEL_BLUR = 1
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 

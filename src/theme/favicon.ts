@@ -1,5 +1,5 @@
 import type { ThemeSetting } from './theme'
-import { NARUTOMAKI_RIM, NARUTOMAKI_SWIRL } from './prideMark'
+import { PRIDE_BRUSH_HIGHLIGHT, PRIDE_SPIRAL } from './prideMark'
 
 // The tab icon follows the theme where the theme has its own mark. The data URL
 // is built here, so nothing is fetched.
@@ -13,8 +13,10 @@ ${[0, 72, 144, 216, 288].map((angle) => `<path transform="rotate(${angle} 16 16)
 
 // The tab icon uses the same narutomaki as the in-page mark.
 const PRIDE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-<path d="${NARUTOMAKI_RIM}" fill="#fff5fc" stroke="#527fa6" stroke-width="1.6" stroke-linejoin="round"/>
-<path d="${NARUTOMAKI_SWIRL}" fill="none" stroke="#aa3e75" stroke-width="2.8" stroke-linecap="round"/>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="${PRIDE_SPIRAL}" fill="#b7467c" stroke="#fff3fb" stroke-width="1.7" paint-order="stroke fill"/>
+  <path d="${PRIDE_BRUSH_HIGHLIGHT}" fill="none" stroke="#fff3fb" stroke-width=".8" opacity=".65"/>
+</g>
 </svg>`
 
 let original: string | null = null

@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{
   shower?: boolean
 }>(), { speed: 100, shower: false, kind: 'petal', shape: 'mix' })
 
-// Mixed fields read as glints first. The pearly medallion is a rarer detail.
+// Mixed fields read as glints first. The pink brush spiral is a rarer detail.
 const GLYPHS = ['sparkle', 'heart', 'sparkle', 'heart', 'sparkle', 'naruto'] as const
 const glyphs: readonly (typeof GLYPHS)[number][] = props.shape === 'mix' ? GLYPHS : [props.shape]
 const COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
@@ -44,15 +44,16 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
   const pace = 100 / props.speed
   const fall = props.shower ? random(2.6, 4.4) * pace : random(13, 26) * pace
   const pride = props.kind === 'pride'
+  const glyph = pick(glyphs)
   const size = pride ? random(7, props.layer === 'front' ? 14 : 19) : random(10, props.layer === 'front' ? 18 : 24)
   const opacity = pride ? random(0.44, 0.78) : random(0.55, 0.95)
   return {
     id,
-    glyph: pick(glyphs),
+    glyph,
     style: {
       '--c': pick(COLORS),
       '--x': `${random(-4, 100).toFixed(1)}%`,
-      '--s': `${size.toFixed(1)}px`,
+      '--s': `${(pride && glyph === 'naruto' ? size + 2 : size).toFixed(1)}px`,
       '--d': `${fall.toFixed(2)}s`,
       '--f': `${random(2.2, 4.6).toFixed(2)}s`,
       // A shower starts together. A drift starts mid-fall so the page is never empty.

@@ -228,19 +228,19 @@ Interface:
   page, empty session), or over everything, and never take a click. Reduced
   motion leaves the petals still and skips the shower. The effects are
   decorative: hidden from assistive technology and paused in a hidden tab.
-- Pride is a combination theme based on the transgender
-  flag. Pearl and lilac surfaces by day become ink violet at night, with
-  rose accents and blue details. The bundled artwork shows folds of
-  blue, pink, and white satin around the edges, with a quiet center for
-  the conversation. Its artwork has its own panel blur setting to keep
-  the edges of the satin visible. Small drifting glints, hearts, and narutomaki can
-  appear together or individually. A completed turn sends a brief shower
-  with its own count and speed. The fluted narutomaki with its pink swirl
-  appears in the header and browser tab and is the default progress
-  mark. The other progress styles are a beating heart, orbiting hearts,
-  and a breathing narutomaki. The theme shares Sakura's rules for
-  particle placement, reduced motion, and custom background priority.
-  Pride stores its own choices.
+- Pride is a combination theme based on the transgender flag. Pearl and
+  lilac surfaces by day become ink violet at night, with rose accents and
+  blue details. The bundled artwork frames the conversation with folds of
+  blue, pink, and white satin, small bows, and hearts. It has its own
+  panel blur setting to keep the fabric details visible. Drifting glints,
+  hearts, and narutomaki can appear together or individually. A completed
+  turn sends a brief shower with its own count and speed. The pink brush
+  spiral, called narutomaki in the theme controls, draws on the spiral on
+  the Progynova packaging. It appears in the header and browser tab and
+  is the default progress mark. The other progress styles are a beating
+  heart, orbiting hearts, and a breathing narutomaki. The theme shares
+  Sakura's rules for particle placement, reduced motion, and custom
+  background priority. Pride stores its own choices.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.
