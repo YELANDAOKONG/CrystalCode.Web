@@ -6,9 +6,9 @@ import { t } from '@/i18n'
 import { describeProgress, formatElapsed } from '@/session/progress'
 import { useConversationWidth } from '@/composables/conversation-width'
 import InkSpinner from '@/components/ambient/InkSpinner.vue'
+import LavenderSpinner from '@/components/ambient/LavenderSpinner.vue'
 import PetalSpinner from '@/components/ambient/PetalSpinner.vue'
 import PrideSpinner from '@/components/ambient/PrideSpinner.vue'
-import LavenderMark from '@/components/common/LavenderMark.vue'
 import { useInk } from '@/theme/ink'
 import { useLavender } from '@/theme/lavender'
 import { usePride } from '@/theme/pride'
@@ -75,7 +75,7 @@ const elapsed = computed(() => formatElapsed(now.value - since.value))
     <PetalSpinner v-if="petalSpinner" :variant="sakura.spinnerStyle.value" class="size-4 shrink-0" />
     <PrideSpinner v-else-if="prideSpinner" :variant="pride.spinnerStyle.value" class="size-4 shrink-0" />
     <InkSpinner v-else-if="inkSpinner" :variant="ink.spinnerStyle.current.value" class="size-4 shrink-0" />
-    <LavenderMark v-else-if="lavenderSpinner" working class="size-4 shrink-0" />
+    <LavenderSpinner v-else-if="lavenderSpinner" :variant="lavender.spinnerStyle.current.value" class="size-4 shrink-0" />
     <Loader2 v-else class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
     <span role="status" aria-live="polite" class="min-w-0 flex-1 truncate" :title="text">{{ text }}</span>
     <span class="shrink-0 font-mono text-xs tabular-nums" :title="t('progress.elapsed')">{{ elapsed }}</span>

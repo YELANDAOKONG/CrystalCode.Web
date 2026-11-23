@@ -73,6 +73,9 @@ const slots: Record<BackgroundSlot, Ref<BackgroundSettings>> = {
 const fileUrls = reactive<Record<BackgroundSlot, string>>({ shared: '', light: '', dark: '' })
 const sharedOpacity = ref(readNumber('acrylic-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
 const inkArtworkOpacity = ref(readNumber('ink-artwork-opacity', INK_ARTWORK_PANEL_OPACITY, 50, 95))
+const lavenderArtworkOpacity = ref(loadPreference('lavender-artwork-opacity') === null
+  ? null
+  : readNumber('lavender-artwork-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
 const sharedPanelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
 const sakuraArtworkBlur = ref(readNumber('sakura-artwork-blur', SAKURA_ARTWORK_PANEL_BLUR, 0, 32))
 const prideArtworkBlur = ref(readNumber('pride-artwork-blur', PRIDE_ARTWORK_PANEL_BLUR, 0, 32))
@@ -130,8 +133,13 @@ const panelBlur = computed(() => artworkBlur.value?.setting.value ?? sharedPanel
 const defaultPanelBlur = computed(() => artworkBlur.value?.fallback ?? DEFAULT_PANEL_BLUR)
 const showingInkArtwork = computed(() => enabled.value && !shownOperator.value && theme.value === 'ink' && themeArtwork.value !== '')
 const showingLavenderArtwork = computed(() => enabled.value && !shownOperator.value && theme.value === 'lavender' && themeArtwork.value !== '')
-const opacity = computed(() => showingInkArtwork.value ? inkArtworkOpacity.value : sharedOpacity.value)
-const defaultOpacity = computed(() => showingInkArtwork.value ? INK_ARTWORK_PANEL_OPACITY : DEFAULT_PANEL_OPACITY)
+const opacityPreference = computed(() => {
+  if (showingInkArtwork.value) return { setting: inkArtworkOpacity, key: 'ink-artwork-opacity', fallback: INK_ARTWORK_PANEL_OPACITY }
+  if (showingLavenderArtwork.value) return { setting: lavenderArtworkOpacity, key: 'lavender-artwork-opacity', fallback: DEFAULT_PANEL_OPACITY }
+  return { setting: sharedOpacity, key: 'acrylic-opacity', fallback: DEFAULT_PANEL_OPACITY }
+})
+const opacity = computed(() => opacityPreference.value.setting.value ?? sharedOpacity.value)
+const defaultOpacity = computed(() => opacityPreference.value.fallback)
 // Something is saved or supplied, whether or not it is shown.
 const hasSavedImage = computed(() => themeArtwork.value !== '' || SLOTS.some((slot) => slots[slot].value.source !== 'none'))
 // With no image behind them the panels have nothing to show through, so they
@@ -198,6 +206,7 @@ export function useAppearance() {
     hasBackground,
     hasSavedImage,
     enabled,
+    showingLavenderArtwork,
     setEnabled(value: boolean) {
       enabled.value = value
       savePreference('background-enabled', value ? 'on' : 'off')
@@ -210,9 +219,9 @@ export function useAppearance() {
     },
     setOpacity(value: number) {
       const next = Math.min(95, Math.max(50, value))
-      const preference = showingInkArtwork.value ? inkArtworkOpacity : sharedOpacity
-      preference.value = next
-      savePreference(showingInkArtwork.value ? 'ink-artwork-opacity' : 'acrylic-opacity', String(next))
+      const { setting, key } = opacityPreference.value
+      setting.value = next
+      savePreference(key, String(next))
     },
     setPanelBlur(value: number) {
       const blur = Math.min(32, Math.max(0, value))

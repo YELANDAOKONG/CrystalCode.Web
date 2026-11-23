@@ -5,9 +5,11 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import NarutomakiMark from '@/components/common/NarutomakiMark.vue'
 import type { InkShape } from '@/theme/ink'
+import type { LavenderShape } from '@/theme/lavender'
+import { LAVENDER_BUD } from '@/theme/lavender-mark'
 import type { PrideShape } from '@/theme/pride'
 
-type Shape = PrideShape | InkShape | 'bud'
+type Shape = PrideShape | InkShape | LavenderShape
 type Glyph = Exclude<Shape, 'mix'>
 
 const props = withDefaults(defineProps<{
@@ -26,13 +28,15 @@ const props = withDefaults(defineProps<{
 // Mixed fields read as glints first. The pink brush spiral is a rarer detail.
 const PRIDE_GLYPHS = ['sparkle', 'heart', 'sparkle', 'heart', 'sparkle', 'naruto'] as const
 const INK_GLYPHS = ['fleck', 'needle', 'fleck', 'drop'] as const
+const LAVENDER_GLYPHS = ['bud', 'floret', 'bud', 'leaf'] as const
 const INK_COLORS = ['var(--ink-wash)', 'var(--site-ink)', 'var(--ink-wash)', 'var(--site-accent)'] as const
 const PRIDE_COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
 const LAVENDER_COLORS = ['var(--site-accent)', 'var(--lavender-bud)'] as const
 const ink = props.kind === 'ink'
 const pride = props.kind === 'pride'
 const lavender = props.kind === 'lavender'
-const glyphs: readonly Glyph[] = props.shape !== 'mix' ? [props.shape] : ink ? INK_GLYPHS : PRIDE_GLYPHS
+const mixedGlyphs = ink ? INK_GLYPHS : lavender ? LAVENDER_GLYPHS : PRIDE_GLYPHS
+const glyphs: readonly Glyph[] = props.shape === 'mix' ? mixedGlyphs : [props.shape]
 const colors: readonly string[] = ink ? INK_COLORS : lavender ? LAVENDER_COLORS : PRIDE_COLORS
 
 function pick<T>(items: readonly T[]): T {
@@ -66,7 +70,7 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
     id,
     glyph,
     style: {
-      '--c': pick(colors),
+      '--c': glyph === 'leaf' ? 'var(--lavender-stem)' : pick(colors),
       '--x': `${random(-4, 100).toFixed(1)}%`,
       '--s': `${(pride && glyph === 'naruto' ? size + 2 : size).toFixed(1)}px`,
       '--d': `${fall.toFixed(2)}s`,
@@ -101,7 +105,9 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
         <path v-else-if="petal.glyph === 'sparkle'" d="M16 2C17 11 21 15 30 16 21 17 17 21 16 30 15 21 11 17 2 16 11 15 15 11 16 2Z" />
         <path v-else-if="petal.glyph === 'drop'" d="M18 4c-3 7-9 10-9 16 0 4 3 7 7 7 5 0 8-3 8-8 0-4-4-8-6-15Z" />
         <path v-else-if="petal.glyph === 'needle'" d="M5 25C11 15 17 10 28 5 18 12 13 18 7 27Zm3 1c5-6 11-8 19-9-8 3-14 7-19 9Z" />
-        <path v-else-if="petal.glyph === 'bud'" d="M11 27c-3-2-4-6-2-10 2-5 8-11 14-13 2 6 1 12-2 17-2 4-6 7-10 6Z" />
+        <path v-else-if="petal.glyph === 'bud'" :d="LAVENDER_BUD" />
+        <path v-else-if="petal.glyph === 'floret'" d="M8 27c1-5 4-9 7-12-4 0-6-4-3-7 2-2 5-1 7 0 0-4 3-6 6-4 2 1 2 4 1 6 3 0 4 3 2 5-2 3-5 3-9 2-3 3-5 7-6 11Z" />
+        <path v-else-if="petal.glyph === 'leaf'" d="M4 28C9 17 16 8 29 3 25 15 18 23 4 28Z" />
         <path v-else d="m6 22 9-13 10-2-3 7-11 11-6 1Zm15 0 5-3-1 5-4 2Z" />
       </svg>
     </span>

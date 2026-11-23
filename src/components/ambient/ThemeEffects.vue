@@ -64,14 +64,15 @@ const fx = computed(() => {
   if (theme.value === 'lavender') {
     return {
       kind: 'lavender' as const,
-      shape: 'bud' as const,
+      shape: lavender.shape.current.value,
       on: lavender.particles.current.value,
-      placement: 'idle' as const,
-      count: 6,
-      speed: 75,
+      placement: lavender.placement.current.value,
+      count: lavender.count.current.value,
+      speed: lavender.speed.current.value,
       shower: lavender.shower.current.value,
-      showerCount: 14,
-      showerSpeed: 100,
+      showerShape: lavender.showerShape.current.value,
+      showerCount: lavender.showerCount.current.value,
+      showerSpeed: lavender.showerSpeed.current.value,
     }
   }
   return null
@@ -110,7 +111,7 @@ watch(
     showers.value = [...showers.value, {
       id,
       kind: current.kind,
-      shape: current.shape,
+      shape: current.showerShape ?? current.shape,
       count: current.showerCount,
       speed: current.showerSpeed,
     }]

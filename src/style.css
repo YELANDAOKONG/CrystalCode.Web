@@ -541,17 +541,21 @@ html:lang(ja) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
-:root[data-palette='ink'][data-ink-font='on'] {
-  --ink-han: 'Songti SC', SimSun, 'Noto Serif CJK SC', 'Noto Sans SC';
-  --sans: Georgia, 'Times New Roman', var(--ink-han), 'Noto Sans', serif;
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]) {
+  --theme-serif-han: 'Songti SC', SimSun, 'Noto Serif CJK SC', 'Noto Sans SC';
+  --sans: var(--theme-serif-latin, Georgia), 'Times New Roman', var(--theme-serif-han), 'Noto Sans', serif;
 }
 
-:root[data-palette='ink'][data-ink-font='on']:lang(zh-TW) {
-  --ink-han: 'Songti TC', PMingLiU, 'Noto Serif CJK TC', 'Noto Sans TC';
+:root[data-palette='lavender'][data-lavender-serif] {
+  --theme-serif-latin: Baskerville, Georgia;
 }
 
-:root[data-palette='ink'][data-ink-font='on']:lang(ja) {
-  --ink-han: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', 'Noto Sans JP';
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]):lang(zh-TW) {
+  --theme-serif-han: 'Songti TC', PMingLiU, 'Noto Serif CJK TC', 'Noto Sans TC';
+}
+
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]):lang(ja) {
+  --theme-serif-han: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', 'Noto Sans JP';
 }
 
 @theme inline {
