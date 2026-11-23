@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <clipPath id="edge">
+      <rect width="1600" height="1000"/>
+    </clipPath>
+    <linearGradient id="ground" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e9f2fb"/>
+      <stop offset=".48" stop-color="#fbf7fa"/>
+      <stop offset="1" stop-color="#f4e7f1"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="40" y1="440" x2="890" y2="35" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#89bcdb"/>
+      <stop offset=".42" stop-color="#d6effc"/>
+      <stop offset=".68" stop-color="#9fcde6"/>
+      <stop offset="1" stop-color="#ccdef2"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="40" y1="440" x2="890" y2="35" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d79ab9"/>
+      <stop offset=".42" stop-color="#fae0ed"/>
+      <stop offset=".68" stop-color="#e4aac8"/>
+      <stop offset="1" stop-color="#f0c5dd"/>
+    </linearGradient>
+    <linearGradient id="pearl" x1="40" y1="440" x2="890" y2="35" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d9ddeb"/>
+      <stop offset=".42" stop-color="#fffdfb"/>
+      <stop offset=".68" stop-color="#f3ecf5"/>
+      <stop offset="1" stop-color="#e4e2f3"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="50" x2="1090" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset=".46" stop-color="#ffffff" stop-opacity=".36"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="lift" x="-.1" y="-.2" width="1.2" height="1.5">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#785f8e" flood-opacity=".32"/>
+    </filter>
+    <g id="ribbon">
+      <path fill="url(#blue)" d="M-90 302 C182 365 199 28 540 6 C744 -7 934 137 1185 -54 L1185 -46.4 C943.2 168 742 14.4 540 28.4 C208.2 51.6 200.4 399 -90 352 Z"/>
+      <path fill="url(#pink)" d="M-90 352 C200.4 399 208.2 51.6 540 28.4 C742 14.4 943.2 168 1185 -46.4 L1185 -38.8 C952.4 199 740 35.8 540 50.8 C217.4 75.2 218.8 433 -90 402 Z"/>
+      <path fill="url(#pearl)" d="M-90 402 C218.8 433 217.4 75.2 540 50.8 C740 35.8 952.4 199 1185 -38.8 L1185 -31.2 C961.6 230 738 57.2 540 73.2 C226.6 98.8 237.2 467 -90 452 Z"/>
+      <path fill="url(#pink)" d="M-90 452 C237.2 467 226.6 98.8 540 73.2 C738 57.2 961.6 230 1185 -31.2 L1185 -23.6 C970.8 261 736 78.6 540 95.6 C235.8 122.4 255.6 501 -90 502 Z"/>
+      <path fill="url(#blue)" d="M-90 502 C255.6 501 235.8 122.4 540 95.6 C736 78.6 970.8 261 1185 -23.6 L1185 -16 C980 292 734 100 540 118 C245 146 274 535 -90 552 Z"/>
+      <g fill="none" stroke="url(#sheen)">
+        <path d="M-90 310.8 C185.2 370.9 200.6 32.1 540 9.9 C743.6 -3.3 935.6 142.4 1185 -52.7"/>
+        <path d="M-90 318.2 C188 376.1 202 35.7 540 13.3 C743.4 -0 937 147.1 1185 -51.5"/>
+        <path d="M-90 535.8 C268 524 242 138.3 540 110.7 C734.6 93 977 281.9 1185 -18.5"/>
+        <path d="M-90 543.2 C270.8 529 243.4 141.9 540 114.1 C734.4 96.3 978.4 286.6 1185 -17.3"/>
+      </g>
+    </g>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#ground)"/>
+  <!-- Keep the middle clear even when cover crops the sides on a phone. -->
+  <g clip-path="url(#edge)">
+    <use href="#ribbon" transform="translate(1750 1030) scale(-1.1 -.88)" opacity=".54"/>
+    <use href="#ribbon" filter="url(#lift)"/>
+  </g>
+</svg>
