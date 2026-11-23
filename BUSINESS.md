@@ -263,8 +263,8 @@ Interface:
   The Theme tab previews the selected style.
   Drifting and the completion shower each have their own shape, count, and
   speed. Either can use buds, small blossoms, leaves, or a mix. By default,
-  twenty mixed shapes drift in front of everything, and the shower after
-  a completed turn is off. Reduced motion keeps the indicator and
+  twenty mixed shapes drift in front of everything, and a shower of fourteen
+  mixed shapes follows a completed turn. Reduced motion keeps the indicator and
   drifting shapes still and skips the shower. Lavender keeps its own settings
   in the browser. Localized theme names follow the combination-theme format,
   with the English name followed by the translation in parentheses.
