@@ -212,6 +212,9 @@ The deployment must not weaken this:
   narrowed because the target is operator-chosen, so it allows `https:` and
   `http:`. Whether the hosting platform allows setting headers is an Open
   question; a `<meta>` CSP cannot set `frame-ancestors`.
+- The `img-src` directive allows `'self'`, `data:` for embedded SVG artwork
+  and tab icons, `blob:` for local uploads, and HTTP(S) for background URLs
+  entered by the operator.
 - Dependencies are pinned and audited (see STANDARDS.md).
 - The client sends the token only to the address the operator entered and
   confirmed. A link, a query parameter, or a fragment never pre-fills and

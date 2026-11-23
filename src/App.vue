@@ -3,7 +3,7 @@ import { computed, watchEffect } from 'vue'
 import { server } from '@/app/server'
 import ProblemToaster from '@/components/common/ProblemToaster.vue'
 import ConnectView from '@/components/connect/ConnectView.vue'
-import SakuraEffects from '@/components/ambient/SakuraEffects.vue'
+import ThemeEffects from '@/components/ambient/ThemeEffects.vue'
 import SessionView from '@/components/session/SessionView.vue'
 import { useTitleSetting } from '@/composables/page-title'
 import { t } from '@/i18n'
@@ -64,5 +64,5 @@ watchEffect(() => {
   <SessionView v-if="showSession" />
   <ConnectView v-else-if="!server.starting.value" />
   <ProblemToaster />
-  <SakuraEffects :idle="idle" />
+  <ThemeEffects :idle="idle" />
 </template>

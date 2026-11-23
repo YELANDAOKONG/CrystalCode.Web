@@ -1,4 +1,5 @@
 import type { ThemeSetting } from './theme'
+import { INK_BRUSH_RING } from './inkMark'
 import { PRIDE_BRUSH_HIGHLIGHT, PRIDE_SPIRAL } from './prideMark'
 
 // The tab icon follows the theme where the theme has its own mark. The data URL
@@ -19,6 +20,12 @@ const PRIDE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 </g>
 </svg>`
 
+const INK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<rect width="32" height="32" rx="5" fill="#f3f0e5"/>
+<path d="${INK_BRUSH_RING}" fill="#202d28"/>
+<path d="m23.5 13 4.8.2-.2 4.8-4.9-.2Z" fill="#953e30"/>
+</svg>`
+
 let original: string | null = null
 
 export function applyFavicon(theme: ThemeSetting): void {
@@ -27,5 +34,6 @@ export function applyFavicon(theme: ThemeSetting): void {
   original ??= link.getAttribute('href')
   if (theme === 'sakura') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(SAKURA)}`)
   else if (theme === 'pride') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(PRIDE)}`)
+  else if (theme === 'ink') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(INK)}`)
   else if (original) link.setAttribute('href', original)
 }

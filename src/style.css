@@ -244,6 +244,12 @@ body::before {
   content: '';
 }
 
+@media (max-width: 767px) {
+  :root[data-ink-artwork] body::before {
+    background-position: 88% center;
+  }
+}
+
 #app {
   position: relative;
   z-index: 1;
@@ -427,6 +433,27 @@ body::before {
   background: color-mix(in srgb, var(--pride-pink) 45%, transparent);
 }
 
+/* Ink carries paper, pine soot, and a restrained vermilion seal into the UI. */
+:root[data-palette='ink'] {
+  --pal-bg: light-dark(#f3f0e5, #1b2827);
+  --pal-surface: light-dark(#eae7d9, #22312f);
+  --pal-raised: light-dark(#e3e0d1, #293a37);
+  --pal-field: light-dark(transparent, #1e2c2a);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 5%, transparent), #293a37);
+  --site-ink: light-dark(#202d28, #f2ede0);
+  --site-muted: light-dark(#485952, #c4cbc0);
+  --site-faint: light-dark(#4d5c54, #aebbb1);
+  --site-accent: light-dark(#953e30, #f0a892);
+  --site-button-bg: light-dark(#2b4239, #dadfd0);
+  --site-button-ink: light-dark(#fbf8ee, #1b2827);
+  --ink-wash: light-dark(#556d60, #a9b9ad);
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(46 63 54 / 0.21), rgb(0 0 0 / 0.48));
+}
+
+:root[data-palette='ink'] ::selection {
+  background: color-mix(in srgb, var(--site-accent) 25%, transparent);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }
@@ -485,6 +512,19 @@ html:lang(ja) {
 
 :root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(zh-TW) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
+}
+
+:root[data-palette='ink'][data-ink-font='on'] {
+  --ink-han: 'Songti SC', SimSun, 'Noto Serif CJK SC', 'Noto Sans SC';
+  --sans: Georgia, 'Times New Roman', var(--ink-han), 'Noto Sans', serif;
+}
+
+:root[data-palette='ink'][data-ink-font='on']:lang(zh-TW) {
+  --ink-han: 'Songti TC', PMingLiU, 'Noto Serif CJK TC', 'Noto Sans TC';
+}
+
+:root[data-palette='ink'][data-ink-font='on']:lang(ja) {
+  --ink-han: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', 'Noto Sans JP';
 }
 
 @theme inline {

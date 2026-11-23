@@ -6,7 +6,7 @@ import { useHeaderTitleSetting, type HeaderTitleSetting } from '@/composables/he
 import { useConversationWidth } from '@/composables/conversation-width'
 import { useDisplayStyle } from '@/composables/display-style'
 import { Switch } from '@/components/ui/switch'
-import { useAppearance, DEFAULT_PANEL_OPACITY } from '@/theme/appearance'
+import { useAppearance } from '@/theme/appearance'
 import BackgroundEditor from './BackgroundEditor.vue'
 import RangeSetting from './RangeSetting.vue'
 import ChoiceSelect from './ChoiceSelect.vue'
@@ -65,7 +65,7 @@ const colorModeOptions = () => [
         <BackgroundEditor which="dark" />
       </template>
       <template v-if="appearance.hasBackground.value">
-        <RangeSetting :label="t('settings.panelOpacity')" :help="t('settings.panelOpacity.help')" :model-value="appearance.opacity.value" :default-value="DEFAULT_PANEL_OPACITY" :min="50" :max="95" unit="%" @update:model-value="appearance.setOpacity" />
+        <RangeSetting :label="t('settings.panelOpacity')" :help="t('settings.panelOpacity.help')" :model-value="appearance.opacity.value" :default-value="appearance.defaultOpacity.value" :min="50" :max="95" unit="%" @update:model-value="appearance.setOpacity" />
         <RangeSetting :label="t('settings.panelBlur')" :help="t('settings.panelBlur.help')" :model-value="appearance.panelBlur.value" :default-value="appearance.defaultPanelBlur.value" :min="0" :max="32" unit="px" @update:model-value="appearance.setPanelBlur" />
       </template>
       <SettingRow :label="t('settings.conversationWidth')" :help="t('settings.conversationWidth.help')" label-for="set-conversation-width">

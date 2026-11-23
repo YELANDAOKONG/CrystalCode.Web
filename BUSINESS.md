@@ -241,6 +241,16 @@ Interface:
   heart, orbiting hearts, and a breathing narutomaki. The theme shares
   Sakura's rules for particle placement, reduced motion, and custom
   background priority. Pride stores its own choices.
+- Ink is a combination theme with a Chinese ink-wash landscape of misty
+  mountains, pines, and a river. The embedded SVG switches between warm paper
+  and deep blue-green ink as the color mode changes. Ink has its own artwork
+  opacity and blur, plus an optional book-style serif face. Drifting drops,
+  pine needles, and dry brush flecks use the same placement, count, speed,
+  completion shower, and reduced-motion rules as Pride. The brush-ring mark
+  appears in the header and browser tab. The progress indicator offers a turning ring,
+  a brush stroke, orbiting drops, and a breathing ring. Ink keeps its own
+  settings and uses the same custom-background priority as the other
+  combination themes.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.

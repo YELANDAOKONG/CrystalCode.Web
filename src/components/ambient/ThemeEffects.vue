@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// Everything Sakura and Pride add that moves on its own, mounted once
-// at the app root. It renders nothing under another theme.
+// Combination-theme particles are mounted once at the app root.
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
-import { usePride, type PrideShape } from '@/theme/pride'
+import { useInk } from '@/theme/ink'
+import { usePride } from '@/theme/pride'
 import { useSakura } from '@/theme/sakura'
 import { useTheme } from '@/theme/theme'
 import PetalField from './PetalField.vue'
@@ -15,6 +15,7 @@ const props = defineProps<{ idle: boolean }>()
 const { theme } = useTheme()
 const sakura = useSakura()
 const pride = usePride()
+const ink = useInk()
 const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 // The particle settings of whichever theme is selected, or none.
@@ -45,6 +46,19 @@ const fx = computed(() => {
       showerSpeed: pride.showerSpeed.value,
     }
   }
+  if (theme.value === 'ink') {
+    return {
+      kind: 'ink' as const,
+      shape: ink.shape.current.value,
+      on: ink.particles.current.value,
+      placement: ink.placement.current.value,
+      count: ink.count.current.value,
+      speed: ink.speed.current.value,
+      shower: ink.shower.current.value,
+      showerCount: ink.showerCount.current.value,
+      showerSpeed: ink.showerSpeed.current.value,
+    }
+  }
   return null
 })
 
@@ -53,16 +67,16 @@ const behind = computed(() => on.value && (fx.value?.placement === 'behind' || f
 const idleFront = computed(() => on.value && props.idle && (fx.value?.placement === 'idle' || fx.value?.placement === 'both'))
 const over = computed(() => on.value && fx.value?.placement === 'over')
 
-// A shower is a one-off layer that removes itself once the petals have landed.
-// The longest petal starts up to 1.2s late and falls up to 4.4s, both at the
+// A shower is a one-off layer that removes itself once the shapes have landed.
+// The longest fall starts up to 1.2s late and lasts up to 4.4s, both at the
 // base pace, so the layer's lifetime scales with the chosen speed.
 const SHOWER_BASE_MS = (4.4 + 1.2) * 1000
 const timers = new Set<ReturnType<typeof setTimeout>>()
 let showerId = 0
 interface Shower {
   id: number
-  kind: 'petal' | 'pride'
-  shape: PrideShape
+  kind: NonNullable<typeof fx.value>['kind']
+  shape: NonNullable<typeof fx.value>['shape']
   count: number
   speed: number
 }
