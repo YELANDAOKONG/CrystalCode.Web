@@ -1,5 +1,5 @@
 import type { ThemeSetting } from './theme'
-import { LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from './lavender-mark'
+import { LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from './lavenderMark'
 import { INK_BRUSH_RING } from './inkMark'
 import { PRIDE_BRUSH_HIGHLIGHT, PRIDE_SPIRAL } from './prideMark'
 

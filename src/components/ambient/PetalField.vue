@@ -6,16 +6,17 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import NarutomakiMark from '@/components/common/NarutomakiMark.vue'
 import type { InkShape } from '@/theme/ink'
 import type { LavenderShape } from '@/theme/lavender'
-import { LAVENDER_BUD } from '@/theme/lavender-mark'
+import { LAVENDER_BUD, LAVENDER_FLORET, LAVENDER_LEAF } from '@/theme/lavenderMark'
 import type { PrideShape } from '@/theme/pride'
 
 type Shape = PrideShape | InkShape | LavenderShape
 type Glyph = Exclude<Shape, 'mix'>
+type Kind = 'petal' | 'pride' | 'ink' | 'lavender'
 
 const props = withDefaults(defineProps<{
   /** `back` sits under the panels and shows through them; `front` sits over the page. */
   layer: 'back' | 'front'
-  kind?: 'petal' | 'pride' | 'ink' | 'lavender'
+  kind?: Kind
   /** One shape alone, or the selected theme's mix. */
   shape?: Shape
   count: number
@@ -25,23 +26,57 @@ const props = withDefaults(defineProps<{
   shower?: boolean
 }>(), { speed: 100, shower: false, kind: 'petal', shape: 'mix' })
 
-// Mixed fields read as glints first. The pink brush spiral is a rarer detail.
-const PRIDE_GLYPHS = ['sparkle', 'heart', 'sparkle', 'heart', 'sparkle', 'naruto'] as const
-const INK_GLYPHS = ['fleck', 'needle', 'fleck', 'drop'] as const
-const LAVENDER_GLYPHS = ['bud', 'floret', 'bud', 'leaf'] as const
-const INK_COLORS = ['var(--ink-wash)', 'var(--site-ink)', 'var(--ink-wash)', 'var(--site-accent)'] as const
-const PRIDE_COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
-const LAVENDER_COLORS = ['var(--site-accent)', 'var(--lavender-bud)'] as const
-const ink = props.kind === 'ink'
-const pride = props.kind === 'pride'
-const lavender = props.kind === 'lavender'
-const mixedGlyphs = ink ? INK_GLYPHS : lavender ? LAVENDER_GLYPHS : PRIDE_GLYPHS
-const glyphs: readonly Glyph[] = props.shape === 'mix' ? mixedGlyphs : [props.shape]
-const colors: readonly string[] = ink ? INK_COLORS : lavender ? LAVENDER_COLORS : PRIDE_COLORS
+function random(min: number, max: number): number {
+  return min + Math.random() * (max - min)
+}
 
 function pick<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)] ?? items[0]!
 }
+
+/** What one theme's pieces look like. A petal draws its own shape in CSS. */
+interface Look {
+  /** What a mixed field draws. Repeats make a shape more common. */
+  mix: readonly Glyph[]
+  color(glyph: Glyph): string
+  size(front: boolean, glyph: Glyph): number
+  opacity(shower: boolean): number
+}
+
+const PRIDE_COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
+const INK_COLORS = ['var(--ink-wash)', 'var(--site-ink)', 'var(--ink-wash)', 'var(--site-accent)'] as const
+const LAVENDER_COLORS = ['var(--site-accent)', 'var(--lavender-bud)'] as const
+
+const LOOKS: Record<Kind, Look> = {
+  petal: {
+    mix: ['sparkle'],
+    color: () => '',
+    size: (front) => random(10, front ? 18 : 24),
+    opacity: () => random(0.55, 0.95),
+  },
+  // Mixed fields read as glints first. The pink brush spiral is a rarer detail.
+  pride: {
+    mix: ['sparkle', 'heart', 'sparkle', 'heart', 'sparkle', 'naruto'],
+    color: () => pick(PRIDE_COLORS),
+    size: (front, glyph) => random(7, front ? 14 : 19) + (glyph === 'naruto' ? 2 : 0),
+    opacity: () => random(0.44, 0.78),
+  },
+  ink: {
+    mix: ['fleck', 'needle', 'fleck', 'drop'],
+    color: () => pick(INK_COLORS),
+    size: (front) => random(5, front ? 12 : 16),
+    opacity: (shower) => random(0.24, shower ? 0.64 : 0.48),
+  },
+  lavender: {
+    mix: ['bud', 'floret', 'bud', 'leaf'],
+    color: (glyph) => glyph === 'leaf' ? 'var(--lavender-stem)' : pick(LAVENDER_COLORS),
+    size: (front) => random(6, front ? 12 : 15),
+    opacity: (shower) => random(0.32, shower ? 0.62 : 0.5),
+  },
+}
+
+const look = LOOKS[props.kind]
+const glyphs: readonly Glyph[] = props.shape === 'mix' ? look.mix : [props.shape]
 
 interface Petal {
   id: number
@@ -49,30 +84,18 @@ interface Petal {
   style: Record<string, string>
 }
 
-function random(min: number, max: number): number {
-  return min + Math.random() * (max - min)
-}
-
 // Built once per mount. A change to the count remounts the field.
 const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
   const pace = 100 / props.speed
   const fall = props.shower ? random(2.6, 4.4) * pace : random(13, 26) * pace
   const glyph = pick(glyphs)
-  const size = ink ? random(5, props.layer === 'front' ? 12 : 16)
-    : pride ? random(7, props.layer === 'front' ? 14 : 19)
-    : lavender ? random(6, 12)
-    : random(10, props.layer === 'front' ? 18 : 24)
-  const opacity = ink ? random(0.24, props.shower ? 0.64 : 0.48)
-    : pride ? random(0.44, 0.78)
-    : lavender ? random(0.32, props.shower ? 0.62 : 0.5)
-    : random(0.55, 0.95)
   return {
     id,
     glyph,
     style: {
-      '--c': glyph === 'leaf' ? 'var(--lavender-stem)' : pick(colors),
+      '--c': look.color(glyph),
       '--x': `${random(-4, 100).toFixed(1)}%`,
-      '--s': `${(pride && glyph === 'naruto' ? size + 2 : size).toFixed(1)}px`,
+      '--s': `${look.size(props.layer === 'front', glyph).toFixed(1)}px`,
       '--d': `${fall.toFixed(2)}s`,
       '--f': `${random(2.2, 4.6).toFixed(2)}s`,
       // A shower starts together. A drift starts mid-fall so the page is never empty.
@@ -80,7 +103,7 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
       '--drift': `${random(-18, 26).toFixed(1)}vw`,
       '--r0': `${Math.round(random(0, 360))}deg`,
       '--r1': `${Math.round(random(-360, 360))}deg`,
-      '--o': opacity.toFixed(2),
+      '--o': look.opacity(props.shower).toFixed(2),
       '--rest': `${random(4, 96).toFixed(1)}vh`,
     },
   }
@@ -106,8 +129,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
         <path v-else-if="petal.glyph === 'drop'" d="M18 4c-3 7-9 10-9 16 0 4 3 7 7 7 5 0 8-3 8-8 0-4-4-8-6-15Z" />
         <path v-else-if="petal.glyph === 'needle'" d="M5 25C11 15 17 10 28 5 18 12 13 18 7 27Zm3 1c5-6 11-8 19-9-8 3-14 7-19 9Z" />
         <path v-else-if="petal.glyph === 'bud'" :d="LAVENDER_BUD" />
-        <path v-else-if="petal.glyph === 'floret'" d="M8 27c1-5 4-9 7-12-4 0-6-4-3-7 2-2 5-1 7 0 0-4 3-6 6-4 2 1 2 4 1 6 3 0 4 3 2 5-2 3-5 3-9 2-3 3-5 7-6 11Z" />
-        <path v-else-if="petal.glyph === 'leaf'" d="M4 28C9 17 16 8 29 3 25 15 18 23 4 28Z" />
+        <path v-else-if="petal.glyph === 'floret'" :d="LAVENDER_FLORET" />
+        <path v-else-if="petal.glyph === 'leaf'" :d="LAVENDER_LEAF" />
         <path v-else d="m6 22 9-13 10-2-3 7-11 11-6 1Zm15 0 5-3-1 5-4 2Z" />
       </svg>
     </span>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from '@/theme/lavender-mark'
+import { LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from '@/theme/lavenderMark'
 </script>
 
 <template>

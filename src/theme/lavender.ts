@@ -4,76 +4,80 @@ import type { PetalPlacement } from './sakura'
 
 export const LAVENDER_SHAPES = ['mix', 'bud', 'floret', 'leaf'] as const
 export type LavenderShape = (typeof LAVENDER_SHAPES)[number]
-export const LAVENDER_PLACEMENTS = ['behind', 'idle', 'both', 'over'] as const satisfies readonly PetalPlacement[]
 export const LAVENDER_SPINNER_STYLES = ['sway', 'breathe', 'orbit', 'twirl'] as const
 export type LavenderSpinnerStyle = (typeof LAVENDER_SPINNER_STYLES)[number]
 
-function flag(name: string, fallback = true) {
-  const key = `lavender-${name}`
-  const saved = loadPreference(key)
-  const current = ref(saved === null ? fallback : saved === 'on')
+const PLACEMENTS: readonly PetalPlacement[] = ['behind', 'idle', 'both', 'over']
+
+export const DEFAULT_LAVENDER_COUNT = 10
+export const DEFAULT_LAVENDER_SPEED = 75
+export const DEFAULT_LAVENDER_SHOWER_COUNT = 16
+export const DEFAULT_LAVENDER_SHOWER_SPEED = 100
+
+function read(key: string): string | null {
+  return loadPreference(`lavender-${key}`)
+}
+
+function save(key: string, value: string): void {
+  savePreference(`lavender-${key}`, value)
+}
+
+function flag(key: string) {
+  const value = ref((read(key) ?? 'on') === 'on')
   return {
-    current,
-    set(value: boolean) {
-      savePreference(key, value ? 'on' : 'off')
-      current.value = value
+    current: value,
+    set(next: boolean) {
+      value.value = next
+      save(key, next ? 'on' : 'off')
     },
   }
 }
 
-function choice<T extends string>(name: string, options: readonly T[], fallback: T) {
-  const key = `lavender-${name}`
-  const saved = loadPreference(key)
-  const current = ref(options.find((item) => item === saved) ?? fallback)
+function range(key: string, fallback: number, min: number, max: number) {
+  const clamp = (next: number) => Number.isFinite(next) ? Math.min(max, Math.max(min, next)) : fallback
+  const value = ref(clamp(Number(read(key) ?? fallback)))
   return {
-    current,
-    set(value: string) {
-      const match = options.find((item) => item === value)
+    current: value,
+    set(next: number) {
+      value.value = clamp(next)
+      save(key, String(value.value))
+    },
+  }
+}
+
+function choice<T extends string>(key: string, options: readonly T[], fallback: T) {
+  const saved = read(key)
+  const value = ref(options.find((item) => item === saved) ?? fallback)
+  return {
+    current: value,
+    set(next: string) {
+      const match = options.find((item) => item === next)
       if (match === undefined) return
-      savePreference(key, match)
-      current.value = match
+      value.value = match
+      save(key, match)
     },
   }
 }
 
-function range(name: string, defaultValue: number, min: number, max: number) {
-  const key = `lavender-${name}`
-  const clamp = (value: number) => Number.isFinite(value)
-    ? Math.min(max, Math.max(min, Math.round(value)))
-    : defaultValue
-  const current = ref(clamp(Number(loadPreference(key) ?? defaultValue)))
-  return {
-    current,
-    defaultValue,
-    min,
-    max,
-    set(value: number) {
-      const next = clamp(value)
-      savePreference(key, String(next))
-      current.value = next
-    },
-  }
-}
-
+const font = flag('font')
 const preferences = {
+  font,
   artwork: flag('artwork'),
   artworkFirst: flag('artwork-first'),
-  font: flag('font', false),
   particles: flag('particles'),
-  placement: choice('placement', LAVENDER_PLACEMENTS, 'over'),
+  placement: choice('placement', PLACEMENTS, 'over'),
   shape: choice('shape', LAVENDER_SHAPES, 'mix'),
-  count: range('count', 20, 4, 100),
-  speed: range('speed', 75, 50, 250),
+  count: range('count', DEFAULT_LAVENDER_COUNT, 4, 100),
+  speed: range('speed', DEFAULT_LAVENDER_SPEED, 50, 250),
   shower: flag('shower'),
-  showerShape: choice('shower-shape', LAVENDER_SHAPES, 'mix'),
-  showerCount: range('shower-count', 14, 4, 100),
-  showerSpeed: range('shower-speed', 100, 50, 250),
+  showerCount: range('shower-count', DEFAULT_LAVENDER_SHOWER_COUNT, 4, 100),
+  showerSpeed: range('shower-speed', DEFAULT_LAVENDER_SHOWER_SPEED, 50, 250),
   spinner: flag('spinner'),
   spinnerStyle: choice('spinner-style', LAVENDER_SPINNER_STYLES, 'sway'),
 }
 
 watchEffect(() => {
-  document.documentElement.toggleAttribute('data-lavender-serif', preferences.font.current.value)
+  document.documentElement.dataset.lavenderFont = font.current.value ? 'on' : 'off'
 })
 
 export function useLavender() {

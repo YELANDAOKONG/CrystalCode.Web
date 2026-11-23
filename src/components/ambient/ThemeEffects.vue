@@ -70,7 +70,6 @@ const fx = computed(() => {
       count: lavender.count.current.value,
       speed: lavender.speed.current.value,
       shower: lavender.shower.current.value,
-      showerShape: lavender.showerShape.current.value,
       showerCount: lavender.showerCount.current.value,
       showerSpeed: lavender.showerSpeed.current.value,
     }
@@ -111,7 +110,7 @@ watch(
     showers.value = [...showers.value, {
       id,
       kind: current.kind,
-      shape: current.showerShape ?? current.shape,
+      shape: current.shape,
       count: current.showerCount,
       speed: current.showerSpeed,
     }]

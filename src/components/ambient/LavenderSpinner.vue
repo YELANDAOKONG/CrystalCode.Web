@@ -1,48 +1,42 @@
 <script setup lang="ts">
-import LavenderMark from '@/components/common/LavenderMark.vue'
 import type { LavenderSpinnerStyle } from '@/theme/lavender'
-import { LAVENDER_BUD } from '@/theme/lavender-mark'
+import { LAVENDER_BUD, LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from '@/theme/lavenderMark'
 
 defineProps<{ variant: LavenderSpinnerStyle }>()
 </script>
 
 <template>
-  <span class="lavender-spinner" :data-style="variant" aria-hidden="true">
-    <svg v-if="variant === 'orbit'" viewBox="0 0 32 32">
-      <circle cx="16" cy="16" r="11" fill="none" stroke="var(--lavender-stem)" stroke-width="1.5" opacity=".65" />
-      <path :d="LAVENDER_BUD" transform="translate(16 5) scale(.38) translate(-16 -16)" fill="var(--site-accent)" />
-      <path :d="LAVENDER_BUD" transform="translate(25.5 21.5) rotate(120) scale(.32) translate(-16 -16)" fill="var(--lavender-bud)" />
-      <path :d="LAVENDER_BUD" transform="translate(6.5 21.5) rotate(240) scale(.28) translate(-16 -16)" fill="var(--lavender-stem)" />
-    </svg>
-    <svg v-else-if="variant === 'twirl'" viewBox="0 0 32 32">
-      <path :d="LAVENDER_BUD" fill="var(--site-accent)" />
-      <path d="M11 25c2-6 6-12 10-17" fill="none" stroke="var(--site-button-ink)" stroke-width="1.3" stroke-linecap="round" />
-    </svg>
-    <LavenderMark v-else />
-  </span>
+  <svg viewBox="0 0 32 32" aria-hidden="true" class="lavender-spinner" :data-style="variant">
+    <g v-if="variant === 'orbit'">
+      <circle cx="16" cy="16" r="11.5" fill="none" stroke="var(--lavender-stem)" stroke-width="1.3" opacity=".4" />
+      <path :d="LAVENDER_BUD" transform="translate(16 4.5) scale(.34) translate(-16 -16)" fill="var(--site-accent)" />
+      <path :d="LAVENDER_BUD" transform="translate(25.9 21.8) rotate(120) scale(.28) translate(-16 -16)" fill="var(--lavender-bud)" />
+      <path :d="LAVENDER_BUD" transform="translate(6.1 21.8) rotate(240) scale(.24) translate(-16 -16)" fill="var(--lavender-stem)" />
+    </g>
+    <path v-else-if="variant === 'twirl'" :d="LAVENDER_BUD" fill="var(--site-accent)" />
+    <g v-else>
+      <path :d="LAVENDER_STEM" fill="none" stroke="var(--lavender-stem)" stroke-width="1.8" stroke-linecap="round" />
+      <path :d="LAVENDER_LEAVES" fill="var(--lavender-stem)" />
+      <path :d="LAVENDER_FLOWERS" fill="var(--site-accent)" />
+    </g>
+  </svg>
 </template>
 
 <style scoped>
-.lavender-spinner > svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.lavender-spinner[data-style='sway'] > svg {
+.lavender-spinner[data-style='sway'] {
   transform-origin: 28% 88%;
   animation: lavender-sway 1.8s ease-in-out infinite alternate;
 }
 
-.lavender-spinner[data-style='breathe'] > svg {
+.lavender-spinner[data-style='breathe'] {
   animation: lavender-breathe 2.2s ease-in-out infinite;
 }
 
-.lavender-spinner[data-style='orbit'] > svg {
-  animation: lavender-orbit 2.1s linear infinite;
+.lavender-spinner[data-style='orbit'] {
+  animation: lavender-turn 2.1s linear infinite;
 }
 
-.lavender-spinner[data-style='twirl'] > svg {
+.lavender-spinner[data-style='twirl'] {
   animation: lavender-twirl 1.6s ease-in-out infinite;
 }
 
@@ -52,11 +46,11 @@ defineProps<{ variant: LavenderSpinnerStyle }>()
 }
 
 @keyframes lavender-breathe {
-  0%, 100% { transform: scale(.8); opacity: .65; }
+  0%, 100% { transform: scale(.78); opacity: .6; }
   50% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes lavender-orbit {
+@keyframes lavender-turn {
   to { transform: rotate(1turn); }
 }
 
@@ -65,6 +59,6 @@ defineProps<{ variant: LavenderSpinnerStyle }>()
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lavender-spinner[data-style] > svg { animation: none; }
+  .lavender-spinner[data-style] { animation: none; }
 }
 </style>

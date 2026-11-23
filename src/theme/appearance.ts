@@ -28,11 +28,12 @@ interface BackgroundSettings {
 const MAX_IMAGE_BYTES = 50 * 1024 * 1024
 const DEFAULT_PANEL_OPACITY = 76
 const INK_ARTWORK_PANEL_OPACITY = 60
+const LAVENDER_ARTWORK_PANEL_OPACITY = 66
 const DEFAULT_PANEL_BLUR = 16
 const SAKURA_ARTWORK_PANEL_BLUR = 3
 const PRIDE_ARTWORK_PANEL_BLUR = 2
 const INK_ARTWORK_PANEL_BLUR = 1
-const LAVENDER_ARTWORK_PANEL_BLUR = 0
+const LAVENDER_ARTWORK_PANEL_BLUR = 2
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 
@@ -73,9 +74,7 @@ const slots: Record<BackgroundSlot, Ref<BackgroundSettings>> = {
 const fileUrls = reactive<Record<BackgroundSlot, string>>({ shared: '', light: '', dark: '' })
 const sharedOpacity = ref(readNumber('acrylic-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
 const inkArtworkOpacity = ref(readNumber('ink-artwork-opacity', INK_ARTWORK_PANEL_OPACITY, 50, 95))
-const lavenderArtworkOpacity = ref(loadPreference('lavender-artwork-opacity') === null
-  ? null
-  : readNumber('lavender-artwork-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
+const lavenderArtworkOpacity = ref(readNumber('lavender-artwork-opacity', LAVENDER_ARTWORK_PANEL_OPACITY, 50, 95))
 const sharedPanelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
 const sakuraArtworkBlur = ref(readNumber('sakura-artwork-blur', SAKURA_ARTWORK_PANEL_BLUR, 0, 32))
 const prideArtworkBlur = ref(readNumber('pride-artwork-blur', PRIDE_ARTWORK_PANEL_BLUR, 0, 32))
@@ -135,10 +134,10 @@ const showingInkArtwork = computed(() => enabled.value && !shownOperator.value &
 const showingLavenderArtwork = computed(() => enabled.value && !shownOperator.value && theme.value === 'lavender' && themeArtwork.value !== '')
 const opacityPreference = computed(() => {
   if (showingInkArtwork.value) return { setting: inkArtworkOpacity, key: 'ink-artwork-opacity', fallback: INK_ARTWORK_PANEL_OPACITY }
-  if (showingLavenderArtwork.value) return { setting: lavenderArtworkOpacity, key: 'lavender-artwork-opacity', fallback: DEFAULT_PANEL_OPACITY }
+  if (showingLavenderArtwork.value) return { setting: lavenderArtworkOpacity, key: 'lavender-artwork-opacity', fallback: LAVENDER_ARTWORK_PANEL_OPACITY }
   return { setting: sharedOpacity, key: 'acrylic-opacity', fallback: DEFAULT_PANEL_OPACITY }
 })
-const opacity = computed(() => opacityPreference.value.setting.value ?? sharedOpacity.value)
+const opacity = computed(() => opacityPreference.value.setting.value)
 const defaultOpacity = computed(() => opacityPreference.value.fallback)
 // Something is saved or supplied, whether or not it is shown.
 const hasSavedImage = computed(() => themeArtwork.value !== '' || SLOTS.some((slot) => slots[slot].value.source !== 'none'))
@@ -160,7 +159,6 @@ function applyBackground(): void {
   root.style.setProperty('--panel-blur', `${panelBlur.value}px`)
   root.dataset.background = image ? 'on' : 'off'
   root.toggleAttribute('data-ink-artwork', showingInkArtwork.value)
-  root.toggleAttribute('data-lavender-artwork', showingLavenderArtwork.value)
   root.style.setProperty('--acrylic-opacity', `${opacity.value / 100}`)
 }
 

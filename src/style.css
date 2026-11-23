@@ -244,11 +244,6 @@ body::before {
   content: '';
 }
 
-/* The botanical plates fit their own edge viewports inside the full canvas. */
-:root[data-lavender-artwork] body::before {
-  background-size: 100% 100%;
-}
-
 @media (max-width: 767px) {
   :root[data-ink-artwork] body::before {
     background-position: 88% center;
@@ -541,20 +536,20 @@ html:lang(ja) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
-:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]) {
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-font='on']) {
   --theme-serif-han: 'Songti SC', SimSun, 'Noto Serif CJK SC', 'Noto Sans SC';
   --sans: var(--theme-serif-latin, Georgia), 'Times New Roman', var(--theme-serif-han), 'Noto Sans', serif;
 }
 
-:root[data-palette='lavender'][data-lavender-serif] {
+:root[data-palette='lavender'][data-lavender-font='on'] {
   --theme-serif-latin: Baskerville, Georgia;
 }
 
-:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]):lang(zh-TW) {
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-font='on']):lang(zh-TW) {
   --theme-serif-han: 'Songti TC', PMingLiU, 'Noto Serif CJK TC', 'Noto Sans TC';
 }
 
-:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-serif]):lang(ja) {
+:root:is([data-palette='ink'][data-ink-font='on'], [data-palette='lavender'][data-lavender-font='on']):lang(ja) {
   --theme-serif-han: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', 'Noto Sans JP';
 }
 

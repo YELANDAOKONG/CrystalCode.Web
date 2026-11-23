@@ -253,21 +253,19 @@ Interface:
   settings and uses the same custom-background priority as the other
   combination themes.
 - Lavender is a combination theme with lilac paper by day and blue-violet
-  surfaces at dusk. The bundled botanical SVGs place sprigs at the edges and
-  leave the conversation in a quiet center at desktop and phone widths. The
-  artwork has its own panel opacity and a panel blur that defaults to 0 px.
-  Both are adjusted in Appearance.
-  An optional botanical serif uses local fonts and keeps code monospaced.
-  A sprig appears in the header and browser tab. The progress indicator can
-  show a swaying sprig, a breathing sprig, orbiting buds, or a twisting bud.
-  The Theme tab previews the selected style.
-  Drifting and the completion shower each have their own shape, count, and
-  speed. Either can use buds, small blossoms, leaves, or a mix. By default,
-  twenty mixed shapes drift in front of everything, and a shower of fourteen
-  mixed shapes follows a completed turn. Reduced motion keeps the indicator and
-  drifting shapes still and skips the shower. Lavender keeps its own settings
-  in the browser. Localized theme names follow the combination-theme format,
-  with the English name followed by the translation in parentheses.
+  surfaces at dusk. The bundled artwork is a lavender field: in daylight, rows
+  of lavender under a pale sun, and at dusk, the same field under a crescent
+  moon with fireflies. The middle stays calm for the conversation. The artwork
+  has its own opacity and panel blur settings, with a default blur of 2 px.
+  Lavender offers an optional book-style serif face that uses local fonts and
+  keeps code monospaced. Drifting buds, small blossoms, and leaves use the same
+  placement, count, speed, completion shower, and reduced-motion rules as Ink
+  and Pride. The sprig mark appears in the header and browser tab. The progress
+  indicator offers a swaying sprig, a breathing sprig, orbiting buds, and a
+  twisting bud. Lavender keeps its own settings in the browser and uses the
+  same custom-background priority as the other combination themes. Localized
+  theme names follow the combination-theme format, with the English name
+  followed by the translation in parentheses.
 - For combination themes, the built-in artwork takes priority over an operator
   background by default. Turning off the priority switch gives the operator's
   image priority. Particles never intercept clicks. Placement choices are in
