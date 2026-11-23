@@ -230,12 +230,10 @@ Interface:
   decorative: hidden from assistive technology and paused in a hidden tab.
 - Pride is a combination theme based on the transgender flag. Pearl and
   lilac surfaces by day become ink violet at night, with rose accents and
-  blue details. The default day and night SVGs frame the conversation with
-  sweeping ribbons in the flag's blue, pink, and white stripe order. The
-  center stays quiet for reading, and the ribbons reach across the top and
-  bottom of a portrait crop. The glass-facet pair and the original satin,
-  bow, and heart pair remain source assets. Panel blur defaults to 2 px.
-  Drifting glints,
+  blue details. The default artwork frames the conversation with folds of
+  blue, pink, and white satin, small bows, and hearts. Its panel blur
+  defaults to 2 px to keep the fabric details visible. The ribbon and glass
+  artwork pairs remain available as source assets. Drifting glints,
   hearts, and narutomaki can appear together or individually. A completed
   turn sends a brief shower with its own count and speed. The pink brush
   spiral, called narutomaki in the theme controls, draws on the spiral on
