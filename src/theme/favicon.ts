@@ -10,6 +10,13 @@ ${[0, 72, 144, 216, 288].map((angle) => `<path transform="rotate(${angle} 16 16)
 <circle cx="16" cy="16" r="1.7" fill="#f7a0bd"/>
 </svg>`
 
+// A narutomaki in the three flag colors on the deep night blue.
+const PRIDE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-32 -32 64 64">
+<rect x="-32" y="-32" width="64" height="64" fill="#141a2b"/>
+<circle r="26" fill="#fff" stroke="#f5a9b8" stroke-width="4"/>
+<path d="M0 0a5 5 0 0 1 10 0a10 10 0 0 1-20 0a15 15 0 0 1 30 0" fill="none" stroke="#5bcefa" stroke-width="4" stroke-linecap="round"/>
+</svg>`
+
 let original: string | null = null
 
 export function applyFavicon(theme: ThemeSetting): void {
@@ -17,5 +24,6 @@ export function applyFavicon(theme: ThemeSetting): void {
   if (!link) return
   original ??= link.getAttribute('href')
   if (theme === 'sakura') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(SAKURA)}`)
+  else if (theme === 'pride') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(PRIDE)}`)
   else if (original) link.setAttribute('href', original)
 }

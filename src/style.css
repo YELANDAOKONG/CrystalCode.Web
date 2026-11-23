@@ -85,9 +85,9 @@
   font-display: swap;
 }
 
-/* Resource Han Rounded, for the Sakura theme only. The faces are declared here
+/* Resource Han Rounded, for the Sakura and Pride themes only. The faces are declared here
    but the browser fetches one only when a page shows a character it covers, and
-   the theme stacks them only while Sakura is selected. Each region is a variable
+   the theme stacks them only while one of those themes is selected. Each region is a variable
    font covering weights 200 to 900; ROND 100 selects the rounded forms. */
 @font-face {
   font-family: 'Resource Han Rounded CN';
@@ -397,6 +397,39 @@ body::before {
   background: color-mix(in srgb, var(--site-accent) 30%, transparent);
 }
 
+/* Pride. Day is a faint ice-blue paper under deep slate ink; night is a
+   midnight blue with the flag's pink and blue lit. The flag's own light blue
+   and pink are too pale to carry text on day, so day text and accents use
+   deeper tones of them, and the flag colors fill surfaces and particles. The
+   accent holds 4.5:1 on the raised surface in both modes. The finish matches
+   Sakura's: a softer radius and tinted shadows. */
+:root[data-palette='pride'] {
+  --pal-bg: light-dark(#f5fafd, #141a2b);
+  --pal-surface: light-dark(#eaf4fa, #1a2236);
+  --pal-raised: light-dark(#e1eef7, #222c44);
+  --pal-field: light-dark(transparent, #1d2640);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #222c44);
+  --site-ink: light-dark(#1b2638, #eef3fa);
+  --site-muted: light-dark(#475a70, #b7c3d6);
+  --site-faint: light-dark(#52657b, #9aa8bd);
+  --site-accent: light-dark(#a8305f, #f5a9b8);
+  --site-button-bg: light-dark(#a8305f, #5bcefa);
+  --site-button-ink: light-dark(#fff, #0f1626);
+
+  --radius: 0.875rem;
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(60 120 160 / 0.2), rgb(0 0 0 / 0.5));
+  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--pride-blue) 22%, transparent);
+  --shadow-sm: 0 1px 3px 0 color-mix(in srgb, var(--pride-blue) 26%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--pride-pink) 24%, transparent);
+  --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--pride-blue) 28%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--pride-pink) 24%, transparent);
+  --pride-blue: #5bcefa;
+  --pride-pink: #f5a9b8;
+  --pride-white: #fff;
+}
+
+:root[data-palette='pride'] ::selection {
+  background: color-mix(in srgb, var(--pride-pink) 45%, transparent);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }
@@ -435,25 +468,25 @@ html:lang(ja) {
   --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans JP', ui-monospace, monospace;
 }
 
-/* Sakura's stack. Each region's face covers Latin, kana, and Han in its own
+/* The rounded stack, for Sakura and Pride. Each region's face covers Latin, kana, and Han in its own
    glyph forms, so the page language picks the first one and the rest follow as
    fallbacks. English starts with the smallest face that has Latin, KR, so a
    first English page does not download the largest file. A later face is
    fetched only for a character the earlier ones lack. */
-:root[data-palette='sakura'][data-sakura-font='on'] {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']) {
   --sans: 'Resource Han Rounded KR', 'Resource Han Rounded JP', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
   font-variation-settings: 'ROND' 100;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-CN) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(zh-CN) {
   --sans: 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(ja) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(ja) {
   --sans: 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', system-ui, sans-serif;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-TW) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(zh-TW) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 

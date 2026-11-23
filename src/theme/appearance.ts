@@ -1,9 +1,12 @@
 import { computed, reactive, ref, watch, type Ref } from 'vue'
 import { deleteBlob, loadBlob, loadPreference, saveBlob, savePreference } from '@/connection/storage'
 import { isDark, useTheme } from './theme'
+import { usePride } from './pride'
 import { useSakura } from './sakura'
 import sakuraDay from '@/assets/sakura/day.svg'
 import sakuraNight from '@/assets/sakura/night.svg'
+import prideDay from '@/assets/pride/day.svg'
+import prideNight from '@/assets/pride/night.svg'
 
 export type BackgroundSource = 'none' | 'url' | 'file'
 export type BackgroundSlot = 'shared' | 'light' | 'dark'
@@ -72,17 +75,20 @@ function imageOf(slot: BackgroundSlot): string {
 // no image of their own on screen, so a chosen picture always wins.
 const { theme } = useTheme()
 const sakura = useSakura()
+const pride = usePride()
 const themeArtwork = computed(() => {
-  if (theme.value !== 'sakura' || !sakura.artwork.value) return ''
-  return isDark.value ? sakuraNight : sakuraDay
+  if (theme.value === 'sakura' && sakura.artwork.value) return isDark.value ? sakuraNight : sakuraDay
+  if (theme.value === 'pride' && pride.artwork.value) return isDark.value ? prideNight : prideDay
+  return ''
 })
+const artworkFirst = computed(() => theme.value === 'pride' ? pride.artworkFirst.value : sakura.artworkFirst.value)
 
 const operatorImage = computed(() => imageOf(currentSlot.value))
 // The picture on screen. Which of the two wins is the operator's choice.
 const shownOperator = computed(() => {
   if (!enabled.value) return false
   if (!operatorImage.value) return false
-  return !sakura.artworkFirst.value || themeArtwork.value === ''
+  return !artworkFirst.value || themeArtwork.value === ''
 })
 const currentImage = computed(() => {
   if (!enabled.value) return ''

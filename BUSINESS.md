@@ -227,6 +227,19 @@ Interface:
   page, empty session), or over everything, and never take a click. Reduced
   motion leaves the petals still and skips the shower. The effects are
   decorative: hidden from assistive technology and paused in a hidden tab.
+- Pride is the second combination theme, in the transgender flag's light blue,
+  pink,
+  and white. Day is ice-blue paper and night is midnight blue; the flag's own
+  pale tones fill surfaces and particles, while text and accents use deeper or
+  lit tones that hold 4.5:1. It brings bundled SVG artwork per mode (flowing
+  flag-colored bands with sparkles, hearts, and narutomaki), drifting hearts,
+  sparkles, and narutomaki in blue and pink (the operator can limit them to one shape), the same completed-turn shower with its own count and speed, a
+  turning narutomaki in place of the progress spinner (one of four: turning narutomaki, beating heart, orbiting hearts, breathing narutomaki), and a narutomaki mark and
+  tab icon. The narutomaki, a swirled fish cake, is a symbol in Chinese-speaking
+  trans communities. Every shape is drawn in SVG, with no emoji. It uses the
+  same rounded face as Sakura, switchable in its Theme tab, and the same rules
+  for placement, reduced motion, and artwork against the operator's picture.
+  Its choices are kept separately from Sakura's.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.
