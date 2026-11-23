@@ -256,14 +256,15 @@ Interface:
   surfaces at dusk. The bundled botanical SVGs place sprigs at the edges and
   leave the conversation in a quiet center at desktop and phone widths. The
   artwork has its own panel opacity and a panel blur that defaults to 0 px.
+  Both are adjusted in Appearance.
   An optional botanical serif uses local fonts and keeps code monospaced.
   A sprig appears in the header and browser tab. The progress indicator can
   show a swaying sprig, a breathing sprig, orbiting buds, or a twisting bud.
   The Theme tab previews the selected style.
   Drifting and the completion shower each have their own shape, count, and
   speed. Either can use buds, small blossoms, leaves, or a mix. By default,
-  six buds drift on the connect page and in empty sessions, and the shower
-  after a completed turn is off. Reduced motion keeps the indicator and
+  twenty mixed shapes drift in front of everything, and the shower after
+  a completed turn is off. Reduced motion keeps the indicator and
   drifting shapes still and skips the shower. Lavender keeps its own settings
   in the browser. Localized theme names follow the combination-theme format,
   with the English name followed by the translation in parentheses.
@@ -272,8 +273,7 @@ Interface:
   image priority. Particles never intercept clicks. Placement choices are in
   front of everything, behind the panels, in front on idle screens (connect
   page and empty session), or both behind the panels and in front on idle
-  screens. Lavender defaults to idle screens. The other combination themes
-  default to in front of everything.
+  screens. The default is in front of everything.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.

@@ -621,7 +621,6 @@ export const ja: Record<MessageKey, string> = {
   'settings.lavender.shape.leaf': '細い葉',
   'settings.lavender.shape.mix': '混合',
   'settings.lavender.placement': '表示する場所',
-  'settings.lavender.placement.over.help': '画面の前面に表示します。クリックを妨げません。',
   'settings.lavender.count': '舞い落ちる数',
   'settings.lavender.speed': '落下速度',
   'settings.lavender.completion': '応答の完了後',

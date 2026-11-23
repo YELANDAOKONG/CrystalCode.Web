@@ -620,7 +620,6 @@ export const en = {
   'settings.lavender.shape.leaf': 'Leaves',
   'settings.lavender.shape.mix': 'Mixed',
   'settings.lavender.placement': 'Where lavender drifts',
-  'settings.lavender.placement.over.help': 'In front of the interface. The shapes never block a click.',
   'settings.lavender.count': 'Drifting shape count',
   'settings.lavender.speed': 'Drifting speed',
   'settings.lavender.completion': 'After a reply',

@@ -2,7 +2,6 @@
 import LavenderSpinner from '@/components/ambient/LavenderSpinner.vue'
 import { Switch } from '@/components/ui/switch'
 import { t, useLocale } from '@/i18n'
-import { useAppearance } from '@/theme/appearance'
 import { LAVENDER_PLACEMENTS, LAVENDER_SHAPES, LAVENDER_SPINNER_STYLES, useLavender } from '@/theme/lavender'
 import ChoiceSelect from './ChoiceSelect.vue'
 import RangeSetting from './RangeSetting.vue'
@@ -10,12 +9,11 @@ import SettingRow from './SettingRow.vue'
 import SettingsGroup from './SettingsGroup.vue'
 
 const lavender = useLavender()
-const appearance = useAppearance()
 const { locale } = useLocale()
 const placements = () => LAVENDER_PLACEMENTS.map((value) => ({
   value,
   label: t(`settings.sakura.placement.${value}`),
-  help: t(value === 'over' ? 'settings.lavender.placement.over.help' : `settings.sakura.placement.${value}.help`),
+  help: t(`settings.sakura.placement.${value}.help`),
 }))
 const shapes = () => LAVENDER_SHAPES.map((value) => ({ value, label: t(`settings.lavender.shape.${value}`), help: '' }))
 const spinnerStyles = () => LAVENDER_SPINNER_STYLES.map((value) => ({ value, label: t(`settings.lavender.spinnerStyle.${value}`), help: '' }))
@@ -42,10 +40,6 @@ const showerRanges = [
           <Switch id="set-lavender-artwork-first" :model-value="lavender.artworkFirst.current.value" :disabled="!lavender.artwork.current.value" @update:model-value="(value) => lavender.artworkFirst.set(value === true)" />
         </div>
       </SettingRow>
-      <template v-if="appearance.showingLavenderArtwork.value">
-        <RangeSetting :label="t('settings.panelOpacity')" :help="t('settings.panelOpacity.help')" :model-value="appearance.opacity.value" :default-value="appearance.defaultOpacity.value" :min="50" :max="95" unit="%" @update:model-value="appearance.setOpacity" />
-        <RangeSetting :label="t('settings.panelBlur')" :help="t('settings.panelBlur.help')" :model-value="appearance.panelBlur.value" :default-value="appearance.defaultPanelBlur.value" :min="0" :max="32" unit="px" @update:model-value="appearance.setPanelBlur" />
-      </template>
       <SettingRow :label="t('settings.lavender.font')" :help="t('settings.lavender.font.help')" label-for="set-lavender-font">
         <div class="flex items-center sm:justify-end">
           <Switch id="set-lavender-font" :model-value="lavender.font.current.value" @update:model-value="(value) => lavender.font.set(value === true)" />

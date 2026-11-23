@@ -621,7 +621,6 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.lavender.shape.leaf': '細葉',
   'settings.lavender.shape.mix': '混合',
   'settings.lavender.placement': '飄落位置',
-  'settings.lavender.placement.over.help': '顯示在介面前方，不會妨礙點擊。',
   'settings.lavender.count': '飄落數量',
   'settings.lavender.speed': '飄落速度',
   'settings.lavender.completion': '回覆完成後',

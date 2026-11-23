@@ -206,7 +206,6 @@ export function useAppearance() {
     hasBackground,
     hasSavedImage,
     enabled,
-    showingLavenderArtwork,
     setEnabled(value: boolean) {
       enabled.value = value
       savePreference('background-enabled', value ? 'on' : 'off')
