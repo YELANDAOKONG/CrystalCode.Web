@@ -133,10 +133,10 @@ wants them kept: `Noto Sans` for Latin gaps, `Noto Sans Mono`, and
 `html:lang(zh-TW)`, and `html:lang(ja)` reorder the stack so each locale gets its own glyph forms.
 Do not delete these files or reintroduce a remote font.
 
-Sakura also bundles Resource Han Rounded, one variable WOFF2 per region under
+Sakura and Pride share Resource Han Rounded, one variable WOFF2 per region under
 `src/assets/fonts/resource-han-rounded/`, with its OFL text in
 `OFL-Resource-Han-Rounded.txt`. Its faces are declared in `src/style.css` and
-stacked only under `data-palette='sakura'`, so other themes never fetch them.
+stacked only when the Sakura or Pride rounded face is enabled.
 
 ## Verification
 

@@ -10,6 +10,7 @@ import { t, type MessageKey } from '@/i18n'
 import { useTheme } from '@/theme/theme'
 import AppearanceSettings from './AppearanceSettings.vue'
 import ConversationSettings from './ConversationSettings.vue'
+import PrideSettings from './PrideSettings.vue'
 import SakuraSettings from './SakuraSettings.vue'
 import ServerSettings from './ServerSettings.vue'
 import SessionSettings from './SessionSettings.vue'
@@ -83,6 +84,7 @@ watch(tab, (id) => {
           <TabsContent value="conversation" class="mt-0"><ConversationSettings /></TabsContent>
           <TabsContent value="appearance" class="mt-0"><AppearanceSettings /></TabsContent>
           <TabsContent v-if="theme === 'sakura'" value="theme" class="mt-0"><SakuraSettings /></TabsContent>
+          <TabsContent v-else-if="theme === 'pride'" value="theme" class="mt-0"><PrideSettings /></TabsContent>
           <TabsContent value="server" class="mt-0"><ServerSettings @leave="open = false" /></TabsContent>
         </div>
       </Tabs>

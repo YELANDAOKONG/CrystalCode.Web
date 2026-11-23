@@ -85,9 +85,9 @@
   font-display: swap;
 }
 
-/* Resource Han Rounded, for the Sakura theme only. The faces are declared here
+/* Resource Han Rounded, for the Sakura and Pride themes only. The faces are declared here
    but the browser fetches one only when a page shows a character it covers, and
-   the theme stacks them only while Sakura is selected. Each region is a variable
+   the theme stacks them only while one of those themes is selected. Each region is a variable
    font covering weights 200 to 900; ROND 100 selects the rounded forms. */
 @font-face {
   font-family: 'Resource Han Rounded CN';
@@ -397,6 +397,37 @@ body::before {
   background: color-mix(in srgb, var(--site-accent) 30%, transparent);
 }
 
+/* Pride. Pearl and lilac surfaces carry the ribbon palette into the UI.
+   Rose anchors actions in both modes, and blue trims the artwork and mark. */
+:root[data-palette='pride'] {
+  --pal-bg: light-dark(#f8f5fc, #191b30);
+  --pal-surface: light-dark(#f2ecf8, #22243d);
+  --pal-raised: light-dark(#e9eaf7, #2b2e49);
+  --pal-field: light-dark(transparent, #23263e);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #2b2e49);
+  --site-ink: light-dark(#28263b, #f8eef8);
+  --site-muted: light-dark(#514b65, #c9bfd6);
+  --site-faint: light-dark(#605674, #b9a9c6);
+  --site-accent: light-dark(#8f2c60, #ffc1d7);
+  --site-button-bg: light-dark(#8f2c60, #ffc1d7);
+  --site-button-ink: light-dark(#fff, #241a30);
+
+  --radius: 0.875rem;
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(85 61 114 / 0.18), rgb(0 0 0 / 0.5));
+  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--pride-blue) 22%, transparent);
+  --shadow-sm: 0 1px 3px 0 color-mix(in srgb, var(--pride-blue) 26%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--pride-pink) 24%, transparent);
+  --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--pride-blue) 28%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--pride-pink) 24%, transparent);
+  --pride-blue: light-dark(#629fc7, #a4d8f1);
+  --pride-pink: light-dark(#ce77a0, #ffc1d7);
+  --pride-white: #fff5fc;
+  --pride-rim: light-dark(#527fa6, #8fc7e8);
+  --pride-swirl: #aa3e75;
+}
+
+:root[data-palette='pride'] ::selection {
+  background: color-mix(in srgb, var(--pride-pink) 45%, transparent);
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }
@@ -435,25 +466,25 @@ html:lang(ja) {
   --mono: 'IBM Plex Mono', 'Noto Sans Mono', 'Noto Sans JP', ui-monospace, monospace;
 }
 
-/* Sakura's stack. Each region's face covers Latin, kana, and Han in its own
+/* The rounded stack, for Sakura and Pride. Each region's face covers Latin, kana, and Han in its own
    glyph forms, so the page language picks the first one and the rest follow as
    fallbacks. English starts with the smallest face that has Latin, KR, so a
    first English page does not download the largest file. A later face is
    fetched only for a character the earlier ones lack. */
-:root[data-palette='sakura'][data-sakura-font='on'] {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']) {
   --sans: 'Resource Han Rounded KR', 'Resource Han Rounded JP', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
   font-variation-settings: 'ROND' 100;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-CN) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(zh-CN) {
   --sans: 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(ja) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(ja) {
   --sans: 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Resource Han Rounded CN', 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Noto Sans', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans HK', system-ui, sans-serif;
 }
 
-:root[data-palette='sakura'][data-sakura-font='on']:lang(zh-TW) {
+:root:is([data-palette='sakura'][data-sakura-font='on'], [data-palette='pride'][data-pride-font='on']):lang(zh-TW) {
   --sans: 'Resource Han Rounded TW', 'Resource Han Rounded HK', 'Resource Han Rounded CN', 'Resource Han Rounded JP', 'Resource Han Rounded KR', 'Noto Sans', 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans HK', 'Noto Sans JP', system-ui, sans-serif;
 }
 

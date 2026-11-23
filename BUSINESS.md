@@ -208,10 +208,11 @@ Interface:
 - The theme picker is grouped. Color holds Crystal (default), Ocean, Forest, and
   Graphite. Product holds Crystal Intelligence (the Crystal palette under the
   product's name) and Frontier Intelligence (warm ivory and clay). Color and
-  Product themes set colors only. Sakura is the one theme that also sets a
+  Product themes set colors only. Sakura and Pride can also set a
   font: Resource Han Rounded (SIL OFL 1.1), all five regions (CN, TW, HK, JP,
   KR), each a variable font of weights 200 to 900 with the rounded axis on.
-  Only a Sakura page downloads them, and a region's file is fetched when a
+  Only a Sakura or Pride page using the rounded face downloads them, and a
+  region's file is fetched when a
   character needs it. A switch in the Theme tab turns the rounded face off,
   which restores the page's own faces and downloads nothing. Other themes keep
   the bundled Archivo and Noto faces.
@@ -227,6 +228,19 @@ Interface:
   page, empty session), or over everything, and never take a click. Reduced
   motion leaves the petals still and skips the shower. The effects are
   decorative: hidden from assistive technology and paused in a hidden tab.
+- Pride is a combination theme based on the transgender
+  flag. Pearl and lilac surfaces by day become ink violet at night, with
+  rose accents and blue details. The bundled artwork shows folds of
+  blue, pink, and white satin around the edges, with a quiet center for
+  the conversation. Its artwork has its own panel blur setting to keep
+  the edges of the satin visible. Small drifting glints, hearts, and narutomaki can
+  appear together or individually. A completed turn sends a brief shower
+  with its own count and speed. The fluted narutomaki with its pink swirl
+  appears in the header and browser tab and is the default progress
+  mark. The other progress styles are a beating heart, orbiting hearts,
+  and a breathing narutomaki. The theme shares Sakura's rules for
+  particle placement, reduced motion, and custom background priority.
+  Pride stores its own choices.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.

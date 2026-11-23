@@ -1,4 +1,5 @@
 import type { ThemeSetting } from './theme'
+import { NARUTOMAKI_RIM, NARUTOMAKI_SWIRL } from './prideMark'
 
 // The tab icon follows the theme where the theme has its own mark. The data URL
 // is built here, so nothing is fetched.
@@ -10,6 +11,12 @@ ${[0, 72, 144, 216, 288].map((angle) => `<path transform="rotate(${angle} 16 16)
 <circle cx="16" cy="16" r="1.7" fill="#f7a0bd"/>
 </svg>`
 
+// The tab icon uses the same narutomaki as the in-page mark.
+const PRIDE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<path d="${NARUTOMAKI_RIM}" fill="#fff5fc" stroke="#527fa6" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="${NARUTOMAKI_SWIRL}" fill="none" stroke="#aa3e75" stroke-width="2.8" stroke-linecap="round"/>
+</svg>`
+
 let original: string | null = null
 
 export function applyFavicon(theme: ThemeSetting): void {
@@ -17,5 +24,6 @@ export function applyFavicon(theme: ThemeSetting): void {
   if (!link) return
   original ??= link.getAttribute('href')
   if (theme === 'sakura') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(SAKURA)}`)
+  else if (theme === 'pride') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(PRIDE)}`)
   else if (original) link.setAttribute('href', original)
 }

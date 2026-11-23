@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="sky" x2=".93" y2="1">
+      <stop offset="0" stop-color="#202c49"/><stop offset="0.52" stop-color="#191e35"/><stop offset="1" stop-color="#32243f"/>
+    </linearGradient>
+    <radialGradient id="light">
+      <stop stop-color="#acc9f4" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#acc9f4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="blue" x1="0" x2="1600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#385985"/><stop offset="0.18" stop-color="#8dc8ed"/><stop offset="0.36" stop-color="#47638f"/><stop offset="0.58" stop-color="#9dd7fa"/><stop offset="0.78" stop-color="#496d9c"/><stop offset="1" stop-color="#739ec8"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" x2="1600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#79426e"/><stop offset="0.18" stop-color="#d69abe"/><stop offset="0.36" stop-color="#8f5279"/><stop offset="0.58" stop-color="#f4c9db"/><stop offset="0.78" stop-color="#985e87"/><stop offset="1" stop-color="#ce8db5"/>
+    </linearGradient>
+    <linearGradient id="pearl" x1="0" x2="1600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#697698"/><stop offset="0.18" stop-color="#dce7f8"/><stop offset="0.36" stop-color="#8383a5"/><stop offset="0.58" stop-color="#f9edf7"/><stop offset="0.78" stop-color="#8587a8"/><stop offset="1" stop-color="#ced5e9"/>
+    </linearGradient>
+    <filter id="fold-shadow" x="-.1" y="-.6" width="1.2" height="2.2">
+      <feDropShadow dx="0" dy="17" stdDeviation="26" flood-color="#100f24" flood-opacity=".68"/>
+    </filter>
+    <path id="star" d="M0-9Q1-1 9 0Q1 1 0 9Q-1 1-9 0Q-1-1 0-9Z"/>
+  </defs>
+
+  <!-- The fabric stays at the edges, with space for the conversation in the middle. -->
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <ellipse cx="470" cy="35" rx="630" ry="380" fill="url(#light)"/>
+  <ellipse cx="1360" cy="900" rx="560" ry="430" fill="url(#light)" opacity=".68"/>
+
+  <g filter="url(#fold-shadow)">
+    <path d="M-105 255C223 275 206 44 600 81C919 115 1120 278 1338 150C1468 72 1504 9 1680 -70L1680 -37.6C1504 36.9 1468 98.1 1338 173.94C1120 298.7 919 119.32 600 89.64C206 67.4 223 298.4 -105 284.7Z" fill="url(#blue)"/>
+    <path d="M-105 284.7C223 298.4 206 67.4 600 89.64C919 119.32 1120 298.7 1338 173.94C1468 98.1 1504 36.9 1680 -37.6L1680 2C1504 71 1468 130 1338 203.2C1120 324 919 124.6 600 100.2C206 96 223 327 -105 321Z" fill="url(#pink)"/>
+    <path d="M-105 321C223 327 206 96 600 100.2C919 124.6 1120 324 1338 203.2C1468 130 1504 71 1680 2L1680 38C1504 102 1468 159 1338 229.8C1120 347 919 129.4 600 109.8C206 122 223 353 -105 354Z" fill="url(#pearl)"/>
+    <path d="M-105 354C223 353 206 122 600 109.8C919 129.4 1120 347 1338 229.8C1468 159 1504 102 1680 38L1680 77.6C1504 136.1 1468 190.9 1338 259.06C1120 372.3 919 134.68 600 120.36C206 150.6 223 381.6 -105 390.3Z" fill="url(#pink)"/>
+    <path d="M-105 390.3C223 381.6 206 150.6 600 120.36C919 134.68 1120 372.3 1338 259.06C1468 190.9 1504 136.1 1680 77.6L1680 110C1504 164 1468 217 1338 283C1120 393 919 139 600 129C206 174 223 405 -105 420Z" fill="url(#blue)"/>
+  </g>
+  <g filter="url(#fold-shadow)">
+    <path d="M-106 1010C133 713 411 766 608 853C846 970 989 962 1115 888C1350 748 1386 655 1699 660L1699 690.96C1386 682 1350 773.92 1115 909.96C989 976.58 846 978.82 608 860.74C411 784 133 742.52 -106 1040.6Z" fill="url(#blue)"/>
+    <path d="M-106 1040.6C133 742.52 411 784 608 860.74C846 978.82 989 976.58 1115 909.96C1350 773.92 1386 682 1699 690.96L1699 728.8C1386 715 1350 805.6 1115 936.8C989 994.4 846 989.6 608 870.2C411 806 133 778.6 -106 1078Z" fill="url(#pink)"/>
+    <path d="M-106 1078C133 778.6 411 806 608 870.2C846 989.6 989 994.4 1115 936.8C1350 805.6 1386 715 1699 728.8L1699 763.2C1386 745 1350 834.4 1115 961.2C989 1010.6 846 999.4 608 878.8C411 826 133 811.4 -106 1112Z" fill="url(#pearl)"/>
+    <path d="M-106 1112C133 811.4 411 826 608 878.8C846 999.4 989 1010.6 1115 961.2C1350 834.4 1386 745 1699 763.2L1699 801.04C1386 778 1350 866.08 1115 988.04C989 1028.42 846 1010.18 608 888.26C411 848 133 847.48 -106 1149.4Z" fill="url(#pink)"/>
+    <path d="M-106 1149.4C133 847.48 411 848 608 888.26C846 1010.18 989 1028.42 1115 988.04C1350 866.08 1386 778 1699 801.04L1699 832C1386 805 1350 892 1115 1010C989 1043 846 1019 608 896C411 866 133 877 -106 1180Z" fill="url(#blue)"/>
+  </g>
+
+  <!-- Fine seams, set just inside the two selvedges. -->
+  <g fill="none" stroke="#fff1f8" stroke-width="1.3" opacity=".56">
+    <path d="M-105 259.62C223 278.64 206 47.64 600 82.34C919 115.67 1120 281.22 1338 153.72C1468 76.06 1504 13.34 1680 -64.96"/>
+    <path d="M-105 414.88C223 400.97 206 169.97 600 127.51C919 138.26 1120 389.44 1338 278.88C1468 212.5 1504 159.19 1680 104.42"/>
+    <path d="M-106 1014.76C133 717.59 411 768.8 608 854.2C846 971.37 989 964.27 1115 891.42C1350 752.03 1386 659.2 1699 664.82"/>
+    <path d="M-106 1174.73C133 871.92 411 862.9 608 894.67C846 1017.48 989 1040.49 1115 1006.22C1350 887.54 1386 800.35 1699 826.67"/>
+  </g>
+  <g fill="none" stroke="#fff1f8" stroke-width="1.4" stroke-dasharray="1 5" stroke-linecap="round" opacity=".6">
+    <path d="M-105 265.23C223 283.06 206 52.06 600 83.98C919 116.49 1120 285.13 1338 158.25C1468 80.99 1504 18.61 1680 -58.84"/>
+    <path d="M-105 409.44C223 396.68 206 165.68 600 125.93C919 137.46 1120 385.64 1338 274.49C1468 207.72 1504 154.08 1680 98.48"/>
+    <path d="M-106 1020.54C133 723.17 411 772.2 608 855.67C846 973.04 989 967.02 1115 895.56C1350 756.93 1386 664.3 1699 670.66"/>
+    <path d="M-106 1169.12C133 866.5 411 859.6 608 893.25C846 1015.86 989 1037.82 1115 1002.19C1350 882.78 1386 795.4 1699 820.99"/>
+  </g>
+  <g fill="#fff2fe" opacity=".76">
+    <use href="#star" transform="translate(468 49) scale(.75)"/>
+    <use href="#star" transform="translate(918 92) scale(.5)"/>
+    <use href="#star" transform="translate(1275 239) scale(1.2)"/>
+    <use href="#star" transform="translate(1320 275) scale(.52)"/>
+    <use href="#star" transform="translate(226 760) scale(.85)"/>
+    <use href="#star" transform="translate(660 828) scale(.65)"/>
+    <use href="#star" transform="translate(874 915) scale(.45)"/>
+    <use href="#star" transform="translate(1432 590)"/>
+    <circle cx="432" cy="61" r="2"/>
+    <circle cx="943" cy="85" r="2.4"/>
+    <circle cx="1254" cy="267" r="2.6"/>
+    <circle cx="252" cy="737" r="2"/>
+    <circle cx="684" cy="832" r="2.3"/>
+    <circle cx="1409" cy="615" r="2"/>
+  </g>
+</svg>

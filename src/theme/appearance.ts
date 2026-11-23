@@ -1,9 +1,12 @@
 import { computed, reactive, ref, watch, type Ref } from 'vue'
 import { deleteBlob, loadBlob, loadPreference, saveBlob, savePreference } from '@/connection/storage'
 import { isDark, useTheme } from './theme'
+import { usePride } from './pride'
 import { useSakura } from './sakura'
 import sakuraDay from '@/assets/sakura/day.svg'
 import sakuraNight from '@/assets/sakura/night.svg'
+import prideDay from '@/assets/pride/day.svg'
+import prideNight from '@/assets/pride/night.svg'
 
 export type BackgroundSource = 'none' | 'url' | 'file'
 export type BackgroundSlot = 'shared' | 'light' | 'dark'
@@ -19,7 +22,8 @@ interface BackgroundSettings {
 
 const MAX_IMAGE_BYTES = 50 * 1024 * 1024
 export const DEFAULT_PANEL_OPACITY = 76
-export const DEFAULT_PANEL_BLUR = 16
+const DEFAULT_PANEL_BLUR = 16
+const PRIDE_ARTWORK_PANEL_BLUR = 3
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 
@@ -59,7 +63,8 @@ const slots: Record<BackgroundSlot, Ref<BackgroundSettings>> = {
 // Object URLs for the stored files. They exist only while the page is open.
 const fileUrls = reactive<Record<BackgroundSlot, string>>({ shared: '', light: '', dark: '' })
 const opacity = ref(readNumber('acrylic-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
-const panelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
+const sharedPanelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
+const prideArtworkBlur = ref(readNumber('pride-artwork-blur', PRIDE_ARTWORK_PANEL_BLUR, 0, 32))
 const currentSlot = computed<BackgroundSlot>(() => separate.value ? (isDark.value ? 'dark' : 'light') : 'shared')
 
 function imageOf(slot: BackgroundSlot): string {
@@ -72,22 +77,29 @@ function imageOf(slot: BackgroundSlot): string {
 // no image of their own on screen, so a chosen picture always wins.
 const { theme } = useTheme()
 const sakura = useSakura()
+const pride = usePride()
 const themeArtwork = computed(() => {
-  if (theme.value !== 'sakura' || !sakura.artwork.value) return ''
-  return isDark.value ? sakuraNight : sakuraDay
+  if (theme.value === 'sakura' && sakura.artwork.value) return isDark.value ? sakuraNight : sakuraDay
+  if (theme.value === 'pride' && pride.artwork.value) return isDark.value ? prideNight : prideDay
+  return ''
 })
+const artworkFirst = computed(() => theme.value === 'pride' ? pride.artworkFirst.value : sakura.artworkFirst.value)
 
 const operatorImage = computed(() => imageOf(currentSlot.value))
 // The picture on screen. Which of the two wins is the operator's choice.
 const shownOperator = computed(() => {
   if (!enabled.value) return false
   if (!operatorImage.value) return false
-  return !sakura.artworkFirst.value || themeArtwork.value === ''
+  return !artworkFirst.value || themeArtwork.value === ''
 })
 const currentImage = computed(() => {
   if (!enabled.value) return ''
   return shownOperator.value ? operatorImage.value : themeArtwork.value
 })
+// The satin's fine edges are part of the artwork, so give it its own blur value.
+const showingPrideArtwork = computed(() => theme.value === 'pride' && currentImage.value !== '' && !shownOperator.value)
+const panelBlur = computed(() => showingPrideArtwork.value ? prideArtworkBlur.value : sharedPanelBlur.value)
+const defaultPanelBlur = computed(() => showingPrideArtwork.value ? PRIDE_ARTWORK_PANEL_BLUR : DEFAULT_PANEL_BLUR)
 // Something is saved or supplied, whether or not it is shown.
 const hasSavedImage = computed(() => themeArtwork.value !== '' || SLOTS.some((slot) => slots[slot].value.source !== 'none'))
 // With no image behind them the panels have nothing to show through, so they
@@ -147,6 +159,7 @@ export function useAppearance() {
     slots,
     opacity,
     panelBlur,
+    defaultPanelBlur,
     hasBackground,
     hasSavedImage,
     enabled,
@@ -165,8 +178,14 @@ export function useAppearance() {
       savePreference('acrylic-opacity', String(opacity.value))
     },
     setPanelBlur(value: number) {
-      panelBlur.value = Math.min(32, Math.max(0, value))
-      savePreference('acrylic-blur', String(panelBlur.value))
+      const blur = Math.min(32, Math.max(0, value))
+      if (showingPrideArtwork.value) {
+        prideArtworkBlur.value = blur
+        savePreference('pride-artwork-blur', String(blur))
+      } else {
+        sharedPanelBlur.value = blur
+        savePreference('acrylic-blur', String(blur))
+      }
     },
     setBackground(slot: BackgroundSlot, patch: Partial<BackgroundSettings>): boolean {
       const next = { ...slots[slot].value, ...patch }
