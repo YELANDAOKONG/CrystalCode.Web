@@ -3,34 +3,19 @@
 // never takes a click, and moves only with transform and opacity so it runs on
 // the compositor and does not repaint what is under it.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import NarutomakiMark from '@/components/common/NarutomakiMark.vue'
-import type { PrideShape } from '@/theme/pride'
 
 const props = withDefaults(defineProps<{
   /** `back` sits under the panels and shows through them; `front` sits over the page. */
   layer: 'back' | 'front'
-  /** `petal` is Sakura's blossom; `pride` is Pride's hearts, sparkles, and narutomaki. */
-  kind?: 'petal' | 'pride'
-  /** For `pride`: one shape alone, or all three mixed. */
-  shape?: PrideShape
   count: number
   /** 50 to 250, where 100 is the normal pace. */
   speed?: number
   /** One quick fall that ends, instead of an endless drift. */
   shower?: boolean
-}>(), { speed: 100, shower: false, kind: 'petal', shape: 'mix' })
-
-const GLYPHS = ['heart', 'sparkle', 'naruto'] as const
-const glyphs: readonly (typeof GLYPHS)[number][] = props.shape === 'mix' ? GLYPHS : [props.shape]
-const COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
-
-function pick<T>(items: readonly T[]): T {
-  return items[Math.floor(Math.random() * items.length)] ?? items[0]!
-}
+}>(), { speed: 100, shower: false })
 
 interface Petal {
   id: number
-  glyph: (typeof GLYPHS)[number]
   style: Record<string, string>
 }
 
@@ -45,9 +30,7 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
   const size = random(10, props.layer === 'front' ? 18 : 24)
   return {
     id,
-    glyph: pick(glyphs),
     style: {
-      '--c': pick(COLORS),
       '--x': `${random(-4, 100).toFixed(1)}%`,
       '--s': `${size.toFixed(1)}px`,
       '--d': `${fall.toFixed(2)}s`,
@@ -74,14 +57,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
 
 <template>
   <div class="petal-field" :data-layer="layer" :data-shower="shower ? '' : undefined" :data-paused="paused ? '' : undefined" aria-hidden="true">
-    <span v-for="petal in petals" :key="petal.id" class="petal" :style="petal.style">
-      <i v-if="kind === 'petal'" />
-      <NarutomakiMark v-else-if="petal.glyph === 'naruto'" solid class="glyph" />
-      <svg v-else viewBox="0 0 32 32" class="glyph" fill="currentColor">
-        <path v-if="petal.glyph === 'heart'" d="M16 28C6 20 3 14 3 10a6.5 6.5 0 0 1 13-1 6.5 6.5 0 0 1 13 1c0 4-3 10-13 18Z" />
-        <path v-else d="M16 2C17 11 21 15 30 16 21 17 17 21 16 30 15 21 11 17 2 16 11 15 15 11 16 2Z" />
-      </svg>
-    </span>
+    <span v-for="petal in petals" :key="petal.id" class="petal" :style="petal.style"><i /></span>
   </div>
 </template>
 
@@ -118,29 +94,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
 }
 
 .petal-field[data-paused] .petal,
-.petal-field[data-paused] .petal > i,
-.petal-field[data-paused] .petal > .glyph {
+.petal-field[data-paused] .petal > i {
   animation-play-state: paused;
-}
-
-/* A hearts-and-sparkles piece only turns in the plane, so it never flattens
-   to a sliver the way a petal tipping over does. */
-.petal > .glyph {
-  display: block;
-  width: 100%;
-  height: 100%;
-  color: var(--c);
-  animation: glyph-sway var(--f) ease-in-out var(--delay) infinite alternate;
-}
-
-@keyframes glyph-sway {
-  from {
-    transform: rotate(-24deg);
-  }
-
-  to {
-    transform: rotate(24deg);
-  }
 }
 
 /* A petal is a rounded leaf with two soft corners. It turns and tips as it
@@ -194,8 +149,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
     animation: none !important;
   }
 
-  .petal > i,
-  .petal > .glyph {
+  .petal > i {
     animation: none !important;
     transform: rotate(var(--r0));
   }
