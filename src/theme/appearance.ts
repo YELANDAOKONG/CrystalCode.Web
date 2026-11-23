@@ -33,7 +33,7 @@ const DEFAULT_PANEL_BLUR = 16
 const SAKURA_ARTWORK_PANEL_BLUR = 3
 const PRIDE_ARTWORK_PANEL_BLUR = 2
 const INK_ARTWORK_PANEL_BLUR = 1
-const LAVENDER_ARTWORK_PANEL_BLUR = 2
+const LAVENDER_ARTWORK_PANEL_BLUR = 5
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 

@@ -256,7 +256,7 @@ Interface:
   surfaces at dusk. The bundled artwork is a lavender field: in daylight, rows
   of lavender under a pale sun, and at dusk, the same field under a crescent
   moon with fireflies. The middle stays calm for the conversation. The artwork
-  has its own opacity and panel blur settings, with a default blur of 2 px.
+  has its own opacity and panel blur settings, with a default blur of 5 px.
   Lavender offers an optional book-style serif face that uses local fonts and
   keeps code monospaced. Drifting buds, small blossoms, and leaves use the same
   placement, count, speed, completion shower, and reduced-motion rules as Ink
