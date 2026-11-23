@@ -9,8 +9,8 @@ import { useTitleSetting } from '@/composables/page-title'
 import { t } from '@/i18n'
 
 const showSession = computed(() => ['live', 'reconnecting', 'closed'].includes(server.phase.value))
-// Nothing to read yet: the connect page, or a session with no conversation.
-const idle = computed(() => !showSession.value || (server.model.loaded && server.model.conversation.length === 0))
+// Keep the idle particles mounted while the first snapshot is loading.
+const idle = computed(() => !showSession.value || !server.model.loaded || server.model.conversation.length === 0)
 const { titleSetting } = useTitleSetting()
 
 const TITLE_TEXT_LIMIT = 80

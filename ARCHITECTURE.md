@@ -98,9 +98,12 @@ The child sheet shows its full child session id beneath the title. The session
 status bar spans the page below both the conversation and the side panel, with
 the current session id aligned to the right. Both ids are selectable text and
 wrap on narrow screens.
-The session layout fits the viewport. The transcript and side panel scroll
-independently. Each todo row contains its absolutely positioned screen-reader
-label so it cannot extend the document's scroll range.
+The connection and session layouts fit the viewport. Overflow on the
+connection page scrolls inside that view, so entering the session keeps the
+viewport width and the fixed theme background steady. Idle theme particles
+stay mounted while the first session snapshot loads. The transcript and side
+panel scroll independently. Each todo row contains its absolutely positioned
+screen-reader label so it cannot extend the document's scroll range.
 The desktop side panel's open state is a browser preference. The mobile sheet
 has separate transient state, so opening or dismissing it does not change the
 desktop preference.

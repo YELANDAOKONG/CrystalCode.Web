@@ -50,12 +50,10 @@ function measureHeader(): void {
 }
 onMounted(() => {
   measureHeader()
-  window.addEventListener('scroll', measureHeader, { capture: true, passive: true })
   window.addEventListener('resize', measureHeader)
 })
 onUpdated(measureHeader)
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', measureHeader, { capture: true })
   window.removeEventListener('resize', measureHeader)
 })
 // A hosting server fixes the address, so the only thing left to do after a
@@ -107,8 +105,8 @@ async function copyServerCommand(): Promise<void> {
 </script>
 
 <template>
-  <div class="connect-page flex min-h-full flex-col">
-    <header ref="headerEl" class="connect-header flex items-center justify-between" :class="{ 'is-lifted': headerLifted }">
+  <div class="connect-page flex h-dvh flex-col overflow-y-auto" @scroll.passive="measureHeader">
+    <header ref="headerEl" class="connect-header flex shrink-0 items-center justify-between" :class="{ 'is-lifted': headerLifted }">
       <div class="flex items-center gap-2.5">
         <LogoMark />
         <span class="text-[15px] font-semibold">{{ t('app.name') }}</span>
