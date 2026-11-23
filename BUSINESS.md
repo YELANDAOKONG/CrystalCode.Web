@@ -231,8 +231,10 @@ Interface:
   pink,
   and white. Day is ice-blue paper and night is midnight blue; the flag's own
   pale tones fill surfaces and particles, while text and accents use deeper or
-  lit tones that hold 4.5:1. It brings bundled SVG artwork per mode (flowing
-  flag-colored bands with sparkles, hearts, and narutomaki), drifting hearts,
+  lit tones that hold 4.5:1. It brings bundled SVG artwork per mode (vines
+  hung with clusters of hearts, sparkles, and a few narutomaki, soft
+  out-of-focus light, and low hills in the flag's five stripes; at night the
+  clusters glow under a moon), drifting hearts,
   sparkles, and narutomaki in blue and pink (the operator can limit them to one shape), the same completed-turn shower with its own count and speed, a
   turning narutomaki in place of the progress spinner (one of four: turning narutomaki, beating heart, orbiting hearts, breathing narutomaki), and a narutomaki mark and
   tab icon. The narutomaki, a swirled fish cake, is a symbol in Chinese-speaking
