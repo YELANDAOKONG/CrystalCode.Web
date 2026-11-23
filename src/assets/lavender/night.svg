@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1">
+      <stop offset=".40" stop-color="#20192c"/>
+      <stop offset="1" stop-color="#28223c"/>
+    </linearGradient>
+    <radialGradient id="haze">
+      <stop stop-color="#49435d" stop-opacity=".58"/>
+      <stop offset="1" stop-color="#49435d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="leaf" x2="1" y2=".75">
+      <stop stop-color="#718781"/>
+      <stop offset="1" stop-color="#758b82"/>
+    </linearGradient>
+    <linearGradient id="corolla" x1=".15" y1=".9" x2=".8" y2=".05">
+      <stop stop-color="#b598d9"/>
+      <stop offset="1" stop-color="#ddc8ef"/>
+    </linearGradient>
+    <g id="floret">
+      <path d="M-6 6C-3 1 2-4 9-5 12-5 15-1 13 2 8 6 2 8-6 6Z" fill="#7064a3"/>
+      <path d="M0 2C2-3 7-5 11-6c1.4-3 3.4-5 6-4.4 1.4.2 2.3 1.1 2.5 2.4 2.6-1.3 5.1-.2 5.3 1.7.3 1.7-.9 2.9-2.4 3.6 1.7.1 2.5 1.7 1.8 3.1-1.9 3.1-6 3.2-9.4 2.5C10 5 5 6 0 2Z" fill="url(#corolla)" stroke="#493668" stroke-opacity=".62" stroke-width=".55"/>
+      <path d="M4 2c4.6-1 8.7-2.8 12-6.3m-5.3 4.1 5.7-1.4m-1-3 3.2-1.1" fill="none" stroke="#493668" opacity=".47" stroke-width=".6" stroke-linecap="round"/>
+    </g>
+    <g id="sprig">
+      <path d="M0 8C-12-104-6-186-1-252 4-322 19-390 13-452" fill="none" stroke="#718781" stroke-width="2.65" stroke-linecap="round"/>
+      <path d="M1-1C-9-99-5-179 0-238" fill="none" stroke="#c0c9a6" opacity=".6" stroke-width=".65"/>
+      <g fill="url(#leaf)" stroke="#718781" stroke-width=".6" stroke-linejoin="round">
+        <path d="M-5-34C-32-50-44-75-66-100-43-85-25-62-5-34Z"/>
+        <path d="M-8-58c21-17 46-21 74-43-15 22-44 33-74 43Z"/>
+        <path d="M-8-92c-21-14-33-33-46-53 20 13 35 33 46 53Z"/>
+        <path d="M-7-110c17-16 40-23 59-41-11 21-38 33-59 41Z"/>
+        <path d="M-6-139c-15-14-25-31-31-49 15 13 27 29 31 49Z"/>
+        <path d="M-5-158c9-14 26-22 41-36-9 17-24 30-41 36Z"/>
+        <path d="M-4-186c-11-10-17-26-22-39 14 13 20 26 22 39Z"/>
+      </g>
+      <g fill="none" stroke="#c0c9a6" stroke-width=".64" opacity=".63" stroke-linecap="round">
+        <path d="M-9-38c-15-13-32-39-47-53m53 31c23-13 42-20 62-35m-69 0c-12-9-25-28-36-42m43 25c18-10 37-24 49-34m-54 2c-11-13-17-25-23-36m28 21c11-13 20-16 31-29"/>
+      </g>
+      <path d="M7-340c-6-7-12-11-20-12 4 7 10 11 20 12Zm5-26c5-8 11-11 20-13-4 7-10 11-20 13Zm1-30c-4-7-10-10-15-12 2 6 8 10 15 12Z" fill="#718781"/>
+      <use href="#floret" transform="translate(-1 -345) rotate(-36) scale(-0.56 0.56)"/>
+      <use href="#floret" transform="translate(14 -348) rotate(10) scale(0.6 0.6)"/>
+      <use href="#floret" transform="translate(4 -352) rotate(-1) scale(-0.61 0.61)"/>
+      <use href="#floret" transform="translate(8 -354) rotate(-23) scale(0.49 0.49)"/>
+      <use href="#floret" transform="translate(-5 -369) rotate(-16) scale(-0.66 0.66)"/>
+      <use href="#floret" transform="translate(20 -371) rotate(12) scale(0.69 0.69)"/>
+      <use href="#floret" transform="translate(8 -374) rotate(-4) scale(-0.69 0.69)"/>
+      <use href="#floret" transform="translate(12 -378) rotate(-11) scale(0.57 0.57)"/>
+      <use href="#floret" transform="translate(2 -380) rotate(-24) scale(-0.53 0.53)"/>
+      <use href="#floret" transform="translate(-2 -395) rotate(-13) scale(-0.72 0.72)"/>
+      <use href="#floret" transform="translate(23 -396) rotate(18) scale(0.7 0.7)"/>
+      <use href="#floret" transform="translate(11 -400) rotate(-3) scale(-0.66 0.66)"/>
+      <use href="#floret" transform="translate(14 -404) rotate(-13) scale(0.56 0.56)"/>
+      <use href="#floret" transform="translate(3 -407) rotate(-32) scale(-0.56 0.56)"/>
+      <use href="#floret" transform="translate(0 -419) rotate(-12) scale(-0.65 0.65)"/>
+      <use href="#floret" transform="translate(22 -421) rotate(10) scale(0.63 0.63)"/>
+      <use href="#floret" transform="translate(11 -424) rotate(-3) scale(-0.58 0.58)"/>
+      <use href="#floret" transform="translate(14 -429) rotate(-15) scale(0.49 0.49)"/>
+      <use href="#floret" transform="translate(4 -440) rotate(-7) scale(-0.52 0.52)"/>
+      <use href="#floret" transform="translate(19 -442) rotate(-11) scale(0.49 0.49)"/>
+      <use href="#floret" transform="translate(12 -445) rotate(-23) scale(-0.45 0.45)"/>
+      <use href="#floret" transform="translate(10 -455) rotate(-38) scale(-0.42 0.42)"/>
+      <use href="#floret" transform="translate(15 -458) rotate(-29) scale(0.43 0.43)"/>
+      <use href="#floret" transform="translate(13 -463) rotate(-50) scale(0.36 0.36)"/>
+    </g>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#paper)"/>
+  <!-- Thin contours keep the botanical plate grounded below the reading area. -->
+  <svg width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="none">
+    <ellipse cx="1260" cy="620" rx="540" ry="485" fill="url(#haze)"/>
+    <path d="M0 772c191 13 276-68 438-63s225 70 415 63 268-82 587-61v189H0Z" fill="#342c48" opacity=".55"/>
+    <path d="M0 815c164-14 291-68 404-55 164 20 235 77 423 53s366-76 613-29v116H0Z" fill="#2b253e" opacity=".83"/>
+    <g fill="none" stroke="#9d8db8" stroke-width="1" opacity=".24">
+      <path d="M0 824c171-10 280-69 405-51 121 16 192 52 282 57m233-26c186-26 329-46 520-13"/>
+      <path d="M0 846c196-12 316-57 446-42 150 18 188 47 342 50m250-50c159-24 272-19 402 3"/>
+      <path d="M0 885c165-12 257-35 364-42m757-4c112-12 231-15 319-2"/>
+    </g>
+  </svg>
+  <svg x="0%" width="46%" height="100%" viewBox="0 0 440 820" preserveAspectRatio="xMinYMax meet" overflow="hidden">
+    <g fill="#dbc9e7" opacity=".66">
+      <circle cx="55" cy="261" r="1.2"/><circle cx="137" cy="305" r=".9"/>
+      <circle cx="79" cy="359" r="1.5"/><circle cx="212" cy="212" r=".8"/>
+      <circle cx="231" cy="339" r="1.1"/><circle cx="179" cy="245" r=".6"/>
+    </g>
+    <g>
+    <use href="#sprig" transform="translate(25 824) rotate(-17) scale(0.88)" opacity="0.34"/>
+    <use href="#sprig" transform="translate(172 842) rotate(17) scale(0.79)" opacity="0.39"/>
+    <use href="#sprig" transform="translate(91 835) rotate(-20) scale(1.02)" opacity="0.46"/>
+    <use href="#sprig" transform="translate(116 858) rotate(13) scale(1.09)" opacity="0.85"/>
+    <use href="#sprig" transform="translate(41 845) rotate(2) scale(1.19)" opacity="0.99"/>
+    <use href="#sprig" transform="translate(174 852) rotate(24) scale(0.79)" opacity="0.76"/>
+    <use href="#sprig" transform="translate(64 865) rotate(30) scale(0.63)" opacity="0.68"/>
+    <use href="#sprig" transform="translate(255 873) rotate(12) scale(0.56)" opacity="0.52"/>
+    </g>
+  </svg>
+  <svg x="54%" width="46%" height="100%" viewBox="0 0 440 820" preserveAspectRatio="xMaxYMax meet" overflow="hidden">
+    <g fill="#ead9f4">
+      <path d="M343 292a39 39 0 1 0 44 57 40 40 0 0 1-44-57Z" opacity=".69"/>
+      <circle cx="375" cy="311" r="1.5" opacity=".85"/><circle cx="404" cy="275" r="1" opacity=".54"/>
+      <circle cx="308" cy="250" r="1" opacity=".7"/><circle cx="287" cy="355" r=".8" opacity=".65"/>
+      <circle cx="242" cy="286" r="1.3" opacity=".5"/><circle cx="422" cy="377" r=".9" opacity=".52"/>
+    </g>
+    <g transform="translate(440 0) scale(-1 1)">
+    <use href="#sprig" transform="translate(47 825) rotate(-23) scale(0.86)" opacity="0.4"/>
+    <use href="#sprig" transform="translate(133 834) rotate(18) scale(0.84)" opacity="0.35"/>
+    <use href="#sprig" transform="translate(81 853) rotate(-16) scale(0.97)" opacity="0.78"/>
+    <use href="#sprig" transform="translate(18 833) rotate(3) scale(0.85)" opacity="0.56"/>
+    <use href="#sprig" transform="translate(63 843) rotate(11) scale(1.14)" opacity="0.93"/>
+    <use href="#sprig" transform="translate(130 847) rotate(27) scale(0.9)" opacity="0.86"/>
+    <use href="#sprig" transform="translate(201 861) rotate(18) scale(0.67)" opacity="0.66"/>
+    <use href="#sprig" transform="translate(16 864) rotate(40) scale(0.54)" opacity="0.62"/>
+    </g>
+  </svg>
+</svg>

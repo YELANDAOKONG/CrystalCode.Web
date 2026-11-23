@@ -251,11 +251,22 @@ Interface:
   a brush stroke, orbiting drops, and a breathing ring. Ink keeps its own
   settings and uses the same custom-background priority as the other
   combination themes.
+- Lavender is a combination theme with lilac paper by day and blue-violet
+  surfaces at dusk. The bundled botanical SVGs place sprigs at the edges and
+  leave the conversation in a quiet center at desktop and phone widths. The
+  artwork has its own panel blur, which defaults to 0 px. A sprig appears in the
+  header, browser tab, and progress line. The progress sprig sways while working.
+  A few buds drift on the connect page and in empty sessions. The optional
+  shower after a completed turn is off by default. Reduced motion keeps the
+  sprig and drifting buds still and skips the shower. Lavender keeps its own
+  settings in the browser. Localized theme names follow the combination-theme
+  format, with the English name followed by the translation in parentheses.
 - For combination themes, the built-in artwork takes priority over an operator
   background by default. Turning off the priority switch gives the operator's
-  image priority. Particles float over everything by default and never intercept
-  clicks. The other placement choices are behind the panels, in front on idle
-  screens (connect page and empty session), or both.
+  image priority. Particles never intercept clicks. When a theme offers
+  placement choices, particles float over everything by default. The other
+  choices are behind the panels, in front on idle screens (connect page and
+  empty session), or both.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.

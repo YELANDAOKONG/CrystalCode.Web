@@ -1,4 +1,5 @@
 import type { ThemeSetting } from './theme'
+import { LAVENDER_FLOWERS, LAVENDER_LEAVES, LAVENDER_STEM } from './lavender-mark'
 import { INK_BRUSH_RING } from './inkMark'
 import { PRIDE_BRUSH_HIGHLIGHT, PRIDE_SPIRAL } from './prideMark'
 
@@ -26,6 +27,13 @@ const INK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 <path d="m23.5 13 4.8.2-.2 4.8-4.9-.2Z" fill="#953e30"/>
 </svg>`
 
+const LAVENDER = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<rect width="32" height="32" rx="6" fill="#f8f4fa"/>
+<path d="${LAVENDER_STEM}" fill="none" stroke="#4c6657" stroke-width="1.8" stroke-linecap="round"/>
+<path d="${LAVENDER_LEAVES}" fill="#4c6657"/>
+<path d="${LAVENDER_FLOWERS}" fill="#69428d"/>
+</svg>`
+
 let original: string | null = null
 
 export function applyFavicon(theme: ThemeSetting): void {
@@ -35,5 +43,6 @@ export function applyFavicon(theme: ThemeSetting): void {
   if (theme === 'sakura') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(SAKURA)}`)
   else if (theme === 'pride') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(PRIDE)}`)
   else if (theme === 'ink') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(INK)}`)
+  else if (theme === 'lavender') link.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(LAVENDER)}`)
   else if (original) link.setAttribute('href', original)
 }

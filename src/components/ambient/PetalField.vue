@@ -7,13 +7,13 @@ import NarutomakiMark from '@/components/common/NarutomakiMark.vue'
 import type { InkShape } from '@/theme/ink'
 import type { PrideShape } from '@/theme/pride'
 
-type Shape = PrideShape | InkShape
+type Shape = PrideShape | InkShape | 'bud'
 type Glyph = Exclude<Shape, 'mix'>
 
 const props = withDefaults(defineProps<{
   /** `back` sits under the panels and shows through them; `front` sits over the page. */
   layer: 'back' | 'front'
-  kind?: 'petal' | 'pride' | 'ink'
+  kind?: 'petal' | 'pride' | 'ink' | 'lavender'
   /** One shape alone, or the selected theme's mix. */
   shape?: Shape
   count: number
@@ -28,10 +28,12 @@ const PRIDE_GLYPHS = ['sparkle', 'heart', 'sparkle', 'heart', 'sparkle', 'naruto
 const INK_GLYPHS = ['fleck', 'needle', 'fleck', 'drop'] as const
 const INK_COLORS = ['var(--ink-wash)', 'var(--site-ink)', 'var(--ink-wash)', 'var(--site-accent)'] as const
 const PRIDE_COLORS = ['var(--pride-blue)', 'var(--pride-pink)'] as const
+const LAVENDER_COLORS = ['var(--site-accent)', 'var(--lavender-bud)'] as const
 const ink = props.kind === 'ink'
 const pride = props.kind === 'pride'
+const lavender = props.kind === 'lavender'
 const glyphs: readonly Glyph[] = props.shape !== 'mix' ? [props.shape] : ink ? INK_GLYPHS : PRIDE_GLYPHS
-const colors: readonly string[] = ink ? INK_COLORS : PRIDE_COLORS
+const colors: readonly string[] = ink ? INK_COLORS : lavender ? LAVENDER_COLORS : PRIDE_COLORS
 
 function pick<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)] ?? items[0]!
@@ -54,9 +56,11 @@ const petals: Petal[] = Array.from({ length: props.count }, (_, id) => {
   const glyph = pick(glyphs)
   const size = ink ? random(5, props.layer === 'front' ? 12 : 16)
     : pride ? random(7, props.layer === 'front' ? 14 : 19)
+    : lavender ? random(6, 12)
     : random(10, props.layer === 'front' ? 18 : 24)
   const opacity = ink ? random(0.24, props.shower ? 0.64 : 0.48)
     : pride ? random(0.44, 0.78)
+    : lavender ? random(0.32, props.shower ? 0.62 : 0.5)
     : random(0.55, 0.95)
   return {
     id,
@@ -97,6 +101,7 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibil
         <path v-else-if="petal.glyph === 'sparkle'" d="M16 2C17 11 21 15 30 16 21 17 17 21 16 30 15 21 11 17 2 16 11 15 15 11 16 2Z" />
         <path v-else-if="petal.glyph === 'drop'" d="M18 4c-3 7-9 10-9 16 0 4 3 7 7 7 5 0 8-3 8-8 0-4-4-8-6-15Z" />
         <path v-else-if="petal.glyph === 'needle'" d="M5 25C11 15 17 10 28 5 18 12 13 18 7 27Zm3 1c5-6 11-8 19-9-8 3-14 7-19 9Z" />
+        <path v-else-if="petal.glyph === 'bud'" d="M11 27c-3-2-4-6-2-10 2-5 8-11 14-13 2 6 1 12-2 17-2 4-6 7-10 6Z" />
         <path v-else d="m6 22 9-13 10-2-3 7-11 11-6 1Zm15 0 5-3-1 5-4 2Z" />
       </svg>
     </span>

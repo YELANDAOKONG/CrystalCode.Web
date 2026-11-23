@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { server } from '@/app/server'
 import { useInk } from '@/theme/ink'
+import { useLavender } from '@/theme/lavender'
 import { usePride } from '@/theme/pride'
 import { useSakura } from '@/theme/sakura'
 import { useTheme } from '@/theme/theme'
@@ -16,6 +17,7 @@ const { theme } = useTheme()
 const sakura = useSakura()
 const pride = usePride()
 const ink = useInk()
+const lavender = useLavender()
 const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 // The particle settings of whichever theme is selected, or none.
@@ -57,6 +59,19 @@ const fx = computed(() => {
       shower: ink.shower.current.value,
       showerCount: ink.showerCount.current.value,
       showerSpeed: ink.showerSpeed.current.value,
+    }
+  }
+  if (theme.value === 'lavender') {
+    return {
+      kind: 'lavender' as const,
+      shape: 'bud' as const,
+      on: lavender.particles.current.value,
+      placement: 'idle' as const,
+      count: 6,
+      speed: 75,
+      shower: lavender.shower.current.value,
+      showerCount: 14,
+      showerSpeed: 100,
     }
   }
   return null

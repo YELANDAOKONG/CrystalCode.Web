@@ -11,6 +11,7 @@ import { useTheme } from '@/theme/theme'
 import AppearanceSettings from './AppearanceSettings.vue'
 import ConversationSettings from './ConversationSettings.vue'
 import InkSettings from './InkSettings.vue'
+import LavenderSettings from './LavenderSettings.vue'
 import PrideSettings from './PrideSettings.vue'
 import SakuraSettings from './SakuraSettings.vue'
 import ServerSettings from './ServerSettings.vue'
@@ -87,6 +88,7 @@ watch(tab, (id) => {
           <TabsContent v-if="theme === 'sakura'" value="theme" class="mt-0"><SakuraSettings /></TabsContent>
           <TabsContent v-else-if="theme === 'pride'" value="theme" class="mt-0"><PrideSettings /></TabsContent>
           <TabsContent v-else-if="theme === 'ink'" value="theme" class="mt-0"><InkSettings /></TabsContent>
+          <TabsContent v-else-if="theme === 'lavender'" value="theme" class="mt-0"><LavenderSettings /></TabsContent>
           <TabsContent value="server" class="mt-0"><ServerSettings @leave="open = false" /></TabsContent>
         </div>
       </Tabs>

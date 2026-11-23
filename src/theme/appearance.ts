@@ -2,6 +2,7 @@ import { computed, reactive, ref, watch, type Ref } from 'vue'
 import { deleteBlob, loadBlob, loadPreference, saveBlob, savePreference } from '@/connection/storage'
 import { isDark, useTheme } from './theme'
 import { useInk } from './ink'
+import { useLavender } from './lavender'
 import { usePride } from './pride'
 import { useSakura } from './sakura'
 import sakuraDay from '@/assets/sakura/day.svg'
@@ -9,6 +10,8 @@ import sakuraNight from '@/assets/sakura/night.svg'
 import prideDay from '@/assets/pride/day.svg'
 import prideNight from '@/assets/pride/night.svg'
 import inkLandscape from '@/assets/ink/landscape.svg?inline'
+import lavenderDay from '@/assets/lavender/day.svg'
+import lavenderNight from '@/assets/lavender/night.svg'
 
 export type BackgroundSource = 'none' | 'url' | 'file'
 export type BackgroundSlot = 'shared' | 'light' | 'dark'
@@ -29,6 +32,7 @@ const DEFAULT_PANEL_BLUR = 16
 const SAKURA_ARTWORK_PANEL_BLUR = 3
 const PRIDE_ARTWORK_PANEL_BLUR = 2
 const INK_ARTWORK_PANEL_BLUR = 1
+const LAVENDER_ARTWORK_PANEL_BLUR = 0
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 
@@ -73,6 +77,7 @@ const sharedPanelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32
 const sakuraArtworkBlur = ref(readNumber('sakura-artwork-blur', SAKURA_ARTWORK_PANEL_BLUR, 0, 32))
 const prideArtworkBlur = ref(readNumber('pride-artwork-blur', PRIDE_ARTWORK_PANEL_BLUR, 0, 32))
 const inkArtworkBlur = ref(readNumber('ink-artwork-blur', INK_ARTWORK_PANEL_BLUR, 0, 32))
+const lavenderArtworkBlur = ref(readNumber('lavender-artwork-blur', LAVENDER_ARTWORK_PANEL_BLUR, 0, 32))
 const currentSlot = computed<BackgroundSlot>(() => separate.value ? (isDark.value ? 'dark' : 'light') : 'shared')
 
 function imageOf(slot: BackgroundSlot): string {
@@ -86,14 +91,17 @@ const { theme } = useTheme()
 const sakura = useSakura()
 const pride = usePride()
 const ink = useInk()
+const lavender = useLavender()
 const themeArtwork = computed(() => {
   if (theme.value === 'sakura' && sakura.artwork.value) return isDark.value ? sakuraNight : sakuraDay
   if (theme.value === 'pride' && pride.artwork.value) return isDark.value ? prideNight : prideDay
   if (theme.value === 'ink' && ink.artwork.current.value) return inkLandscape
+  if (theme.value === 'lavender' && lavender.artwork.current.value) return isDark.value ? lavenderNight : lavenderDay
   return ''
 })
 const artworkFirst = computed(() => {
   if (theme.value === 'ink') return ink.artworkFirst.current.value
+  if (theme.value === 'lavender') return lavender.artworkFirst.current.value
   if (theme.value === 'pride') return pride.artworkFirst.value
   return sakura.artworkFirst.value
 })
@@ -115,11 +123,13 @@ const artworkBlur = computed(() => {
   if (theme.value === 'sakura') return { setting: sakuraArtworkBlur, fallback: SAKURA_ARTWORK_PANEL_BLUR, key: 'sakura-artwork-blur' }
   if (theme.value === 'pride') return { setting: prideArtworkBlur, fallback: PRIDE_ARTWORK_PANEL_BLUR, key: 'pride-artwork-blur' }
   if (theme.value === 'ink') return { setting: inkArtworkBlur, fallback: INK_ARTWORK_PANEL_BLUR, key: 'ink-artwork-blur' }
+  if (theme.value === 'lavender') return { setting: lavenderArtworkBlur, fallback: LAVENDER_ARTWORK_PANEL_BLUR, key: 'lavender-artwork-blur' }
   return null
 })
 const panelBlur = computed(() => artworkBlur.value?.setting.value ?? sharedPanelBlur.value)
 const defaultPanelBlur = computed(() => artworkBlur.value?.fallback ?? DEFAULT_PANEL_BLUR)
 const showingInkArtwork = computed(() => enabled.value && !shownOperator.value && theme.value === 'ink' && themeArtwork.value !== '')
+const showingLavenderArtwork = computed(() => enabled.value && !shownOperator.value && theme.value === 'lavender' && themeArtwork.value !== '')
 const opacity = computed(() => showingInkArtwork.value ? inkArtworkOpacity.value : sharedOpacity.value)
 const defaultOpacity = computed(() => showingInkArtwork.value ? INK_ARTWORK_PANEL_OPACITY : DEFAULT_PANEL_OPACITY)
 // Something is saved or supplied, whether or not it is shown.
@@ -142,6 +152,7 @@ function applyBackground(): void {
   root.style.setProperty('--panel-blur', `${panelBlur.value}px`)
   root.dataset.background = image ? 'on' : 'off'
   root.toggleAttribute('data-ink-artwork', showingInkArtwork.value)
+  root.toggleAttribute('data-lavender-artwork', showingLavenderArtwork.value)
   root.style.setProperty('--acrylic-opacity', `${opacity.value / 100}`)
 }
 
@@ -174,7 +185,7 @@ function store(slot: BackgroundSlot, next: BackgroundSettings): boolean {
   return true
 }
 
-watch([currentImage, currentSlot, opacity, panelBlur, showingInkArtwork, () => slots[currentSlot.value].value.blur], applyBackground, { immediate: true })
+watch([currentImage, currentSlot, opacity, panelBlur, showingInkArtwork, showingLavenderArtwork, () => slots[currentSlot.value].value.blur], applyBackground, { immediate: true })
 
 export function useAppearance() {
   return {

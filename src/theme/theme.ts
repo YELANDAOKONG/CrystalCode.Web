@@ -3,7 +3,7 @@ import { loadPreference, savePreference } from '@/connection/storage'
 import type { MessageKey } from '@/i18n'
 import { applyFavicon } from './favicon'
 
-export type ThemeSetting = 'default' | 'ocean' | 'forest' | 'graphite' | 'crystal-intelligence' | 'frontier-intelligence' | 'sakura' | 'pride' | 'ink'
+export type ThemeSetting = 'default' | 'ocean' | 'forest' | 'graphite' | 'crystal-intelligence' | 'frontier-intelligence' | 'sakura' | 'pride' | 'ink' | 'lavender'
 export type ThemeGroup = 'color' | 'combination' | 'product'
 export type ColorMode = 'auto' | 'light' | 'dark'
 
@@ -23,6 +23,7 @@ export const THEMES: readonly ThemeInfo[] = [
   { id: 'sakura', group: 'combination', label: 'settings.palette.sakura', hasSettings: true },
   { id: 'pride', group: 'combination', label: 'settings.palette.pride', hasSettings: true },
   { id: 'ink', group: 'combination', label: 'settings.palette.ink', hasSettings: true },
+  { id: 'lavender', group: 'combination', label: 'settings.palette.lavender', hasSettings: true },
   { id: 'crystal-intelligence', group: 'product', label: 'settings.palette.crystalIntelligence', hasSettings: false },
   { id: 'frontier-intelligence', group: 'product', label: 'settings.palette.frontierIntelligence', hasSettings: false },
 ]

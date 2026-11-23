@@ -244,6 +244,11 @@ body::before {
   content: '';
 }
 
+/* The botanical plates fit their own edge viewports inside the full canvas. */
+:root[data-lavender-artwork] body::before {
+  background-size: 100% 100%;
+}
+
 @media (max-width: 767px) {
   :root[data-ink-artwork] body::before {
     background-position: 88% center;
@@ -452,6 +457,28 @@ body::before {
 
 :root[data-palette='ink'] ::selection {
   background: color-mix(in srgb, var(--site-accent) 25%, transparent);
+}
+
+/* Frosted lilac paper by day and blue violet at dusk. */
+:root[data-palette='lavender'] {
+  --pal-bg: light-dark(#f8f4fa, #20192c);
+  --pal-surface: light-dark(#f3edf7, #282036);
+  --pal-raised: light-dark(#eee6f4, #302742);
+  --pal-field: light-dark(transparent, #282036);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 5%, transparent), #302742);
+  --site-ink: light-dark(#302540, #f2eaf8);
+  --site-muted: light-dark(#554764, #ccbddb);
+  --site-faint: light-dark(#655472, #bfb0cf);
+  --site-accent: light-dark(#69428d, #cbb0f1);
+  --site-button-bg: var(--site-accent);
+  --site-button-ink: light-dark(#fcf8fd, #20192c);
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(74 54 105 / 0.17), rgb(0 0 0 / 0.48));
+  --lavender-stem: light-dark(#4c6657, #a5b5a6);
+  --lavender-bud: light-dark(#76509a, #ad91cd);
+}
+
+:root[data-palette='lavender'] ::selection {
+  background: color-mix(in srgb, var(--site-accent) 26%, transparent);
 }
 
 :root[data-theme='light'] {
