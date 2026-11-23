@@ -26,8 +26,9 @@ const MAX_IMAGE_BYTES = 50 * 1024 * 1024
 const DEFAULT_PANEL_OPACITY = 76
 const INK_ARTWORK_PANEL_OPACITY = 60
 const DEFAULT_PANEL_BLUR = 16
-const PRIDE_ARTWORK_PANEL_BLUR = 1
-const INK_ARTWORK_PANEL_BLUR = 0
+const SAKURA_ARTWORK_PANEL_BLUR = 3
+const PRIDE_ARTWORK_PANEL_BLUR = 2
+const INK_ARTWORK_PANEL_BLUR = 1
 const SLOTS: BackgroundSlot[] = ['shared', 'light', 'dark']
 const EMPTY: BackgroundSettings = { source: 'none', value: '', name: '', blur: 0 }
 
@@ -69,6 +70,7 @@ const fileUrls = reactive<Record<BackgroundSlot, string>>({ shared: '', light: '
 const sharedOpacity = ref(readNumber('acrylic-opacity', DEFAULT_PANEL_OPACITY, 50, 95))
 const inkArtworkOpacity = ref(readNumber('ink-artwork-opacity', INK_ARTWORK_PANEL_OPACITY, 50, 95))
 const sharedPanelBlur = ref(readNumber('acrylic-blur', DEFAULT_PANEL_BLUR, 0, 32))
+const sakuraArtworkBlur = ref(readNumber('sakura-artwork-blur', SAKURA_ARTWORK_PANEL_BLUR, 0, 32))
 const prideArtworkBlur = ref(readNumber('pride-artwork-blur', PRIDE_ARTWORK_PANEL_BLUR, 0, 32))
 const inkArtworkBlur = ref(readNumber('ink-artwork-blur', INK_ARTWORK_PANEL_BLUR, 0, 32))
 const currentSlot = computed<BackgroundSlot>(() => separate.value ? (isDark.value ? 'dark' : 'light') : 'shared')
@@ -107,9 +109,10 @@ const currentImage = computed(() => {
   if (!enabled.value) return ''
   return shownOperator.value ? operatorImage.value : themeArtwork.value
 })
-// These artworks have brush or fabric details that need a lower blur.
+// The built-in artworks use a lower blur to keep their details visible.
 const artworkBlur = computed(() => {
   if (!currentImage.value || shownOperator.value) return null
+  if (theme.value === 'sakura') return { setting: sakuraArtworkBlur, fallback: SAKURA_ARTWORK_PANEL_BLUR, key: 'sakura-artwork-blur' }
   if (theme.value === 'pride') return { setting: prideArtworkBlur, fallback: PRIDE_ARTWORK_PANEL_BLUR, key: 'pride-artwork-blur' }
   if (theme.value === 'ink') return { setting: inkArtworkBlur, fallback: INK_ARTWORK_PANEL_BLUR, key: 'ink-artwork-blur' }
   return null

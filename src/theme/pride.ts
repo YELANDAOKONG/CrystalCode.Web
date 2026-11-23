@@ -31,7 +31,7 @@ function number(key: string, fallback: number, min: number, max: number): number
 const PLACEMENTS: readonly PetalPlacement[] = ['behind', 'idle', 'both', 'over']
 
 const particles = ref(flag('pride-particles', true))
-const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPreference('pride-placement')) ?? 'both')
+const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPreference('pride-placement')) ?? 'over')
 const count = ref(number('pride-count', DEFAULT_PRIDE_COUNT, 4, 100))
 const speed = ref(number('pride-speed', DEFAULT_PRIDE_SPEED, 50, 250))
 const shape = ref<PrideShape>(SHAPES.find((item) => item === loadPreference('pride-shape')) ?? 'mix')
@@ -41,7 +41,7 @@ const spinnerStyle = ref<PrideSpinnerStyle>(SPINNER_STYLES.find((item) => item =
 const shower = ref(flag('pride-shower', true))
 const spinner = ref(flag('pride-spinner', true))
 const artwork = ref(flag('pride-artwork', true))
-const artworkFirst = ref(flag('pride-artwork-first', false))
+const artworkFirst = ref(flag('pride-artwork-first', true))
 const roundedFont = ref(flag('pride-font', true))
 
 // The page marks whether the rounded face is in use, so the stylesheet can pick the stack.

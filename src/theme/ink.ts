@@ -22,9 +22,8 @@ function save(key: string, value: string): void {
   savePreference(`ink-${key}`, value)
 }
 
-function flag(key: string, fallback = true) {
-  const saved = read(key)
-  const value = ref(saved === null ? fallback : saved === 'on')
+function flag(key: string) {
+  const value = ref((read(key) ?? 'on') === 'on')
   return {
     current: value,
     set(next: boolean) {
@@ -64,9 +63,9 @@ const font = flag('font')
 const preferences = {
   font,
   artwork: flag('artwork'),
-  artworkFirst: flag('artwork-first', false),
+  artworkFirst: flag('artwork-first'),
   particles: flag('particles'),
-  placement: choice('placement', PLACEMENTS, 'both'),
+  placement: choice('placement', PLACEMENTS, 'over'),
   shape: choice('shape', INK_SHAPES, 'mix'),
   count: range('count', DEFAULT_INK_COUNT, 4, 100),
   speed: range('speed', DEFAULT_INK_SPEED, 50, 250),

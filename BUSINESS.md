@@ -223,16 +223,15 @@ Interface:
   palette for day and night, built-in artwork (an SVG per mode, bundled, never
   fetched), a softer radius and rose-tinted shadows, drifting petals, a petal
   shower when a turn completes, a petal in place of the progress spinner (the operator picks one of four shapes, the turning petal by default), and a
-  blossom mark and tab icon. The operator's own background image replaces the
-  artwork by default; a switch puts the artwork in front instead. Petals can sit behind the panels, in front on idle screens (connect
-  page, empty session), or over everything, and never take a click. Reduced
+  blossom mark and tab icon. The built-in artwork has its own panel blur
+  setting, which defaults to 3 px. Reduced
   motion leaves the petals still and skips the shower. The effects are
   decorative: hidden from assistive technology and paused in a hidden tab.
 - Pride is a combination theme based on the transgender flag. Pearl and
   lilac surfaces by day become ink violet at night, with rose accents and
   blue details. The bundled artwork frames the conversation with folds of
-  blue, pink, and white satin, small bows, and hearts. It has its own
-  panel blur setting to keep the fabric details visible. Drifting glints,
+  blue, pink, and white satin, small bows, and hearts. Its panel blur
+  defaults to 2 px to keep the fabric details visible. Drifting glints,
   hearts, and narutomaki can appear together or individually. A completed
   turn sends a brief shower with its own count and speed. The pink brush
   spiral, called narutomaki in the theme controls, draws on the spiral on
@@ -243,14 +242,20 @@ Interface:
   background priority. Pride stores its own choices.
 - Ink is a combination theme with a Chinese ink-wash landscape of misty
   mountains, pines, and a river. The embedded SVG switches between warm paper
-  and deep blue-green ink as the color mode changes. Ink has its own artwork
-  opacity and blur, plus an optional book-style serif face. Drifting drops,
-  pine needles, and dry brush flecks use the same placement, count, speed,
+  and deep blue-green ink as the color mode changes. The artwork has its own
+  opacity and panel blur settings, with a default blur of 1 px. Ink offers an
+  optional book-style serif face. Drifting drops, pine needles, and dry brush
+  flecks use the same placement, count, speed,
   completion shower, and reduced-motion rules as Pride. The brush-ring mark
   appears in the header and browser tab. The progress indicator offers a turning ring,
   a brush stroke, orbiting drops, and a breathing ring. Ink keeps its own
   settings and uses the same custom-background priority as the other
   combination themes.
+- For combination themes, the built-in artwork takes priority over an operator
+  background by default. Turning off the priority switch gives the operator's
+  image priority. Particles float over everything by default and never intercept
+  clicks. The other placement choices are behind the panels, in front on idle
+  screens (connect page and empty session), or both.
 - A theme with choices of its own gets a Theme tab in Settings. The tab exists
   only while such a theme is selected. Its choices are browser-only and are
   kept when the operator switches away and back.

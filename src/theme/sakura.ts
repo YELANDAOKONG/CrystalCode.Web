@@ -27,7 +27,7 @@ function number(key: string, fallback: number, min: number, max: number): number
 }
 
 const petals = ref(flag('sakura-petals', true))
-const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPreference('sakura-placement')) ?? 'both')
+const placement = ref<PetalPlacement>(PLACEMENTS.find((item) => item === loadPreference('sakura-placement')) ?? 'over')
 const count = ref(number('sakura-count', DEFAULT_PETAL_COUNT, 4, 100))
 const speed = ref(number('sakura-speed', DEFAULT_PETAL_SPEED, 50, 250))
 const shower = ref(flag('sakura-shower', true))
@@ -36,9 +36,8 @@ const showerSpeed = ref(number('sakura-shower-speed', DEFAULT_SHOWER_SPEED, 50, 
 const spinner = ref(flag('sakura-spinner', true))
 const spinnerStyle = ref<SpinnerStyle>(SPINNER_STYLES.find((item) => item === loadPreference('sakura-spinner-style')) ?? 'spin')
 const artwork = ref(flag('sakura-artwork', true))
-// Off by default: the operator's own picture wins, and the artwork fills in
-// when there is none.
-const artworkFirst = ref(flag('sakura-artwork-first', false))
+// Switching this off gives the operator's picture priority.
+const artworkFirst = ref(flag('sakura-artwork-first', true))
 // On by default: the rounded face is the theme. Off keeps the page's own faces.
 const roundedFont = ref(flag('sakura-font', true))
 
