@@ -39,12 +39,12 @@ function setSpinnerStyle(value: string): void {
         <Switch id="set-sakura-font" :model-value="sakura.roundedFont.value" @update:model-value="(value) => sakura.setRoundedFont(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.sakura.artwork')" :help="t('settings.sakura.artwork.help')" label-for="set-sakura-artwork">
+    <SettingRow :label="t('settings.artwork')" :help="t('settings.sakura.artwork.help')" label-for="set-sakura-artwork">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-artwork" :model-value="sakura.artwork.value" @update:model-value="(value) => sakura.setArtwork(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.sakura.artworkFirst')" :help="t('settings.sakura.artworkFirst.help')" label-for="set-sakura-artwork-first">
+    <SettingRow :label="t('settings.artworkFirst')" :help="t('settings.artworkFirst.help')" label-for="set-sakura-artwork-first">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-sakura-artwork-first" :model-value="sakura.artworkFirst.value" :disabled="!sakura.artwork.value" @update:model-value="(value) => sakura.setArtworkFirst(value === true)" />
       </div>

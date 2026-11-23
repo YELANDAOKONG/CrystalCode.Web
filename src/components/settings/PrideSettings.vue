@@ -52,12 +52,12 @@ function setSpinnerStyle(value: string): void {
         <Switch id="set-pride-font" :model-value="pride.roundedFont.value" @update:model-value="(value) => pride.setRoundedFont(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.pride.artwork')" :help="t('settings.pride.artwork.help')" label-for="set-pride-artwork">
+    <SettingRow :label="t('settings.artwork')" :help="t('settings.pride.artwork.help')" label-for="set-pride-artwork">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-pride-artwork" :model-value="pride.artwork.value" @update:model-value="(value) => pride.setArtwork(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.pride.artworkFirst')" :help="t('settings.pride.artworkFirst.help')" label-for="set-pride-artwork-first">
+    <SettingRow :label="t('settings.artworkFirst')" :help="t('settings.artworkFirst.help')" label-for="set-pride-artwork-first">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-pride-artwork-first" :model-value="pride.artworkFirst.value" :disabled="!pride.artwork.value" @update:model-value="(value) => pride.setArtworkFirst(value === true)" />
       </div>

@@ -27,12 +27,12 @@ const spinnerOptions = () => INK_SPINNER_STYLES.map((value) => ({ value, label: 
         <Switch id="set-ink-font" :model-value="ink.font.current.value" @update:model-value="(value) => ink.font.set(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.ink.artwork')" :help="t('settings.ink.artwork.help')" label-for="set-ink-artwork">
+    <SettingRow :label="t('settings.artwork')" :help="t('settings.ink.artwork.help')" label-for="set-ink-artwork">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-ink-artwork" :model-value="ink.artwork.current.value" @update:model-value="(value) => ink.artwork.set(value === true)" />
       </div>
     </SettingRow>
-    <SettingRow :label="t('settings.ink.artworkFirst')" :help="t('settings.ink.artworkFirst.help')" label-for="set-ink-artwork-first">
+    <SettingRow :label="t('settings.artworkFirst')" :help="t('settings.artworkFirst.help')" label-for="set-ink-artwork-first">
       <div class="flex items-center sm:justify-end">
         <Switch id="set-ink-artwork-first" :model-value="ink.artworkFirst.current.value" :disabled="!ink.artwork.current.value" @update:model-value="(value) => ink.artworkFirst.set(value === true)" />
       </div>
