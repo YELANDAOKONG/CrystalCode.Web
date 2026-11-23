@@ -397,37 +397,37 @@ body::before {
   background: color-mix(in srgb, var(--site-accent) 30%, transparent);
 }
 
-/* Pride. Day is a faint ice-blue paper under deep slate ink; night is a
-   midnight blue with the flag's pink and blue lit. The flag's own light blue
-   and pink are too pale to carry text on day, so day text and accents use
-   deeper tones of them, and the flag colors fill surfaces and particles. The
-   accent holds 4.5:1 on the raised surface in both modes. The finish matches
-   Sakura's: a softer radius and tinted shadows. */
+/* Pride. A soft pink theme with the transgender flag's blue as the second
+   voice. Day is blush paper under plum ink; night is a plum dusk with lit pink.
+   Pink carries text, accents, and buttons; the light blue appears in shadows,
+   particles, and artwork, since it is too pale to carry text on day. The accent
+   holds 4.5:1 on the raised surface in both modes. The finish matches Sakura's:
+   a softer radius and tinted shadows. */
 :root[data-palette='pride'] {
-  --pal-bg: light-dark(#f5fafd, #141a2b);
-  --pal-surface: light-dark(#eaf4fa, #1a2236);
-  --pal-raised: light-dark(#e1eef7, #222c44);
-  --pal-field: light-dark(transparent, #1d2640);
-  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #222c44);
-  --site-ink: light-dark(#1b2638, #eef3fa);
-  --site-muted: light-dark(#475a70, #b7c3d6);
-  --site-faint: light-dark(#52657b, #9aa8bd);
-  --site-accent: light-dark(#a8305f, #f5a9b8);
-  --site-button-bg: light-dark(#a8305f, #5bcefa);
-  --site-button-ink: light-dark(#fff, #0f1626);
+  --pal-bg: light-dark(#fff6f9, #1b1424);
+  --pal-surface: light-dark(#fdeaf1, #241b30);
+  --pal-raised: light-dark(#f9dfe9, #2d2339);
+  --pal-field: light-dark(transparent, #261d33);
+  --pal-field-hover: light-dark(color-mix(in srgb, var(--site-ink) 4%, transparent), #2d2339);
+  --site-ink: light-dark(#35202e, #f6eaf1);
+  --site-muted: light-dark(#6a4a5d, #cbb8c8);
+  --site-faint: light-dark(#755567, #ae9bb0);
+  --site-accent: light-dark(#ac3168, #f5a9b8);
+  --site-button-bg: light-dark(#ac3168, #f5a9b8);
+  --site-button-ink: light-dark(#fff6f9, #1b1424);
 
   --radius: 0.875rem;
-  --site-menu-shadow: 0 18px 40px light-dark(rgb(60 120 160 / 0.2), rgb(0 0 0 / 0.5));
-  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--pride-blue) 22%, transparent);
-  --shadow-sm: 0 1px 3px 0 color-mix(in srgb, var(--pride-blue) 26%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--pride-pink) 24%, transparent);
-  --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--pride-blue) 28%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--pride-pink) 24%, transparent);
-  --pride-blue: #5bcefa;
-  --pride-pink: #f5a9b8;
+  --site-menu-shadow: 0 18px 40px light-dark(rgb(172 49 104 / 0.16), rgb(0 0 0 / 0.5));
+  --shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--site-accent) 14%, transparent);
+  --shadow-sm: 0 1px 3px 0 color-mix(in srgb, var(--site-accent) 18%, transparent), 0 1px 2px -1px color-mix(in srgb, var(--pride-blue) 30%, transparent);
+  --shadow-md: 0 4px 10px -2px color-mix(in srgb, var(--site-accent) 20%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--pride-blue) 30%, transparent);
+  --pride-blue: light-dark(#5bcefa, #7fd6f7);
+  --pride-pink: #f08fb0;
   --pride-white: #fff;
 }
 
 :root[data-palette='pride'] ::selection {
-  background: color-mix(in srgb, var(--pride-pink) 45%, transparent);
+  background: color-mix(in srgb, var(--pride-pink) 40%, transparent);
 }
 
 :root[data-theme='light'] {
