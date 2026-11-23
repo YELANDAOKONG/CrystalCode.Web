@@ -16,7 +16,7 @@ const current = computed(() => locales.find((item) => item.id === locale.value)?
 </script>
 
 <template>
-  <DropdownMenu>
+  <DropdownMenu :modal="false">
     <DropdownMenuTrigger as-child>
       <Button
         variant="ghost"

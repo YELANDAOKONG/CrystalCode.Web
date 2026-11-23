@@ -20,7 +20,7 @@ const label = computed(() => t(`common.theme.${colorMode.value}`))
 </script>
 
 <template>
-  <DropdownMenu>
+  <DropdownMenu :modal="false">
     <DropdownMenuTrigger as-child>
       <Button
         variant="ghost"

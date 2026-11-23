@@ -256,7 +256,8 @@ Interface:
   counter is not a save-success signal; failures use the existing error notice.
 - Responsive on desktop, tablet, and phone. On phones, the composer keeps the
   current mode visible and wraps its controls. The header groups catalog,
-  export, language, and theme under More actions.
+  export, language, and theme under More actions. The language and color
+  mode menus leave the page scrollbar in place.
 - Both composer sizes explain near-limit and oversized messages. Command
   suggestions associate the selected option with the focused input and support
   keyboard, mouse, and touch selection.
