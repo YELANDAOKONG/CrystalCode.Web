@@ -569,7 +569,7 @@ export const zhCn: Record<MessageKey, string> = {
   'settings.sakura.spinnerStyle.blossom.help': '五片花瓣围绕中心张开和收拢。',
   'settings.sakura.spinnerStyle.orbit.help': '三片花瓣绕中心转动。',
   'settings.sakura.spinnerStyle.breathe.help': '一片花瓣涨缩且淡入淡出，不旋转。',
-  'settings.palette.pride': '骄傲',
+  'settings.palette.pride': 'Pride（骄傲）',
   'settings.pride.artwork': '内置插画',
   'settings.pride.artwork.help': '蓝、粉、白三色缎带围绕界面，亮色和暗色各有一幅插画。默认优先显示你选择的背景图片。',
   'settings.pride.artworkFirst': '主题插画优先于自定义背景',

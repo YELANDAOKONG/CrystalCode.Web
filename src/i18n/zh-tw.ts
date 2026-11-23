@@ -569,7 +569,7 @@ export const zhTw: Record<MessageKey, string> = {
   'settings.sakura.spinnerStyle.blossom.help': '五片花瓣圍繞中心張開和收合。',
   'settings.sakura.spinnerStyle.orbit.help': '三片花瓣繞中心轉動。',
   'settings.sakura.spinnerStyle.breathe.help': '一片花瓣脹縮並淡入淡出，不轉動。',
-  'settings.palette.pride': '驕傲',
+  'settings.palette.pride': 'Pride（驕傲）',
   'settings.pride.artwork': '內建插畫',
   'settings.pride.artwork.help': '藍、粉、白三色緞帶環繞介面，淺色與深色各有一幅插畫。預設優先顯示你選擇的背景圖片。',
   'settings.pride.artworkFirst': '主題插畫優先於自訂背景',

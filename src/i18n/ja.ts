@@ -569,7 +569,7 @@ export const ja: Record<MessageKey, string> = {
   'settings.sakura.spinnerStyle.blossom.help': '五枚の花びらが中心で開閉します。',
   'settings.sakura.spinnerStyle.orbit.help': '三枚の花びらが中心のまわりを回ります。',
   'settings.sakura.spinnerStyle.breathe.help': '一枚の花びらが回らずに大きくなったり消えたりします。',
-  'settings.palette.pride': 'プライド',
+  'settings.palette.pride': 'Pride（プライド）',
   'settings.pride.artwork': '内蔵のイラスト',
   'settings.pride.artwork.help': '水色、ピンク、白のサテンリボンが画面を縁取ります。ライトとダークで絵柄が切り替わり、既定では選択した背景画像が優先されます。',
   'settings.pride.artworkFirst': 'テーマのイラストを背景画像より優先',
